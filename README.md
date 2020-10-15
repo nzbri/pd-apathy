@@ -1,6 +1,6 @@
 # Apathy in Parkinson's
 
-This repository contains the key code attached with the
+This repository contains the key code attached with the CMRF-funded
 [*Predictors of apathy in Parkinson's disease*](https://cmrf.org.nz/research/predictors-of-apathy-in-parkinsons-disease/)
 project.
 

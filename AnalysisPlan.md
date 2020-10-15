@@ -1,8 +1,8 @@
 # Analysis Plan
 
 This contains the core hypotheses and details of the key analyses to be
-performed. A separate document details the imaging analyses in more detail
-<Imaging/AnalysisPlan.md>.
+performed. A [separate document](Imaging/AnalysisPlan.md) details the imaging
+analyses in more detail.
 
 ### Quantifying prevalence and dynamics of apathy
 
@@ -24,4 +24,4 @@ Fixed effects of no interest:
  + Ethnicity
  + Education
 
-See [`brms`](https://github.com/paul-buerkner/brms).
+Methods: see [`brms`](https://github.com/paul-buerkner/brms).

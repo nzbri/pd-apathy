@@ -1,7 +1,8 @@
 # Analysis Plan: Imaging Data
 
 This described the analyses for the imaging data specifically. The core
-hypotheses for the project can be found in <`../AnalysisPlan.md`>.
+hypotheses for the project can be found in
+[the main analysis plan](../AnalysisPlan.md).
 
 ### Dataset overview
 
