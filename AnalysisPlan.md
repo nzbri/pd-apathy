@@ -41,3 +41,18 @@ Methods:
  + `diagnosis_baseline == 'PDD'`\
    Rationale: Cognitive decline will be too strong a confound for patients who
    are already presenting with dementia.
+
+
+### Exploratory analyses & visualisations
+
+ + Summarise number of participants, follow up visits, time between sessions
+   etc.
+
+ + Are there changes over time with the demographics of the enrolled
+   participants (age, time since sympton onset)?
+
+ + 'Matchstick' plot for apathy v. time since baseline and time since symptom
+   onset. Similar for `PD-N -> PD-MCI -> PDD`?
+
+ + Plots of apathy scores over time (maybe just frequency × severity against
+   age?). Repeat for e.g. key cognitive scores.
