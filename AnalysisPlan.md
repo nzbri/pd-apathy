@@ -25,3 +25,16 @@ Fixed effects of no interest:
  + Education
 
 Methods: see [`brms`](https://github.com/paul-buerkner/brms).
+
+
+### Data selection
+
+##### Inclusion criteria
+
+ + `participant_group == 'PD'`
+
+##### Exclusion criteria
+
+ + `diagnosis_baseline == 'PDD'`
+   Rationale: Cognitive decline will be too strong a confound for patients who
+   are already presenting with dementia.
