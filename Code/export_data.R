@@ -61,7 +61,7 @@ full_data %>% count(diagnosis) %>% print(n = Inf)
 
 write_csv(
   full_data,
-  file.path("..", "Data", paste("raw-data_", Sys.Date(), ".csv", sep=""))
+  file.path("..", "Data", paste("raw-data_", ymd(today()), ".csv", sep=""))
 )
 
 ###############################################################################
