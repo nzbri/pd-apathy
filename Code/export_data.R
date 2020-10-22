@@ -53,6 +53,21 @@ neuropsych <- neuropsych %>%
 
 # -----------------------------------------------------------------------------
 
+npi <- read_csv(file.path("..", "Data", "npi_2020-07-13.csv"))
+# Remove columns that are irrelevant / already covered by `sessions` and
+# `neuropsych` / specific to other domains
+npi <- npi %>%
+  filter(is.na(session_neuropsych_excluded) | session_neuropsych_excluded != "Y" ) %>%
+  select(
+    -X1, -subject_id, -record_id, -npi_data_missing, -npi_data_missing_reason,
+    -npi_notes, -npi_occ_disruption_total, -npi_session) %>%
+  select(-matches('session_[^i][^d]')) %>%
+  select(-contains('redcap')) %>%
+  select(-matches('npi_[a-f]_')) %>%
+  select(-matches('npi_[h-l]_'))
+
+# -----------------------------------------------------------------------------
+
 medications <- chchpd::import_medications(concise = TRUE)
 
 # -----------------------------------------------------------------------------
@@ -71,6 +86,7 @@ updrs <- chchpd::import_motor_scores()
 full_data <-
   inner_join(participants, sessions, by = 'subject_id') %>%
   inner_join(neuropsych, by = 'session_id') %>%
+  left_join(npi, by = 'session_id') %>%
   left_join(medications, by = 'session_id') %>%
   left_join(hads, by = 'session_id') %>%
   left_join(updrs, by = 'session_id')
@@ -86,6 +102,9 @@ full_data <- filter(
     )
   )
 )
+
+# TODO: Missing sessions in NPI CSV file?
+# ggplot(full_data %>% filter(!is.na(npi) & is.na(npi_total))) + geom_histogram(aes(session_date))
 
 colnames(full_data)
 
