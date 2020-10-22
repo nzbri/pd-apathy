@@ -34,13 +34,18 @@ Methods:
 
 ##### Inclusion criteria
 
- + `participant_group == 'PD'`
+ + Subject: `participant_group == 'PD'`
+ + Subject: must have at least one included session
+ + Session: neuropsychiatric assessments performed\
+   N.B. this includes incomplete assessments (i.e. `full_assessment == FALSE`).
 
 ##### Exclusion criteria
 
- + `diagnosis_baseline == 'PDD'`\
+ + Subject: `diagnosis_baseline == 'PDD'`\
    Rationale: Cognitive decline will be too strong a confound for patients who
    are already presenting with dementia.
+ + Subject: Incomplete neuropsychiatric assessment at baseline
+ + Session: `np_excluded == TRUE`
 
 
 ### Exploratory analyses & visualisations

@@ -19,42 +19,87 @@
 source("initialise_environment.R")
 
 ###############################################################################
-# Load from database
+# Load from database, excluding as necessary
 
 participants <- chchpd::import_participants()
-sessions <- chchpd::import_sessions() # from_study = 'Follow-up'
-neuropsych <- chchpd::import_neuropsyc(concise = TRUE)
-medications <- chchpd::import_medications(concise = TRUE)
-hads <- chchpd::import_HADS(concise = TRUE)
-updrs <- chchpd::import_motor_scores()
-# Using namespace qualifiers doesn't seem to be an R thing
+participants <- participants %>%
+  filter(participant_group == 'PD')
 
-# bind the records together, linked by subject or session IDs:
+# -----------------------------------------------------------------------------
+
+sessions <- chchpd::import_sessions()
+sessions <- sessions %>%
+  filter(!is.na(session_id)) %>%
+  filter(is.na(study_excluded) | study_excluded != TRUE) %>%
+  filter(!is.na(session_date) & session_date <= today())  # Exclude anything only scheduled to happen
+
+# @m-macaskill: Convention for e.g. `study_excluded` is to go off positive
+# evidence, as some of the data predates some of the auto-validations that
+# generate these fields (i.e. exclude on `FALSE` but not `NA`).
+# See e.g. the source for `chchpd::import_sessions()` itself
+#sessions %>% count(study_excluded) %>% print(n = Inf)
+
+# Remove duplicates and study-specific information
+sessions <- sessions %>%
+  select(subject_id, session_id, session_date, age, mri_scan_no)  %>%
+  distinct(session_id, .keep_all = TRUE)
+# TODO: Sanity check for different `mri_scan_no`?
+
+# -----------------------------------------------------------------------------
+
+neuropsych <- chchpd::import_neuropsyc(concise = TRUE)
+neuropsych <- neuropsych %>%
+  filter(is.na(np_excluded) | np_excluded != TRUE)
+
+# -----------------------------------------------------------------------------
+
+medications <- chchpd::import_medications(concise = TRUE)
+
+# -----------------------------------------------------------------------------
+
+hads <- chchpd::import_HADS(concise = TRUE)
+
+# -----------------------------------------------------------------------------
+
+updrs <- chchpd::import_motor_scores()
+
+###############################################################################
+# Join all the records together, linked by subject or session IDs
+
+# Use `inner_join` to maintain the exclusions specific to the individual
+# databases
 full_data <-
-  right_join(participants, sessions, by = 'subject_id') %>%
-  left_join(neuropsych, by = 'session_id') %>%
+  inner_join(participants, sessions, by = 'subject_id') %>%
+  inner_join(neuropsych, by = 'session_id') %>%
   left_join(medications, by = 'session_id') %>%
   left_join(hads, by = 'session_id') %>%
   left_join(updrs, by = 'session_id')
+
+# Remove subjects with missing / incomplete baselines
+full_data <- filter(
+  full_data,
+  !(subject_id %in%
+    (
+      full_data %>%
+        filter((session_date == date_baseline) & (full_assessment == FALSE)) %>%
+        pull(subject_id)
+    )
+  )
+)
+
 colnames(full_data)
 
 ###############################################################################
-# Inclusion / exclusion criteria
+# Summaries
 
-full_data <-
-  full_data %>%
-  filter(participant_group == 'PD') %>%
-  filter(!is.na(date_baseline)) %>%
-  filter(!is.na(sex)) %>%
-  filter(!is.na(education))
-# study == 'Follow-up'
-# diagnosis_baseline != 'PDD'
-# excluded_from_followup == FALSE
 full_data$subject_id %>% unique %>% length
+full_data$session_id %>% unique %>% length
+full_data %>% filter(full_assessment) %>% pull(session_id) %>% unique %>% length
 full_data %>% count(study) %>% print(n = Inf)
 full_data %>% count(study_group) %>% print(n = Inf)
 full_data %>% count(diagnosis_baseline) %>% print(n = Inf)
 full_data %>% count(diagnosis) %>% print(n = Inf)
+full_data %>% summarise(across(.fns = ~ sum(is.na(.x)))) %>% print(width = Inf)
 
 ###############################################################################
 # Save to file
