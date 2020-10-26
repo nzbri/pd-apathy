@@ -23,15 +23,21 @@ source("initialise_environment.R")
 
 participants <- chchpd::import_participants()
 participants <- participants %>%
+  select(-survey_id) %>%
+  mutate(across(c(participant_group, ethnicity), as.factor)) %>%
+  mutate(across(c(excluded_from_followup), as.logical))
+
+participants <- participants %>%
   filter(participant_group == "PD")
 
 # -----------------------------------------------------------------------------
 
 sessions <- chchpd::import_sessions()
+# Remove study-specific variables and duplicate sessions
 sessions <- sessions %>%
-  filter(!is.na(session_id)) %>%
-  filter(is.na(study_excluded) | study_excluded != TRUE) %>%
-  filter(!is.na(session_date) & session_date <= today())  # Exclude anything only scheduled to happen
+  mutate(across(c(study_excluded), as.logical)) %>%
+  select(subject_id, session_id, session_date, study_excluded, age, mri_scan_no) %>%
+  distinct(session_id, .keep_all = TRUE)
 
 # @m-macaskill: Convention for e.g. `study_excluded` is to go off positive
 # evidence, as some of the data predates some of the auto-validations that
@@ -39,15 +45,19 @@ sessions <- sessions %>%
 # See e.g. the source for `chchpd::import_sessions()` itself
 #sessions %>% count(study_excluded) %>% print(n = Inf)
 
-# Remove duplicates and study-specific information
 sessions <- sessions %>%
-  select(subject_id, session_id, session_date, age, mri_scan_no)  %>%
-  distinct(session_id, .keep_all = TRUE)
+  filter(!is.na(session_id)) %>%
+  filter(is.na(study_excluded) | study_excluded != TRUE) %>%
+  filter(!is.na(session_date) & session_date <= today())  # Exclude anything only scheduled to happen
+
 # TODO: Sanity check for different `mri_scan_no`?
 
 # -----------------------------------------------------------------------------
 
 neuropsych <- chchpd::import_neuropsyc(concise = TRUE)
+neuropsych <- neuropsych %>%
+  mutate(across(c(diagnosis, diagnosis_baseline, np_group), as.factor))
+
 neuropsych <- neuropsych %>%
   filter(is.na(np_excluded) | np_excluded != TRUE)
 
@@ -64,7 +74,8 @@ npi <- npi %>%
   select(-matches("session_[^i][^d]")) %>%
   select(-contains("redcap")) %>%
   select(-matches("npi_[a-f]_")) %>%
-  select(-matches("npi_[h-l]_"))
+  select(-matches("npi_[h-l]_")) %>%
+  mutate(across(matches("_present"), as.logical))
 
 # -----------------------------------------------------------------------------
 
@@ -123,9 +134,22 @@ full_data %>% summarise(across(.fns = ~ sum(is.na(.x)))) %>% print(width = Inf)
 ###############################################################################
 # Save to file
 
+saveRDS(
+  full_data,
+  file.path("..", "Data", paste("raw-data_", ymd(today()), ".rds", sep=""))
+)
+
 write_csv(
   full_data,
   file.path("..", "Data", paste("raw-data_", ymd(today()), ".csv", sep=""))
+)
+
+col_types <- full_data %>%
+  summarise(across(.fns = type_sum)) %>%
+  gather(col_name, col_type)
+write_csv(
+  col_types,
+  file.path("..", "Data", paste("raw-data_", ymd(today()), "_types.csv", sep=""))
 )
 
 ###############################################################################
