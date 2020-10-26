@@ -34,7 +34,7 @@ function(required_packages) {
 
 # -----------------------------------------------------------------------------
 # Installation of CHCHPD package: https://github.com/nzbri/chchpd
-#devtools::install_github('nzbri/chchpd')
+#devtools::install_github("nzbri/chchpd")
 #library(chchpd)
 
 # Set up authentication

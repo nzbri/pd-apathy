@@ -23,7 +23,7 @@ source("initialise_environment.R")
 
 participants <- chchpd::import_participants()
 participants <- participants %>%
-  filter(participant_group == 'PD')
+  filter(participant_group == "PD")
 
 # -----------------------------------------------------------------------------
 
@@ -61,10 +61,10 @@ npi <- npi %>%
   select(
     -X1, -subject_id, -record_id, -npi_data_missing, -npi_data_missing_reason,
     -npi_notes, -npi_occ_disruption_total, -npi_session) %>%
-  select(-matches('session_[^i][^d]')) %>%
-  select(-contains('redcap')) %>%
-  select(-matches('npi_[a-f]_')) %>%
-  select(-matches('npi_[h-l]_'))
+  select(-matches("session_[^i][^d]")) %>%
+  select(-contains("redcap")) %>%
+  select(-matches("npi_[a-f]_")) %>%
+  select(-matches("npi_[h-l]_"))
 
 # -----------------------------------------------------------------------------
 
@@ -84,12 +84,12 @@ updrs <- chchpd::import_motor_scores()
 # Use `inner_join` to maintain the exclusions specific to the individual
 # databases
 full_data <-
-  inner_join(participants, sessions, by = 'subject_id') %>%
-  inner_join(neuropsych, by = 'session_id') %>%
-  left_join(npi, by = 'session_id') %>%
-  left_join(medications, by = 'session_id') %>%
-  left_join(hads, by = 'session_id') %>%
-  left_join(updrs, by = 'session_id')
+  inner_join(participants, sessions, by = "subject_id") %>%
+  inner_join(neuropsych, by = "session_id") %>%
+  left_join(npi, by = "session_id") %>%
+  left_join(medications, by = "session_id") %>%
+  left_join(hads, by = "session_id") %>%
+  left_join(updrs, by = "session_id")
 
 # Remove subjects with missing / incomplete baselines
 full_data <- filter(
