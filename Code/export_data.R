@@ -56,7 +56,8 @@ sessions <- sessions %>%
 
 neuropsych <- chchpd::import_neuropsyc(concise = TRUE)
 neuropsych <- neuropsych %>%
-  mutate(across(c(diagnosis, diagnosis_baseline, np_group), as.factor))
+  mutate(across(c(diagnosis, diagnosis_baseline, np_group), as.factor)) %>%
+  select(-npi)  # Use data from CSV below explicitly
 
 neuropsych <- neuropsych %>%
   filter(is.na(np_excluded) | np_excluded != TRUE)
