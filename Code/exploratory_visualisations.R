@@ -78,6 +78,10 @@ ggsave(
   file.path("..", "Figures", "npi-presence_v_year.pdf"),
   plt, width = 6, height = 4, units = "in"
 )
+ggsave(
+  file.path("..", "Figures", "npi-presence_v_year.jpg"),
+  plt, width = 6, height = 4, units = "in", dpi = "screen"
+)
 
 # Missing by session number?
 plt <- full_data %>%
@@ -94,6 +98,10 @@ print(plt)
 ggsave(
   file.path("..", "Figures", "npi-presence_v_session.pdf"),
   plt, width = 6, height = 4, units = "in"
+)
+ggsave(
+  file.path("..", "Figures", "npi-presence_v_session.jpg"),
+  plt, width = 6, height = 4, units = "in", dpi = "screen"
 )
 
 ###############################################################################
