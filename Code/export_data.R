@@ -63,6 +63,8 @@ neuropsych <- neuropsych %>%
 
 # -----------------------------------------------------------------------------
 
+# http://npitest.net/about-npi.html
+
 npi <- read_csv(file.path("..", "Data", "npi_2020-07-13.csv"))
 # Remove columns that are irrelevant / already covered by `sessions` and
 # `neuropsych` / specific to other domains
@@ -75,6 +77,8 @@ npi <- npi %>%
   select(-contains("redcap")) %>%
   select(-matches("npi_[a-f]_")) %>%
   select(-matches("npi_[h-l]_")) %>%
+  rename_with(~ gsub("npi_g_", "npi_apathy_", .x, fixed = TRUE)) %>%
+  rename_with(~ paste("npi_", .x, sep = ""), !starts_with("npi_") & !session_id) %>%
   mutate(across(matches("_present"), as.logical))
 
 # -----------------------------------------------------------------------------
@@ -125,8 +129,8 @@ colnames(full_data)
 full_data$subject_id %>% unique %>% length
 full_data$session_id %>% unique %>% length
 full_data %>% filter(full_assessment) %>% pull(session_id) %>% unique %>% length
-full_data %>% count(study) %>% print(n = Inf)
-full_data %>% count(study_group) %>% print(n = Inf)
+#full_data %>% count(study) %>% print(n = Inf)
+#full_data %>% count(study_group) %>% print(n = Inf)
 full_data %>% count(diagnosis_baseline) %>% print(n = Inf)
 full_data %>% count(diagnosis) %>% print(n = Inf)
 full_data %>% summarise(across(.fns = ~ sum(is.na(.x)))) %>% print(width = Inf)
