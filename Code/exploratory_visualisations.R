@@ -49,6 +49,71 @@ full_data <- read_csv(
 )
 
 ###############################################################################
+# Look at whether there are patterns in NPI 'missingness'
+
+# Missing by year?
+full_data %>%
+  mutate(session_date = floor_date(session_date, unit = "year")) %>%
+  #filter(full_assessment == TRUE) %>%
+  mutate(npi_present = factor(
+    !is.na(npi_total), levels = c(FALSE, TRUE), labels = c("No", "Yes")
+  )) %>%
+  ggplot(aes(session_date, fill=npi_present)) +
+  geom_bar(position="stack") +
+  theme_minimal() +
+  theme(
+    legend.position = c(0.05, 0.95),
+    legend.justification = c(0.0, 1.0),
+    legend.background = element_rect(fill = 'white')
+  ) +
+  labs(x = "Session year", y = "Number of sessions", fill = "NPI present")
+
+# Missing by session number?
+full_data %>%
+  mutate(npi_present = factor(
+    !is.na(npi_total), levels = c(FALSE, TRUE), labels = c("No", "Yes")
+  )) %>%
+  ggplot(aes(session_number, fill=npi_present)) +
+  geom_bar(position="stack") +
+  theme_minimal() +
+  theme(
+    legend.position = c(0.95, 0.95),
+    legend.justification = c(1.0, 1.0),
+    legend.background = element_rect(fill = 'white')
+  ) +
+  labs(x = "Session number", y = "Number of sessions", fill = "NPI present")
+
+# Missing by year?
+full_data %>%
+  mutate(session_date = floor_date(session_date, unit = "year")) %>%
+  ggplot(aes(x=session_date)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Session year", y = "Number of sessions")
+full_data %>%
+  mutate(session_date = floor_date(session_date, unit = "year")) %>%
+  group_by(session_date) %>% # within each year:
+  summarise(missing_npi = 100.0 * mean(is.na(npi_total))) %>% #print(n = Inf)
+  ggplot(aes(x=session_date, y=missing_npi)) +
+  geom_col() +
+  theme_minimal() +
+  labs(x = "Session year", y = "Percentage of sessions missing NPI")
+
+# Missing by session number?
+full_data %>%
+  ggplot(aes(x=session_number)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Session number", y = "Number of sessions")
+full_data %>%
+  group_by(session_number) %>% # within each session:
+  summarise(across(.fns = ~ 100.0 * mean(is.na(.x)))) %>%
+  ggplot(aes(x=session_number, y=npi_total)) +
+  geom_col() +
+  theme_minimal() +
+  labs(x = "Session number", y = "Percentage of sessions missing NPI")
+
+###############################################################################
 
 ggplot(full_data, aes(years_from_baseline)) +
   geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
