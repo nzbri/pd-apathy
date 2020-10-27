@@ -13,17 +13,15 @@ in missing NPI assessments in baseline sessions (discussed with Kyla Horne,
 
 --------
 
-<figure>
-  <a href="Figures/npi-presence_v_year.pdf">
-    <img src="Figures/npi-presence_v_year.jpg" width="50%">
-  </a>
+<a href="Figures/npi-presence_v_year.pdf">
+<img src="Figures/npi-presence_v_year.jpg" width="50%">
+</a>
 
-  <a href="Figures/npi-presence_v_session.pdf">
-    <img src="Figures/npi-presence_v_session.jpg" width="50%">
-  </a>
+<a href="Figures/npi-presence_v_session.pdf">
+<img src="Figures/npi-presence_v_session.jpg" width="50%">
+</a>
 
-  <figcaption>Breakdown of the sessions with a complete NPI assessment by both
-  year and the session number.</figcaption>
-</figure>
+Breakdown of the sessions with a complete NPI assessment by both year and the
+session number.
 
 ---------
