@@ -6,6 +6,9 @@ project.
 
 The core hypotheses are detailed in [the analysis plan](AnalysisPlan.md).
 
+The general properties of the data itself are detailed in
+[the data overview document](DataOverview.md).
+
 ### Background
 
 ### Contributors
