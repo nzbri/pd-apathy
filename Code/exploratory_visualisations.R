@@ -57,6 +57,101 @@ full_data <- full_data %>%
     !is.na(npi_total), levels = c(FALSE, TRUE), labels = c("No", "Yes")
   ))
 
+# Reorder and relabel diagnosis
+full_data <- full_data %>%
+  mutate(diagnosis = factor(
+    diagnosis,
+    levels=c(NA, "PD-N", "PD-MCI", "PDD"),
+    labels=c(NA, "PD-N", "PD-MCI", "PD-D"),
+    exclude = NULL  # i.e. include NA as a level
+  ))
+
+###############################################################################
+# Useful functions
+
+save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
+  ggsave(
+    file.path("..", "Figures", paste(filename, ".pdf", sep="")),
+    plt, ..., width = width, height = height, units = units
+  )
+  ggsave(
+    file.path("..", "Figures", paste(filename, ".jpg", sep="")),
+    plt, ..., width = width, height = height, units = units, dpi = "screen"
+  )
+}
+
+###############################################################################
+# Key properties of 'raw' session-level data, independent of apathy
+
+#Grouping?
+# sex
+# ethnicity
+# diagnosis
+
+#Session vars?
+# age
+# MoCA
+# global_z
+# Part_III
+# LED
+# npi_total
+# npi_apathy_score
+# HADS_anxiety
+# HADS_depression
+# H_Y
+
+#Baseline vars?
+# symptom_onset_age
+# diagnosis_age
+# global_z_baseline
+# education
+
+# Age / sex
+plt <- full_data %>%
+  ggplot(aes(age, fill=forcats::fct_rev(sex))) +  # Reversing gives better colours
+  geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
+  labs(x = "Age at session", y = "Number of sessions", fill = "Sex") +
+  theme_light()
+print(plt)
+save_plot(plt, "age_at_session")
+
+# MoCA / diagnosis
+plt <- full_data %>%
+  ggplot(aes(MoCA, fill = diagnosis)) +
+  geom_bar(color="white") +
+  labs(x = "MoCA", y = "Number of sessions", fill = "Diagnosis") +
+  theme_light()
+print(plt)
+save_plot(plt, "MoCA_at_session")
+
+# Motor scores / diagnosis
+plt <- full_data %>%
+  ggplot(aes(Part_III, fill = diagnosis)) +
+  geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
+  labs(x = "Part III motor score", y = "Number of sessions", fill = "Diagnosis") +
+  theme_light()
+print(plt)
+save_plot(plt, "motor-scores_at_session")
+
+# Cognitive scores / diagnosis
+plt <- full_data %>%
+  ggplot(aes(global_z, fill = diagnosis)) +
+  geom_histogram(color="white") +
+  labs(x = "Global cognitive z-score", y = "Number of sessions", fill = "Diagnosis") +
+  theme_light()
+print(plt)
+save_plot(plt, "cognitive-scores_at_session")
+
+# Medication / diagnosis
+plt <- full_data %>%
+  ggplot(aes(LED, fill = diagnosis)) +
+  geom_histogram(color="white") +
+  scale_x_continuous(limits = c(0.0, 3000.0)) +
+  labs(x = "Medication (LED)", y = "Number of sessions", fill = "Diagnosis") +
+  theme_light()
+print(plt)
+save_plot(plt, "medication_at_session")
+
 ###############################################################################
 # Look at whether there are patterns in NPI 'missingness'
 
@@ -74,14 +169,7 @@ plt <- full_data %>%
   ) +
   labs(x = "Session year", y = "Number of sessions", fill = "NPI present")
 print(plt)
-ggsave(
-  file.path("..", "Figures", "npi-presence_v_year.pdf"),
-  plt, width = 6, height = 4, units = "in"
-)
-ggsave(
-  file.path("..", "Figures", "npi-presence_v_year.jpg"),
-  plt, width = 6, height = 4, units = "in", dpi = "screen"
-)
+save_plot(plt, "npi-presence_v_year")
 
 # Missing by session number?
 plt <- full_data %>%
@@ -95,14 +183,7 @@ plt <- full_data %>%
   ) +
   labs(x = "Session number", y = "Number of sessions", fill = "NPI present")
 print(plt)
-ggsave(
-  file.path("..", "Figures", "npi-presence_v_session.pdf"),
-  plt, width = 6, height = 4, units = "in"
-)
-ggsave(
-  file.path("..", "Figures", "npi-presence_v_session.jpg"),
-  plt, width = 6, height = 4, units = "in", dpi = "screen"
-)
+save_plot(plt, "npi-presence_v_session")
 
 ###############################################################################
 
