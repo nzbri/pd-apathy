@@ -153,6 +153,29 @@ print(plt)
 save_plot(plt, "medication_at_session")
 
 ###############################################################################
+# Simple look at longitudinal measures
+
+# Global-z / diagnosis v. age
+plt <- full_data %>%
+  #drop_na(global_z) %>%
+  #group_by(subject_id) %>% # within each subject:
+  #arrange(subject_id, session_date) %>% # order by session
+  #mutate(diagnosis = lead(diagnosis)) %>%
+  #ungroup() %>%
+  #filter(diagnosis == "PD-D") %>%
+  ggplot(aes(
+    x = age,
+    y = global_z,
+    group = subject_id
+  )) +
+  geom_line(aes(colour = diagnosis), alpha = 0.75, size = 0.25) +
+  geom_point(aes(colour = diagnosis), size = 0.5) +
+  labs(x = "Age", y = "Global cognitive z-score", colour = "Diagnosis") +
+  theme_light()
+print(plt)
+save_plot(plt, "cognitive-scores_v_age", width = 10, height = 4)
+
+###############################################################################
 # Look at whether there are patterns in NPI 'missingness'
 
 # Missing by year?

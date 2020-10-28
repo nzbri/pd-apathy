@@ -3,6 +3,8 @@
 This contains some exploratory visualisations of the raw data: predominantly
 simple overviews of demographics and some quality control measures.
 
+All images are clickable links to the higher-quality PDFs.
+
 ### Demographic information
 
 The following figures show some simple, cross-sectional summaries of the
@@ -32,6 +34,21 @@ patient- and session-level data included in the main analyses.
 
 **Figure**: Session-level cross-sectional summaries of key subject-specific
 variables.
+
+---------
+
+### Demographic information (longitudinal)
+
+The following figures show how some key metrics change over time within
+subject.
+
+---------
+
+<a href="Figures/cognitive-scores_v_age.pdf">
+<img src="Figures/cognitive-scores_v_age.jpg" width="90%">
+</a>
+
+**Figure**: Longitudinal changes in key subject-specific variables.
 
 ---------
 
