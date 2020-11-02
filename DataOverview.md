@@ -12,28 +12,43 @@ patient- and session-level data included in the main analyses.
 
 --------
 
+<a href="Figures/age_at_baseline.pdf">
+<img src="Figures/age_at_baseline.jpg" width="45%">
+</a>
 <a href="Figures/age_at_session.pdf">
-<img src="Figures/age_at_session.jpg" width="50%">
+<img src="Figures/age_at_session.jpg" width="45%">
 </a>
 
+<a href="Figures/MoCA_at_baseline.pdf">
+<img src="Figures/MoCA_at_baseline.jpg" width="45%">
+</a>
 <a href="Figures/MoCA_at_session.pdf">
-<img src="Figures/MoCA_at_session.jpg" width="50%">
+<img src="Figures/MoCA_at_session.jpg" width="45%">
 </a>
 
+<a href="Figures/motor-scores_at_baseline.pdf">
+<img src="Figures/motor-scores_at_baseline.jpg" width="45%">
+</a>
 <a href="Figures/motor-scores_at_session.pdf">
-<img src="Figures/motor-scores_at_session.jpg" width="50%">
+<img src="Figures/motor-scores_at_session.jpg" width="45%">
 </a>
 
+<a href="Figures/cognitive-scores_at_baseline.pdf">
+<img src="Figures/cognitive-scores_at_baseline.jpg" width="45%">
+</a>
 <a href="Figures/cognitive-scores_at_session.pdf">
-<img src="Figures/cognitive-scores_at_session.jpg" width="50%">
+<img src="Figures/cognitive-scores_at_session.jpg" width="45%">
 </a>
 
+<a href="Figures/medication_at_baseline.pdf">
+<img src="Figures/medication_at_baseline.jpg" width="45%">
+</a>
 <a href="Figures/medication_at_session.pdf">
-<img src="Figures/medication_at_session.jpg" width="50%">
+<img src="Figures/medication_at_session.jpg" width="45%">
 </a>
 
-**Figure**: Session-level cross-sectional summaries of key subject-specific
-variables.
+**Figure**: Cross-sectional summaries of key patient-specific variables, both
+at baseline and pooled across all sessions.
 
 ---------
 

@@ -67,6 +67,16 @@ full_data <- full_data %>%
   ))
 
 ###############################################################################
+# Pull out baseline sessions
+
+baseline_data <- filter(full_data, session_number == 1)
+
+# Check we don't have any obviously weird baseline sessions
+stopifnot(all(
+  (baseline_data %>% pull(years_from_baseline)) == 0.0
+))
+
+###############################################################################
 # Useful functions
 
 save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
@@ -81,7 +91,7 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 }
 
 ###############################################################################
-# Key properties of 'raw' session-level data, independent of apathy
+# Key properties of 'raw' data, independent of apathy
 
 #Grouping?
 # sex
@@ -106,51 +116,87 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 # global_z_baseline
 # education
 
-# Age / sex
-plt <- full_data %>%
-  ggplot(aes(age, fill=forcats::fct_rev(sex))) +  # Reversing gives better colours
-  geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
-  labs(x = "Age at session", y = "Number of sessions", fill = "Sex") +
-  theme_light()
-print(plt)
-save_plot(plt, "age_at_session")
+for (dataset in list(
+  list(data = full_data, at = "session", of = "sessions"),
+  list(data = baseline_data, at = "baseline", of = "patients")
+)) {
+  print(dataset$at)
 
-# MoCA / diagnosis
-plt <- full_data %>%
-  ggplot(aes(MoCA, fill = diagnosis)) +
-  geom_bar(color="white") +
-  labs(x = "MoCA", y = "Number of sessions", fill = "Diagnosis") +
-  theme_light()
-print(plt)
-save_plot(plt, "MoCA_at_session")
+  # Age / sex
+  plt <- dataset$data %>%
+    ggplot(aes(age, fill=forcats::fct_rev(sex))) +  # Reversing gives better colours
+    geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
+    scale_x_continuous(limits = c(35.0, 95.0)) +
+    labs(
+      x = paste("Age at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Sex",
+      title = paste(sum(!is.na(dataset$data$age)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("age_at_", dataset$at, sep=""))
 
-# Motor scores / diagnosis
-plt <- full_data %>%
-  ggplot(aes(Part_III, fill = diagnosis)) +
-  geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
-  labs(x = "Part III motor score", y = "Number of sessions", fill = "Diagnosis") +
-  theme_light()
-print(plt)
-save_plot(plt, "motor-scores_at_session")
+  # MoCA / diagnosis
+  plt <- dataset$data %>%
+    ggplot(aes(MoCA, fill = diagnosis)) +
+    geom_bar(color="white") +
+    scale_x_continuous(limits = c(0.0, 31.0)) +
+    labs(
+      x = paste("MoCA at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Diagnosis",
+      title = paste(sum(!is.na(dataset$data$MoCA)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("MoCA_at_", dataset$at, sep=""))
 
-# Cognitive scores / diagnosis
-plt <- full_data %>%
-  ggplot(aes(global_z, fill = diagnosis)) +
-  geom_histogram(color="white") +
-  labs(x = "Global cognitive z-score", y = "Number of sessions", fill = "Diagnosis") +
-  theme_light()
-print(plt)
-save_plot(plt, "cognitive-scores_at_session")
+  # Motor scores / diagnosis
+  plt <- dataset$data %>%
+    ggplot(aes(Part_III, fill = diagnosis)) +
+    geom_histogram(binwidth = 2.0, boundary = 0.0, color="white") +
+    scale_x_continuous(limits = c(0.0, 100.0)) +
+    labs(
+      x = paste("Part III motor score at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Diagnosis",
+      title = paste(sum(!is.na(dataset$data$Part_III)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("motor-scores_at_", dataset$at, sep=""))
 
-# Medication / diagnosis
-plt <- full_data %>%
-  ggplot(aes(LED, fill = diagnosis)) +
-  geom_histogram(color="white") +
-  scale_x_continuous(limits = c(0.0, 3000.0)) +
-  labs(x = "Medication (LED)", y = "Number of sessions", fill = "Diagnosis") +
-  theme_light()
-print(plt)
-save_plot(plt, "medication_at_session")
+  # Cognitive scores / diagnosis
+  plt <- dataset$data %>%
+    ggplot(aes(global_z, fill = diagnosis)) +
+    geom_histogram(binwidth = 0.2, center = 0.0, color="white") +
+    scale_x_continuous(limits = c(-3.5, 3.5)) +
+    labs(
+      x = paste("Global cognitive z-score at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Diagnosis",
+      title = paste(sum(!is.na(dataset$data$global_z)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep=""))
+
+  # Medication / diagnosis
+  plt <- dataset$data %>%
+    ggplot(aes(LED, fill = diagnosis)) +
+    geom_histogram(color="white", binwidth = 100.0, boundary = 0.0) +
+    scale_x_continuous(limits = c(0.0, 3000.0)) +
+    labs(
+      x = paste("Medication (LED) at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Diagnosis",
+      title = paste(sum(!is.na(dataset$data$LED)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("medication_at_", dataset$at, sep=""))
+}
 
 ###############################################################################
 # Simple look at longitudinal measures
