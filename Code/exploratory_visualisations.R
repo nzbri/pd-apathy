@@ -61,8 +61,8 @@ full_data <- full_data %>%
 full_data <- full_data %>%
   mutate(diagnosis = factor(
     diagnosis,
-    levels=c(NA, "PD-N", "PD-MCI", "PDD"),
-    labels=c(NA, "PD-N", "PD-MCI", "PD-D"),
+    levels = c(NA, "PD-N", "PD-MCI", "PDD"),
+    labels = c(NA, "PD-N", "PD-MCI", "PD-D"),
     exclude = NULL  # i.e. include NA as a level
   ))
 
@@ -75,17 +75,24 @@ baseline_data <- filter(full_data, session_number == 1)
 stopifnot(all(
   (baseline_data %>% pull(years_from_baseline)) == 0.0
 ))
+stopifnot(all(
+  (
+    full_data %>%
+      filter(session_number > 1) %>%
+      pull(years_from_baseline)
+  ) > 0.0
+))
 
 ###############################################################################
 # Useful functions
 
 save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
   ggsave(
-    file.path("..", "Figures", paste(filename, ".pdf", sep="")),
+    file.path("..", "Figures", paste(filename, ".pdf", sep = "")),
     plt, ..., width = width, height = height, units = units
   )
   ggsave(
-    file.path("..", "Figures", paste(filename, ".jpg", sep="")),
+    file.path("..", "Figures", paste(filename, ".jpg", sep = "")),
     plt, ..., width = width, height = height, units = units, dpi = "screen"
   )
 }
@@ -127,10 +134,10 @@ for (dataset in list(
   plt <- dataset$data %>%
     ggplot(aes(age, fill = sex)) +
     geom_histogram(
-      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+      position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
     stat_density(
-      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(35.0, 95.0)) +
@@ -142,18 +149,18 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("age_at_", dataset$at, sep=""))
+  save_plot(plt, paste("age_at_", dataset$at, sep = ""))
 
   # MoCA / diagnosis
   bw = 1.0
   plt <- dataset$data %>%
     ggplot(aes(MoCA, fill = diagnosis)) +
-    #geom_bar(color="white", alpha=0.5) +
+    #geom_bar(color = "white", alpha = 0.5) +
     geom_histogram(
-      position="stack", binwidth = bw, center = 0.0, color="white", alpha=0.5
+      position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
     ) +
     stat_density(
-      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(0.0, 31.0)) +
@@ -165,17 +172,17 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("MoCA_at_", dataset$at, sep=""))
+  save_plot(plt, paste("MoCA_at_", dataset$at, sep = ""))
 
   # Motor scores / diagnosis
   bw = 2.0
   plt <- dataset$data %>%
     ggplot(aes(Part_III, fill = diagnosis)) +
     geom_histogram(
-      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+      position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
     stat_density(
-      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(0.0, 100.0)) +
@@ -187,17 +194,17 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("motor-scores_at_", dataset$at, sep=""))
+  save_plot(plt, paste("motor-scores_at_", dataset$at, sep = ""))
 
   # Cognitive scores / diagnosis
   bw = 0.2
   plt <- dataset$data %>%
     ggplot(aes(global_z, fill = diagnosis)) +
     geom_histogram(
-      position="stack", binwidth = bw, center = 0.0, color="white", alpha=0.5
+      position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
     ) +
     stat_density(
-      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(-3.5, 3.5)) +
@@ -209,17 +216,17 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep=""))
+  save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep = ""))
 
   # Medication / diagnosis
   bw = 100.0
   plt <- dataset$data %>%
     ggplot(aes(LED, fill = diagnosis)) +
     geom_histogram(
-      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+      position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
     stat_density(
-      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(0.0, 3000.0)) +
@@ -231,7 +238,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("medication_at_", dataset$at, sep=""))
+  save_plot(plt, paste("medication_at_", dataset$at, sep = ""))
 }
 
 ###############################################################################
@@ -262,10 +269,10 @@ save_plot(plt, "cognitive-scores_v_age", width = 10, height = 4)
 
 # Missing by year?
 plt <- full_data %>%
-  mutate(session_date = floor_date(session_date, unit = "year")) %>%
+  mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
   #filter(full_assessment == TRUE) %>%
-  ggplot(aes(session_date, fill=npi_present)) +
-  geom_bar(position="stack") +
+  ggplot(aes(session_date, fill = npi_present)) +
+  geom_bar(position = "stack") +
   theme_minimal() +
   theme(
     legend.position = c(0.05, 0.95),
@@ -278,8 +285,8 @@ save_plot(plt, "npi-presence_v_year")
 
 # Missing by session number?
 plt <- full_data %>%
-  ggplot(aes(session_number, fill=npi_present)) +
-  geom_bar(position="stack") +
+  ggplot(aes(session_number, fill = npi_present)) +
+  geom_bar(position = "stack") +
   theme_minimal() +
   theme(
     legend.position = c(0.95, 0.95),

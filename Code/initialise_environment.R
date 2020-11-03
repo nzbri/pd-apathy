@@ -25,7 +25,7 @@ function(required_packages) {
   missing_packages <-
     required_packages[! required_packages %in% installed.packages()]
   if(length(missing_packages) != 0) {
-    stop(paste("Missing packages:", paste(missing_packages, collapse=", ")))
+    stop(paste("Missing packages:", paste(missing_packages, collapse = ", ")))
   }
 }(required_packages)
 

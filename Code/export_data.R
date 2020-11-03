@@ -143,12 +143,12 @@ date_string = lubridate::ymd(lubridate::today())
 
 saveRDS(
   full_data,
-  file.path("..", "Data", paste("raw-data_", date_string, ".rds", sep=""))
+  file.path("..", "Data", paste("raw-data_", date_string, ".rds", sep = ""))
 )
 
 write_csv(
   full_data,
-  file.path("..", "Data", paste("raw-data_", date_string, ".csv", sep=""))
+  file.path("..", "Data", paste("raw-data_", date_string, ".csv", sep = ""))
 )
 
 col_types <- full_data %>%
@@ -156,7 +156,7 @@ col_types <- full_data %>%
   gather(col_name, col_type)
 write_csv(
   col_types,
-  file.path("..", "Data", paste("raw-data_", date_string, "_types.csv", sep=""))
+  file.path("..", "Data", paste("raw-data_", date_string, "_types.csv", sep = ""))
 )
 
 ###############################################################################
