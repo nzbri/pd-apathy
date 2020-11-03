@@ -123,9 +123,16 @@ for (dataset in list(
   print(dataset$at)
 
   # Age / sex
+  bw = 1.0
   plt <- dataset$data %>%
-    ggplot(aes(age, fill=forcats::fct_rev(sex))) +  # Reversing gives better colours
-    geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
+    ggplot(aes(age, fill = sex)) +
+    geom_histogram(
+      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+    ) +
+    stat_density(
+      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
     scale_x_continuous(limits = c(35.0, 95.0)) +
     labs(
       x = paste("Age at", dataset$at),
@@ -138,9 +145,17 @@ for (dataset in list(
   save_plot(plt, paste("age_at_", dataset$at, sep=""))
 
   # MoCA / diagnosis
+  bw = 1.0
   plt <- dataset$data %>%
     ggplot(aes(MoCA, fill = diagnosis)) +
-    geom_bar(color="white") +
+    #geom_bar(color="white", alpha=0.5) +
+    geom_histogram(
+      position="stack", binwidth = bw, center = 0.0, color="white", alpha=0.5
+    ) +
+    stat_density(
+      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
     scale_x_continuous(limits = c(0.0, 31.0)) +
     labs(
       x = paste("MoCA at", dataset$at),
@@ -153,9 +168,16 @@ for (dataset in list(
   save_plot(plt, paste("MoCA_at_", dataset$at, sep=""))
 
   # Motor scores / diagnosis
+  bw = 2.0
   plt <- dataset$data %>%
     ggplot(aes(Part_III, fill = diagnosis)) +
-    geom_histogram(binwidth = 2.0, boundary = 0.0, color="white") +
+    geom_histogram(
+      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+    ) +
+    stat_density(
+      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
     scale_x_continuous(limits = c(0.0, 100.0)) +
     labs(
       x = paste("Part III motor score at", dataset$at),
@@ -168,9 +190,16 @@ for (dataset in list(
   save_plot(plt, paste("motor-scores_at_", dataset$at, sep=""))
 
   # Cognitive scores / diagnosis
+  bw = 0.2
   plt <- dataset$data %>%
     ggplot(aes(global_z, fill = diagnosis)) +
-    geom_histogram(binwidth = 0.2, center = 0.0, color="white") +
+    geom_histogram(
+      position="stack", binwidth = bw, center = 0.0, color="white", alpha=0.5
+    ) +
+    stat_density(
+      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
     scale_x_continuous(limits = c(-3.5, 3.5)) +
     labs(
       x = paste("Global cognitive z-score at", dataset$at),
@@ -183,9 +212,16 @@ for (dataset in list(
   save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep=""))
 
   # Medication / diagnosis
+  bw = 100.0
   plt <- dataset$data %>%
     ggplot(aes(LED, fill = diagnosis)) +
-    geom_histogram(color="white", binwidth = 100.0, boundary = 0.0) +
+    geom_histogram(
+      position="stack", binwidth = bw, boundary = 0.0, color="white", alpha=0.5
+    ) +
+    stat_density(
+      geom = "line", position="identity", size=1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
     scale_x_continuous(limits = c(0.0, 3000.0)) +
     labs(
       x = paste("Medication (LED) at", dataset$at),
