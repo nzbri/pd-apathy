@@ -261,7 +261,7 @@ plt <- full_data %>%
   geom_line(alpha = 0.75, size = 0.25) +
   geom_point(size = 0.5) +
   geom_smooth(
-    method = lm, formula = y ~ poly(x, 2) + 1,
+    method = glm, formula = y ~ poly(x, 2) + 1,
     aes(group = NULL, colour = NULL), colour = "black"
   ) +
   labs(

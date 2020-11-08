@@ -83,11 +83,10 @@ in missing NPI assessments in baseline sessions (discussed with Kyla Horne,
 --------
 
 <a href="Figures/npi-presence_v_year.pdf">
-<img src="Figures/npi-presence_v_year.jpg" width="50%">
+<img src="Figures/npi-presence_v_year.jpg" width="45%">
 </a>
-
 <a href="Figures/npi-presence_v_session.pdf">
-<img src="Figures/npi-presence_v_session.jpg" width="50%">
+<img src="Figures/npi-presence_v_session.jpg" width="45%">
 </a>
 
 **Figure**: Breakdown of the sessions with a complete NPI assessment by both
