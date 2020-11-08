@@ -296,6 +296,30 @@ print(plt)
 save_plot(plt, "motor-scores_v_age", width = 10, height = 4)
 
 ###############################################################################
+# Do the demographics of recruited subjects change over time?
+
+# Age v baseline date
+plt <- baseline_data %>%
+  ggplot(
+    aes(x = date_baseline, y = age)
+  ) +
+  geom_point(
+    size = 0.5
+  ) +
+  geom_smooth(
+    method = glm, formula = y ~ poly(x, 2),
+    method.args = list(family = Gamma(link = "inverse"))
+  ) +
+  theme_light() +
+  labs(
+    x="Date of baseline measurement",
+    y="Age",
+    title = paste(sum(!is.na(baseline_data$age)), "sessions")
+  )
+print(plt)
+save_plot(plt, "age_v_baseline-date")
+
+###############################################################################
 # Look at whether there are patterns in NPI 'missingness'
 
 # Missing by year?

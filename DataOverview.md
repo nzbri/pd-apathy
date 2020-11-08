@@ -72,6 +72,22 @@ captured by the cross-sectional summary (black line).
 
 ---------
 
+### Changes over time in recruitment
+
+The following figures show how some key metrics change as a function of
+recruitment date.
+
+---------
+
+<a href="Figures/age_v_baseline-date.pdf">
+<img src="Figures/age_v_baseline-date.jpg" width="45%">
+</a>
+
+**Figure**: Changes in key subject-specific variables as a function of
+recruitment date.
+
+---------
+
 ### Consistency of NPI administration
 
 The figure below shows a large number of missing sessions in 2015. This was due
