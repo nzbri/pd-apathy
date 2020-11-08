@@ -55,9 +55,14 @@ at baseline and pooled across all sessions.
 ### Demographic information (longitudinal)
 
 The following figures show how some key metrics change over time within
-subject.
+subject. Note how the dynamics of progression within-subject are not completely
+captured by the cross-sectional summary (black line).
 
 ---------
+
+<a href="Figures/motor-scores_v_age.pdf">
+<img src="Figures/motor-scores_v_age.jpg" width="90%">
+</a>
 
 <a href="Figures/cognitive-scores_v_age.pdf">
 <img src="Figures/cognitive-scores_v_age.jpg" width="90%">

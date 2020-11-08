@@ -92,6 +92,8 @@ hads <- chchpd::import_HADS(concise = TRUE)
 
 # -----------------------------------------------------------------------------
 
+# https://www.movementdisorders.org/MDS/MDS-Rating-Scales/MDS-Unified-Parkinsons-Disease-Rating-Scale-MDS-UPDRS.htm
+
 updrs <- chchpd::import_motor_scores()
 
 ###############################################################################

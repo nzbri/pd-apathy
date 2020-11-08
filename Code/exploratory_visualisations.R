@@ -187,7 +187,7 @@ for (dataset in list(
     ) +
     scale_x_continuous(limits = c(0.0, 100.0)) +
     labs(
-      x = paste("Part III motor score at", dataset$at),
+      x = paste("UPDRS (Part III) motor score at", dataset$at),
       y = paste("Number of", dataset$of),
       fill = "Diagnosis",
       title = paste(sum(!is.na(dataset$data$Part_III)), dataset$of)
@@ -255,14 +255,45 @@ plt <- full_data %>%
   ggplot(aes(
     x = age,
     y = global_z,
-    group = subject_id
+    group = subject_id,
+    colour = diagnosis
   )) +
-  geom_line(aes(colour = diagnosis), alpha = 0.75, size = 0.25) +
-  geom_point(aes(colour = diagnosis), size = 0.5) +
-  labs(x = "Age", y = "Global cognitive z-score", colour = "Diagnosis") +
+  geom_line(alpha = 0.75, size = 0.25) +
+  geom_point(size = 0.5) +
+  geom_smooth(
+    method = lm, formula = y ~ poly(x, 2) + 1,
+    aes(group = NULL, colour = NULL), colour = "black"
+  ) +
+  labs(
+    x = "Age", y = "Global cognitive z-score", colour = "Diagnosis",
+    title = paste(sum(!is.na(full_data$global_z)), "sessions")
+    ) +
   theme_light()
 print(plt)
 save_plot(plt, "cognitive-scores_v_age", width = 10, height = 4)
+
+# Motor scores / diagnosis v. age
+plt <- full_data %>%
+  ggplot(aes(
+    x = age,
+    y = Part_III,
+    group = subject_id,
+    colour = diagnosis
+  )) +
+  geom_line(alpha = 0.75, size = 0.25) +
+  geom_point(size = 0.5) +
+  geom_smooth(
+    method = glm, formula = y ~ poly(x, 2) + 1,
+    method.args = list(family = Gamma(link = "inverse")),
+    mapping = aes(group = NULL, colour = NULL), colour = "black"
+  ) +
+  labs(
+    x = "Age", y = "UPDRS (Part III) motor score", colour = "Diagnosis",
+    title = paste(sum(!is.na(full_data$Part_III)), "sessions")
+  ) +
+  theme_light()
+print(plt)
+save_plot(plt, "motor-scores_v_age", width = 10, height = 4)
 
 ###############################################################################
 # Look at whether there are patterns in NPI 'missingness'
