@@ -298,26 +298,40 @@ save_plot(plt, "motor-scores_v_age", width = 10, height = 4)
 ###############################################################################
 # Do the demographics of recruited subjects change over time?
 
-# Age v baseline date
-plt <- baseline_data %>%
-  ggplot(
-    aes(x = date_baseline, y = age)
-  ) +
-  geom_point(
-    size = 0.5
-  ) +
-  geom_smooth(
-    method = glm, formula = y ~ poly(x, 2),
-    method.args = list(family = Gamma(link = "inverse"))
-  ) +
-  theme_light() +
-  labs(
-    x="Date of baseline measurement",
-    y="Age",
-    title = paste(sum(!is.na(baseline_data$age)), "sessions")
+# Plot different variables v baseline date
+for (variable in list(
+  list(name="age", description="Age at baseline", family=Gamma(link="log")),
+  list(name="diagnosis_age", description="Age at diagnosis", family=Gamma(link="log")),
+  list(name="global_z", description="Global cognitive z-score", family=gaussian),
+  list(name="Part_III", description="UPDRS (Part III) motor score", family=Gamma(link="log"))
+)) {
+  print(variable$description)
+
+  plt <- baseline_data %>%
+    ggplot(
+      aes_string(x = "date_baseline", y = variable$name)
+    ) +
+    geom_point(
+      aes(colour = diagnosis),
+      size = 0.5
+    ) +
+    geom_smooth(
+      method = glm, formula = y ~ poly(x, 2),
+      method.args = list(family = variable$family),
+      colour = "black"
+    ) +
+    theme_light() +
+    labs(
+      x = "Date of baseline measurement",
+      y = variable$description,
+      title = paste(sum(!is.na(baseline_data[variable$name])), "patients")
+    )
+  print(plt)
+  save_plot(
+    plt, paste(gsub("_", "-", variable$name), "_v_baseline-date", sep = "")
   )
-print(plt)
-save_plot(plt, "age_v_baseline-date")
+
+}
 
 ###############################################################################
 # Look at whether there are patterns in NPI 'missingness'

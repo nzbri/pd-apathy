@@ -82,6 +82,16 @@ recruitment date.
 <a href="Figures/age_v_baseline-date.pdf">
 <img src="Figures/age_v_baseline-date.jpg" width="45%">
 </a>
+<a href="Figures/diagnosis-age_v_baseline-date.pdf">
+<img src="Figures/diagnosis-age_v_baseline-date.jpg" width="45%">
+</a>
+
+<a href="Figures/Part-III_v_baseline-date.pdf">
+<img src="Figures/Part-III_v_baseline-date.jpg" width="45%">
+</a>
+<a href="Figures/global-z_v_baseline-date.pdf">
+<img src="Figures/global-z_v_baseline-date.jpg" width="45%">
+</a>
 
 **Figure**: Changes in key subject-specific variables as a function of
 recruitment date.
