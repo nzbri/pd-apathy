@@ -21,7 +21,7 @@ source("initialise_environment.R")
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2020-10-28.rds")
+  file.path("..", "Data", "raw-data_2020-11-10.rds")
 )
 
 ###############################################################################
@@ -35,7 +35,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2020-10-28_types.csv"),
+  file.path("..", "Data", "raw-data_2020-11-10_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -44,7 +44,7 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2020-10-28.csv"),
+  file.path("..", "Data", "raw-data_2020-11-10.csv"),
   col_types = col_types
 )
 
@@ -63,8 +63,8 @@ full_data <- full_data %>%
 
 # Add a simple yes/no for presence of NPI data
 full_data <- full_data %>%
-  mutate(npi_present = factor(
-    !is.na(npi_total), levels = c(FALSE, TRUE), labels = c("No", "Yes")
+  mutate(NPI_present = factor(
+    !is.na(NPI_total), levels = c(FALSE, TRUE), labels = c("No", "Yes")
   ))
 
 # Reorder and relabel diagnosis
@@ -119,10 +119,10 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 # age
 # MoCA
 # global_z
-# Part_III
+# UPDRS_motor_score
 # LED
-# npi_total
-# npi_apathy_score
+# NPI_total
+# NPI_apathy_score
 # HADS_anxiety
 # HADS_depression
 # H_Y
@@ -187,7 +187,7 @@ for (dataset in list(
   # Motor scores / diagnosis
   bw = 2.0
   plt <- dataset$data %>%
-    ggplot(aes(Part_III, fill = diagnosis)) +
+    ggplot(aes(UPDRS_motor_score, fill = diagnosis)) +
     geom_histogram(
       position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
@@ -200,7 +200,7 @@ for (dataset in list(
       x = paste("UPDRS (Part III) motor score at", dataset$at),
       y = paste("Number of", dataset$of),
       fill = "Diagnosis",
-      title = paste(sum(!is.na(dataset$data$Part_III)), dataset$of)
+      title = paste(sum(!is.na(dataset$data$UPDRS_motor_score)), dataset$of)
     ) +
     theme_light()
   print(plt)
@@ -286,7 +286,7 @@ save_plot(plt, "cognitive-scores_v_age", width = 10, height = 4)
 plt <- full_data %>%
   ggplot(aes(
     x = age,
-    y = Part_III,
+    y = UPDRS_motor_score,
     group = subject_id,
     colour = diagnosis
   )) +
@@ -299,7 +299,7 @@ plt <- full_data %>%
   ) +
   labs(
     x = "Age", y = "UPDRS (Part III) motor score", colour = "Diagnosis",
-    title = paste(sum(!is.na(full_data$Part_III)), "sessions")
+    title = paste(sum(!is.na(full_data$UPDRS_motor_score)), "sessions")
   ) +
   theme_light()
 print(plt)
@@ -315,7 +315,7 @@ for (variable in list(
   list(name = "years_between_symptoms_and_diagnosis", description = "Years between symptom onset and diagnosis", family = gaussian),
   list(name = "years_from_diagnosis", description = "Years between diagnosis and baseline", family = gaussian),
   list(name = "global_z", description = "Global cognitive z-score", family = gaussian),
-  list(name = "Part_III", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
+  list(name = "UPDRS_motor_score", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
 )) {
   print(variable$description)
 
@@ -354,7 +354,7 @@ for (variable in list(
 plt <- full_data %>%
   mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
   #filter(full_assessment == TRUE) %>%
-  ggplot(aes(session_date, fill = npi_present)) +
+  ggplot(aes(session_date, fill = NPI_present)) +
   geom_bar(position = "stack") +
   theme_minimal() +
   theme(
@@ -368,7 +368,7 @@ save_plot(plt, "npi-presence_v_year")
 
 # Missing by session number?
 plt <- full_data %>%
-  ggplot(aes(session_number, fill = npi_present)) +
+  ggplot(aes(session_number, fill = NPI_present)) +
   geom_bar(position = "stack") +
   theme_minimal() +
   theme(

@@ -78,8 +78,9 @@ npi <- npi %>%
   select(-contains("redcap")) %>%
   select(-matches("npi_[a-f]_")) %>%
   select(-matches("npi_[h-l]_")) %>%
-  rename_with(~ gsub("npi_g_", "npi_apathy_", .x, fixed = TRUE)) %>%
-  rename_with(~ paste("npi_", .x, sep = ""), !starts_with("npi_") & !session_id) %>%
+  rename_with(~ gsub("npi_", "NPI_", .x, fixed = TRUE)) %>%
+  rename_with(~ gsub("NPI_g_", "NPI_apathy_", .x, fixed = TRUE)) %>%
+  rename_with(~ paste("NPI_", .x, sep = ""), !starts_with("NPI_") & !session_id) %>%
   mutate(across(matches("_present"), as.logical))
 
 # -----------------------------------------------------------------------------
@@ -95,6 +96,8 @@ hads <- chchpd::import_HADS(concise = TRUE)
 # https://www.movementdisorders.org/MDS/MDS-Rating-Scales/MDS-Unified-Parkinsons-Disease-Rating-Scale-MDS-UPDRS.htm
 
 motor_scores <- chchpd::import_motor_scores()
+motor_scores <- motor_scores %>%
+  rename(UPDRS_motor_score = Part_III)
 
 # Import raw MDS-UPDRS scores for apathy question
 # Q1.5 is apathy
@@ -149,6 +152,7 @@ colnames(full_data)
 ###############################################################################
 # Summaries
 
+dim(full_data)
 full_data$subject_id %>% unique %>% length
 full_data$session_id %>% unique %>% length
 full_data %>% filter(full_assessment) %>% pull(session_id) %>% unique %>% length
