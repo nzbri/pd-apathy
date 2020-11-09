@@ -48,7 +48,7 @@ sessions <- sessions %>%
 sessions <- sessions %>%
   filter(!is.na(session_id)) %>%
   filter(is.na(study_excluded) | study_excluded != TRUE) %>%
-  filter(!is.na(session_date) & session_date <= today())  # Exclude anything only scheduled to happen
+  filter(!is.na(session_date) & session_date <= lubridate::today())  # Exclude anything only scheduled to happen
 
 # TODO: Sanity check for different `mri_scan_no`?
 
