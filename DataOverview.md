@@ -79,11 +79,18 @@ recruitment date.
 
 ---------
 
+<a href="Figures/diagnosis-age_v_baseline-date.pdf">
+<img src="Figures/diagnosis-age_v_baseline-date.jpg" width="45%">
+</a>
 <a href="Figures/age_v_baseline-date.pdf">
 <img src="Figures/age_v_baseline-date.jpg" width="45%">
 </a>
-<a href="Figures/diagnosis-age_v_baseline-date.pdf">
-<img src="Figures/diagnosis-age_v_baseline-date.jpg" width="45%">
+
+<a href="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.pdf">
+<img src="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.jpg" width="45%">
+</a>
+<a href="Figures/years-from-diagnosis_v_baseline-date.pdf">
+<img src="Figures/years-from-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
 
 <a href="Figures/Part-III_v_baseline-date.pdf">

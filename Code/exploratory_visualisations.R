@@ -51,6 +51,16 @@ full_data <- read_csv(
 ###############################################################################
 # Preprocess data
 
+# Add some useful extra timing info
+full_data <- full_data %>%
+  mutate(
+    years_from_diagnosis = age - diagnosis_age,
+    years_from_symptom_onset = age - symptom_onset_age,
+    years_between_symptoms_and_diagnosis = diagnosis_age - symptom_onset_age
+  )
+
+# Several `_present` columns are coded as "Yes"/"No" factors for plotting
+
 # Add a simple yes/no for presence of NPI data
 full_data <- full_data %>%
   mutate(npi_present = factor(
@@ -300,10 +310,12 @@ save_plot(plt, "motor-scores_v_age", width = 10, height = 4)
 
 # Plot different variables v baseline date
 for (variable in list(
-  list(name="age", description="Age at baseline", family=Gamma(link="log")),
-  list(name="diagnosis_age", description="Age at diagnosis", family=Gamma(link="log")),
-  list(name="global_z", description="Global cognitive z-score", family=gaussian),
-  list(name="Part_III", description="UPDRS (Part III) motor score", family=Gamma(link="log"))
+  list(name = "diagnosis_age", description = "Age at diagnosis", family = Gamma(link = "log")),
+  list(name = "age", description = "Age at baseline", family = Gamma(link = "log")),
+  list(name = "years_between_symptoms_and_diagnosis", description = "Years between symptom onset and diagnosis", family = gaussian),
+  list(name = "years_from_diagnosis", description = "Years between diagnosis and baseline", family = gaussian),
+  list(name = "global_z", description = "Global cognitive z-score", family = gaussian),
+  list(name = "Part_III", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
 )) {
   print(variable$description)
 
@@ -313,6 +325,8 @@ for (variable in list(
     ) +
     geom_point(
       aes(colour = diagnosis),
+      # position = position_jitter(w = 0.0, h = 0.2),
+      # colour = "grey",
       size = 0.5
     ) +
     geom_smooth(
