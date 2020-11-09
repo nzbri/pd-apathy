@@ -94,7 +94,26 @@ hads <- chchpd::import_HADS(concise = TRUE)
 
 # https://www.movementdisorders.org/MDS/MDS-Rating-Scales/MDS-Unified-Parkinsons-Disease-Rating-Scale-MDS-UPDRS.htm
 
-updrs <- chchpd::import_motor_scores()
+motor_scores <- chchpd::import_motor_scores()
+
+# Import raw MDS-UPDRS scores for apathy question
+# Q1.5 is apathy
+mds_updrs = chchpd::import_MDS_UPDRS(concise = FALSE)
+mds_updrs <- mds_updrs %>%
+  mutate(
+    UPDRS_apathy = factor(
+      Q1_5,
+      levels = c(0, 1, 2, 3, 4),
+      labels = c("Normal", "Slight", "Mild", "Moderate", "Severe"),
+      ordered = TRUE
+    )
+  ) %>%
+  select(session_id, UPDRS_apathy, UPDRS_date)
+
+# Note that some subjects have data that predates the MDS-UPDRS (i.e. from the
+# 1987 UPDRS). However, we ignore those for now as that version does not seem
+# to contain any apathy-specific questions.
+# old_updrs = chchpd::import_old_UPDRS()
 
 ###############################################################################
 # Join all the records together, linked by subject or session IDs
@@ -107,7 +126,8 @@ full_data <-
   left_join(npi, by = "session_id") %>%
   left_join(medications, by = "session_id") %>%
   left_join(hads, by = "session_id") %>%
-  left_join(updrs, by = "session_id")
+  left_join(motor_scores, by = "session_id") %>%
+  left_join(mds_updrs, by = "session_id")
 
 # Remove subjects with missing / incomplete baselines
 full_data <- filter(
