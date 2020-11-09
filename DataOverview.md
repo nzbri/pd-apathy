@@ -126,3 +126,23 @@ in missing NPI assessments in baseline sessions (discussed with Kyla Horne,
 year and the session number.
 
 ---------
+
+### Consistency of different apathy measures
+
+The figure below shows the relationship between the measures of apathy from the
+MDS-UPDRS and NPI.
+
+--------
+
+<a href="Figures/apathy_UPDRS-v-NPI_stack.pdf">
+<img src="Figures/apathy_UPDRS-v-NPI_stack.jpg" width="45%">
+</a>
+<a href="Figures/apathy_UPDRS-v-NPI_fill.pdf">
+<img src="Figures/apathy_UPDRS-v-NPI_fill.jpg" width="45%">
+</a>
+
+**Figure**: Cross-tabulation of NPI and MDS-UPDRS apathy measures. For the NPI,
+we take the simple Yes/No response for the apathy subsection, and for the
+MDS-UPDRS we take the responses to Q1.5.
+
+---------

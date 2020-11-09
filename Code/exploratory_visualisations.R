@@ -385,6 +385,34 @@ print(plt)
 save_plot(plt, "npi-presence_v_session")
 
 ###############################################################################
+# Cross-tabulate NPI and MDS-UPDRS scores
+
+# table(full_data$NPI_apathy_present, full_data$UPDRS_apathy, useNA = "always")
+
+for (plot_config in list(
+  list(position = "fill", y_label = "Proportion"),
+  list(position = "stack", y_label = "Number")
+)) {
+
+  plt <- full_data %>%
+    mutate(NPI_apathy_present = factor(
+      NPI_apathy_present, levels = c(FALSE, TRUE), labels = c("No", "Yes")
+    )) %>%
+    ggplot(aes(x = UPDRS_apathy, fill = NPI_apathy_present)) +
+    geom_bar(position = plot_config$position, na.rm = FALSE) +
+    theme_light() +
+    labs(
+      x = "UPDRS apathy",
+      y = paste(plot_config$y_label, "of sessions"),
+      fill = "NPI apathy",
+      title = paste(dim(full_data)[1], "sessions")
+    )
+  print(plt)
+  save_plot(plt, paste("apathy_UPDRS-v-NPI_", plot_config$position, sep = ""))
+
+}
+
+###############################################################################
 
 ggplot(full_data, aes(years_from_baseline)) +
   geom_histogram(binwidth = 1.0, boundary = 0.0, color="white") +
