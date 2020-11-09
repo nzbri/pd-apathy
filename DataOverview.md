@@ -19,13 +19,6 @@ patient- and session-level data included in the main analyses.
 <img src="Figures/age_at_session.jpg" width="45%">
 </a>
 
-<a href="Figures/MoCA_at_baseline.pdf">
-<img src="Figures/MoCA_at_baseline.jpg" width="45%">
-</a>
-<a href="Figures/MoCA_at_session.pdf">
-<img src="Figures/MoCA_at_session.jpg" width="45%">
-</a>
-
 <a href="Figures/motor-scores_at_baseline.pdf">
 <img src="Figures/motor-scores_at_baseline.jpg" width="45%">
 </a>
@@ -38,6 +31,13 @@ patient- and session-level data included in the main analyses.
 </a>
 <a href="Figures/cognitive-scores_at_session.pdf">
 <img src="Figures/cognitive-scores_at_session.jpg" width="45%">
+</a>
+
+<a href="Figures/MoCA_at_baseline.pdf">
+<img src="Figures/MoCA_at_baseline.jpg" width="45%">
+</a>
+<a href="Figures/MoCA_at_session.pdf">
+<img src="Figures/MoCA_at_session.jpg" width="45%">
 </a>
 
 <a href="Figures/medication_at_baseline.pdf">
@@ -93,11 +93,11 @@ recruitment date.
 <img src="Figures/years-from-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
 
-<a href="Figures/Part-III_v_baseline-date.pdf">
-<img src="Figures/Part-III_v_baseline-date.jpg" width="45%">
+<a href="Figures/motor-scores_v_baseline-date.pdf">
+<img src="Figures/motor-scores_v_baseline-date.jpg" width="45%">
 </a>
-<a href="Figures/global-z_v_baseline-date.pdf">
-<img src="Figures/global-z_v_baseline-date.jpg" width="45%">
+<a href="Figures/cognitive-scores_v_baseline-date.pdf">
+<img src="Figures/cognitive-scores_v_baseline-date.jpg" width="45%">
 </a>
 
 **Figure**: Changes in key subject-specific variables as a function of

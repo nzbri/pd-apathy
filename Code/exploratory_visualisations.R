@@ -314,8 +314,8 @@ for (variable in list(
   list(name = "age", description = "Age at baseline", family = Gamma(link = "log")),
   list(name = "years_between_symptoms_and_diagnosis", description = "Years between symptom onset and diagnosis", family = gaussian),
   list(name = "years_from_diagnosis", description = "Years between diagnosis and baseline", family = gaussian),
-  list(name = "global_z", description = "Global cognitive z-score", family = gaussian),
-  list(name = "UPDRS_motor_score", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
+  list(name = "global_z", filename = "cognitive-scores", description = "Global cognitive z-score", family = gaussian),
+  list(name = "UPDRS_motor_score", filename = "motor-scores", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
 )) {
   print(variable$description)
 
@@ -341,8 +341,12 @@ for (variable in list(
       title = paste(sum(!is.na(baseline_data[variable$name])), "patients")
     )
   print(plt)
+
+  if (!exists("filename", where = variable)) {
+    variable$filename <- variable$name
+  }
   save_plot(
-    plt, paste(gsub("_", "-", variable$name), "_v_baseline-date", sep = "")
+    plt, paste(gsub("_", "-", variable$filename), "_v_baseline-date", sep = "")
   )
 
 }
