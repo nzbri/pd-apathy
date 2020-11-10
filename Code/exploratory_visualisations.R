@@ -396,7 +396,10 @@ for (plot_config in list(
 
   plt <- full_data %>%
     mutate(NPI_apathy_present = factor(
-      NPI_apathy_present, levels = c(FALSE, TRUE), labels = c("No", "Yes")
+      NPI_apathy_present,
+      levels = c(NA, FALSE, TRUE),
+      labels = c(NA, "No", "Yes"),
+      exclude = NULL  # i.e. include NA as a level
     )) %>%
     ggplot(aes(x = UPDRS_apathy, fill = NPI_apathy_present)) +
     geom_bar(position = plot_config$position, na.rm = FALSE) +
