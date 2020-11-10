@@ -352,37 +352,67 @@ for (variable in list(
 }
 
 ###############################################################################
-# Look at whether there are patterns in NPI 'missingness'
+# Look at whether there are patterns in 'missingness' of key measures
 
-# Missing by year?
-plt <- full_data %>%
-  mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
-  #filter(full_assessment == TRUE) %>%
-  ggplot(aes(session_date, fill = NPI_present)) +
-  geom_bar(position = "stack") +
-  theme_minimal() +
-  theme(
-    legend.position = c(0.05, 0.95),
-    legend.justification = c(0.0, 1.0),
-    legend.background = element_rect(fill = 'white')
-  ) +
-  labs(x = "Session year", y = "Number of sessions", fill = "NPI present")
-print(plt)
-save_plot(plt, "npi-presence_v_year")
+for (variable in list(
+  list(name = "NPI_apathy_present", description = "NPI apathy", filename = "npi"),
+  list(name = "UPDRS_apathy", description = "UPDRS apathy", filename = "updrs")
+)) {
 
-# Missing by session number?
-plt <- full_data %>%
-  ggplot(aes(session_number, fill = NPI_present)) +
-  geom_bar(position = "stack") +
-  theme_minimal() +
-  theme(
-    legend.position = c(0.95, 0.95),
-    legend.justification = c(1.0, 1.0),
-    legend.background = element_rect(fill = 'white')
-  ) +
-  labs(x = "Session number", y = "Number of sessions", fill = "NPI present")
-print(plt)
-save_plot(plt, "npi-presence_v_session")
+  # Missing by year?
+  plt <- full_data %>%
+    mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
+    #filter(full_assessment == TRUE) %>%
+    ggplot(aes_string(
+      x = "session_date", fill = paste("!is.na(", variable$name, ")", sep = "")
+    )) +
+    geom_bar(position = "stack") +
+    scale_fill_discrete(
+      breaks = c(FALSE, TRUE),
+      labels = c("Missing", "Present")
+    ) +
+    theme_light() +
+    theme(
+      legend.position = c(0.05, 0.95),
+      legend.justification = c(0.0, 1.0),
+      legend.background = element_rect(colour = "black")
+    ) +
+    labs(
+      x = "Session year",
+      y = "Number of sessions",
+      fill = variable$description,
+      title = paste(dim(full_data)[1], "sessions")
+    )
+  print(plt)
+  save_plot(plt, paste(variable$filename, "-presence_v_year", sep = ""))
+
+  # Missing by session number?
+  plt <- full_data %>%
+    #filter(full_assessment == TRUE) %>%
+    ggplot(aes_string(
+      x = "session_number", fill = paste("!is.na(", variable$name, ")", sep = "")
+    )) +
+    geom_bar(position = "stack") +
+    scale_fill_discrete(
+      breaks = c(FALSE, TRUE),
+      labels = c("Missing", "Present")
+    ) +
+    theme_light() +
+    theme(
+      legend.position = c(0.95, 0.95),
+      legend.justification = c(1.0, 1.0),
+      legend.background = element_rect(colour = "black")
+    ) +
+    labs(
+      x = "Session number",
+      y = "Number of sessions",
+      fill = variable$description,
+      title = paste(dim(full_data)[1], "sessions")
+    )
+  print(plt)
+  save_plot(plt, paste(variable$filename, "-presence_v_session", sep = ""))
+
+}
 
 ###############################################################################
 # Cross-tabulate NPI and MDS-UPDRS scores

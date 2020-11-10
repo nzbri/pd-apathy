@@ -105,13 +105,19 @@ recruitment date.
 
 ---------
 
-### Consistency of NPI administration
+### Consistency of collection of apathy measures
 
-The figure below shows a large number of missing sessions in 2015. This was due
-to different data collection procedures at the start of the PET study, and as
-these were mostly new participants this is also responsible for the large spike
-in missing NPI assessments in baseline sessions (discussed with Kyla Horne,
-28/10/2020).
+The figure below shows several effects:
+
+ + There a large number of missing sessions in 2015. This was due to different
+   data collection procedures at the start of the PET study, and as these were
+   mostly new participants this is also responsible for the large spike in
+   missing assessments in baseline sessions (discussed with Kyla Horne,
+   28/10/2020).
+
+ + The missing UPDRS data from 2010 and before relates to the change in
+   protocol: the updated MDS-UPDRS contains questions specific to apathy, but
+   the 1987 version in use originally does not.
 
 --------
 
@@ -122,7 +128,14 @@ in missing NPI assessments in baseline sessions (discussed with Kyla Horne,
 <img src="Figures/npi-presence_v_session.jpg" width="45%">
 </a>
 
-**Figure**: Breakdown of the sessions with a complete NPI assessment by both
+<a href="Figures/updrs-presence_v_year.pdf">
+<img src="Figures/updrs-presence_v_year.jpg" width="45%">
+</a>
+<a href="Figures/updrs-presence_v_session.pdf">
+<img src="Figures/updrs-presence_v_session.jpg" width="45%">
+</a>
+
+**Figure**: Breakdown of the sessions with available apathy measures by both
 year and the session number.
 
 ---------
