@@ -126,6 +126,64 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 }
 
 ###############################################################################
+# Key summaries of data collection process itself
+
+# When was the data collected
+plt <- full_data %>%
+  mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
+  ggplot(aes(x = session_date, fill = (session_number == 1))) +
+  geom_bar(position = "stack") +
+  scale_fill_discrete(
+    breaks = c(TRUE, FALSE),
+    labels = c("Baseline", "Follow-up")
+  ) +
+  theme_light() +
+  theme(
+    legend.position = c(0.05, 0.95),
+    legend.justification = c(0.0, 1.0),
+    legend.background = element_rect(colour = "black")
+  ) +
+  labs(
+    x = "Session year",
+    y = "Number of sessions",
+    fill = "Session type",
+    title = paste(dim(full_data)[1], "sessions")
+  )
+print(plt)
+save_plot(plt, "session-type_v_year")
+
+# How many follow-ups per subject
+plt <- full_data %>%
+  #mutate(date_baseline = lubridate::floor_date(date_baseline, unit = "year")) %>%
+  group_by(subject_id) %>%
+  filter(session_number == max(session_number)) %>%
+  ungroup() %>%
+  ggplot(aes(x = session_number)) +  # fill = ordered(date_baseline)
+  geom_bar(position = "stack") +
+  theme_light() +
+  labs(
+    x = "Total number of sessions",
+    y = "Number of patients"
+  )
+print(plt)
+save_plot(plt, "session-number")
+
+# How far after baseline did the follow-ups occur?
+plt <- full_data %>%
+  filter(session_number != 1) %>%
+  ggplot(aes(x = years_from_baseline)) +
+  geom_histogram(
+    position = "stack", binwidth = 1.0, boundary = 0.0, color = "white"
+  ) +
+  theme_light() +
+  labs(
+    x = "Years from baseline",
+    y = "Number of sessions (excluding baselines)"
+  )
+print(plt)
+save_plot(plt, "years-from-baseline")
+
+###############################################################################
 # Key properties of 'raw' data, independent of apathy
 
 #Grouping?
@@ -470,7 +528,7 @@ for (plot_config in list(
 plt <- full_data %>%
   ggplot(aes(ordered(NPI_apathy_score, levels = 0:12), fill = NULL)) +
   geom_bar() +
-  scale_x_discrete(drop=FALSE) +
+  scale_x_discrete(drop = FALSE) +
   labs(x = "NPI apathy score (frequency × severity)", y = "Number of sessions") +
   theme_light()
 print(plt)
@@ -479,7 +537,7 @@ print(plt)
 plt <- full_data %>%
   ggplot(aes(UPDRS_apathy, fill = NULL)) +
   geom_bar() +
-  scale_x_discrete(drop=FALSE) +
+  scale_x_discrete(drop = FALSE) +
   labs(x = "MDS-UPDRS apathy rating", y = "Number of sessions") +
   theme_light()
 print(plt)

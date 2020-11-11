@@ -5,6 +5,28 @@ simple overviews of demographics and some quality control measures.
 
 All images are clickable links to the higher-quality PDFs.
 
+### Data collection
+
+The following figures show some summaries of key metrics pertaining to data
+collection: number of sessions, times from baseline, etc.
+
+---------
+
+<a href="Figures/session-type_v_year.pdf">
+<img src="Figures/session-type_v_year.jpg" width="45%">
+</a>
+
+<a href="Figures/session-number.pdf">
+<img src="Figures/session-number.jpg" width="45%">
+</a>
+<a href="Figures/years-from-baseline.pdf">
+<img src="Figures/years-from-baseline.jpg" width="45%">
+</a>
+
+**Figure**: Summaries of the key variables relating to data collection.
+
+---------
+
 ### Demographic information
 
 The following figures show some simple, cross-sectional summaries of the
