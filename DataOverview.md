@@ -15,6 +15,7 @@ collection: number of sessions, times from baseline, etc.
 <a href="Figures/session-type_v_year.pdf">
 <img src="Figures/session-type_v_year.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/session-number.pdf">
 <img src="Figures/session-number.jpg" width="45%">
@@ -40,6 +41,7 @@ patient- and session-level data included in the main analyses.
 <a href="Figures/age_at_session.pdf">
 <img src="Figures/age_at_session.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/motor-scores_at_baseline.pdf">
 <img src="Figures/motor-scores_at_baseline.jpg" width="45%">
@@ -47,6 +49,7 @@ patient- and session-level data included in the main analyses.
 <a href="Figures/motor-scores_at_session.pdf">
 <img src="Figures/motor-scores_at_session.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/cognitive-scores_at_baseline.pdf">
 <img src="Figures/cognitive-scores_at_baseline.jpg" width="45%">
@@ -54,6 +57,7 @@ patient- and session-level data included in the main analyses.
 <a href="Figures/cognitive-scores_at_session.pdf">
 <img src="Figures/cognitive-scores_at_session.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/MoCA_at_baseline.pdf">
 <img src="Figures/MoCA_at_baseline.jpg" width="45%">
@@ -61,6 +65,7 @@ patient- and session-level data included in the main analyses.
 <a href="Figures/MoCA_at_session.pdf">
 <img src="Figures/MoCA_at_session.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/medication_at_baseline.pdf">
 <img src="Figures/medication_at_baseline.jpg" width="45%">
@@ -89,10 +94,12 @@ within-subject are not completely captured by the cross-sectional summary
 <a href="Figures/apathy_v_session-date.pdf">
 <img src="Figures/apathy_v_session-date.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/motor-scores_v_age.pdf">
 <img src="Figures/motor-scores_v_age.jpg" width="90%">
 </a>
+<br>
 
 <a href="Figures/cognitive-scores_v_age.pdf">
 <img src="Figures/cognitive-scores_v_age.jpg" width="90%">
@@ -115,6 +122,7 @@ recruitment date.
 <a href="Figures/age_v_baseline-date.pdf">
 <img src="Figures/age_v_baseline-date.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.pdf">
 <img src="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.jpg" width="45%">
@@ -122,6 +130,7 @@ recruitment date.
 <a href="Figures/years-from-diagnosis_v_baseline-date.pdf">
 <img src="Figures/years-from-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/motor-scores_v_baseline-date.pdf">
 <img src="Figures/motor-scores_v_baseline-date.jpg" width="45%">
@@ -129,6 +138,7 @@ recruitment date.
 <a href="Figures/cognitive-scores_v_baseline-date.pdf">
 <img src="Figures/cognitive-scores_v_baseline-date.jpg" width="45%">
 </a>
+<br>
 
 **Figure**: Changes in key subject-specific variables as a function of
 recruitment date.
@@ -157,6 +167,7 @@ The figure below shows several effects:
 <a href="Figures/npi-presence_v_session.pdf">
 <img src="Figures/npi-presence_v_session.jpg" width="45%">
 </a>
+<br>
 
 <a href="Figures/updrs-presence_v_year.pdf">
 <img src="Figures/updrs-presence_v_year.jpg" width="45%">
