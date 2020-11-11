@@ -488,9 +488,8 @@ print(plt)
 ###############################################################################
 # "Matchstick" plots of progression
 
-# Plot summarising each subjects study timeline
+# Apathy status v. years from baseline
 plt <- full_data %>%
-#full_data %>%
   # Calculate how long each subject has been followed up for in total
   group_by(subject_id) %>%
   arrange(session_date) %>%
@@ -520,12 +519,42 @@ plt <- full_data %>%
   theme(
     axis.ticks = element_line(colour = "lightgrey"),
     axis.ticks.y = element_blank(),
-    #panel.grid.minor = element_blank(),
     legend.position = c(0.95, 0.95),
     legend.justification = c(1.0, 1.0),
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy-progression", width = 6.0, height = 8.0)
+save_plot(plt, "apathy_v_years-from-baseline", width = 6.0, height = 8.0)
+
+# Apathy status v. session date
+plt <- full_data %>%
+  # Order subjects based on date of baseline
+  arrange(desc(date_baseline)) %>%
+  mutate(case_num = match(subject_id, unique(subject_id))) %>%
+  # And then plot!
+  ggplot(aes(
+    x = session_date,
+    y = case_num,
+    group = subject_id
+  )) +
+  geom_line(aes(colour = apathy_present.interp), alpha = 0.75, size = 0.25) +
+  geom_point(aes(colour = apathy_present), size = 0.25) +
+  scale_y_discrete(breaks = NULL) +
+  scale_colour_manual(values = colours.apathy_present) +
+  labs(
+    x = "Session date",
+    y = "Patients",
+    colour = "Apathetic"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.ticks = element_line(colour = "lightgrey"),
+    axis.ticks.y = element_blank(),
+    legend.position = c(0.05, 0.05),
+    legend.justification = c(0.0, 0.0),
+    legend.background = element_rect(fill = "white")
+  )
+print(plt)
+save_plot(plt, "apathy_v_session-date", width = 6.0, height = 8.0)
 
 ###############################################################################

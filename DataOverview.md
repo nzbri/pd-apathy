@@ -61,8 +61,11 @@ within-subject are not completely captured by the cross-sectional summary
 
 ---------
 
-<a href="Figures/apathy-progression.pdf">
-<img src="Figures/apathy-progression.jpg" width="90%">
+<a href="Figures/apathy_v_years-from-baseline.pdf">
+<img src="Figures/apathy_v_years-from-baseline.jpg" width="45%">
+</a>
+<a href="Figures/apathy_v_session-date.pdf">
+<img src="Figures/apathy_v_session-date.jpg" width="45%">
 </a>
 
 <a href="Figures/motor-scores_v_age.pdf">
