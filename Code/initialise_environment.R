@@ -21,19 +21,22 @@ required_packages = c(
 )
 
 # Check all present and correct
-function(required_packages) {
+check_packages <- function(required_packages) {
   missing_packages <-
-    required_packages[! required_packages %in% installed.packages()]
-  if(length(missing_packages) != 0) {
+    required_packages[!(required_packages %in% installed.packages()[,"Package"])]
+  if (length(missing_packages) != 0) {
     stop(paste("Missing packages:", paste(missing_packages, collapse = ", ")))
   }
-}(required_packages)
+  return()
+}
+check_packages(required_packages)
 
 ###############################################################################
 # Load as necessary
 
 # -----------------------------------------------------------------------------
 # Installation of CHCHPD package: https://github.com/nzbri/chchpd
+#install.packages("devtools")
 #devtools::install_github("nzbri/chchpd")
 #library(chchpd)
 
@@ -46,7 +49,7 @@ function(required_packages) {
 
 # -----------------------------------------------------------------------------
 
-#library(rstan)
+library(rstan)
 options(mc.cores = parallel::detectCores())
 rstan::rstan_options(auto_write = TRUE)
 
@@ -64,6 +67,7 @@ library(tidyverse)
 # Print summary of environment
 
 print(paste("Current directory:", getwd()))
+
 print(
   required_packages %>%
     map(packageDescription, fields = c("Package", "Version")) %>%
@@ -71,8 +75,10 @@ print(
     as.data.frame()
 )
 
+#print(.packages())
+
 ###############################################################################
 
-rm(required_packages)
+rm(required_packages, check_packages)
 
 ###############################################################################
