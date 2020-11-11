@@ -55,10 +55,15 @@ at baseline and pooled across all sessions.
 ### Demographic information (longitudinal)
 
 The following figures show how some key metrics change over time within
-subject. Note how the dynamics of progression within-subject are not completely
-captured by the cross-sectional summary (black line).
+subject. Note how, for the continuous variables, the dynamics of progression
+within-subject are not completely captured by the cross-sectional summary
+(black line).
 
 ---------
+
+<a href="Figures/apathy-progression.pdf">
+<img src="Figures/apathy-progression.jpg" width="90%">
+</a>
 
 <a href="Figures/motor-scores_v_age.pdf">
 <img src="Figures/motor-scores_v_age.jpg" width="90%">
