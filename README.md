@@ -11,6 +11,13 @@ The general properties of the data itself are detailed in
 
 ### Background
 
+### Running the Code
+
+```R
+setwd("pd-apathy/Code/")
+source("export_data.R", echo = TRUE)
+```
+
 ### Contributors
 
  + [Sam Harrison](https://www.nzbri.org/People/harrison/)
