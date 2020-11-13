@@ -32,6 +32,25 @@ Methods:
 
 ### Data selection
 
+##### Definition of apathy
+
+There are three possible sources of information about apathy within the data
+itself:
+the [Neuropsychiatric Inventory (NPI)](http://npitest.net/npi/about-npi.html),
+the [MDS-Unified Parkinson's Disease Rating Scale (MDS-UPDRS)](https://www.movementdisorders.org/MDS/MDS-Rating-Scales/MDS-Unified-Parkinsons-Disease-Rating-Scale-MDS-UPDRS.htm),
+and the [Geriatric Depression Scale (GDS)](https://doi.org/10.1300/J018v05n01_09).
+
+They all differ slightly in the consistency of administration, scoring of
+apathetic symptoms, and procedure (see
+[issue #1](https://github.com/nzbri/pd-apathy/issues/1)).
+
+Our core measure of apathy here is the binary response for the presence/absence
+of symptoms from the NPI. This has been most consistently administered within
+the cohort here, and widely used in other studies. The core hypotheses and
+analyses therefore pertain to this metric, but it should be noted that the
+sub-scores are available for more detailed analyses, and the responses from the
+other tests are available to examine the consistency of the measures.
+
 ##### Inclusion criteria
 
  + Subject: `participant_group == 'PD'`
