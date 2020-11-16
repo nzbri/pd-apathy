@@ -19,7 +19,7 @@ Model definition:
     + Sex.
     + Ethnicity.
     + Education.
-    + Age at diagnosis (or symptom onset?).
+    + Age at diagnosis.
 
  + Fixed effects (within subject):
     + Time since diagnosis.
@@ -58,6 +58,21 @@ model <- brms::brm(
   data = data
 )
 ```
+
+##### Rationale
+
+*Temporal baseline:* While the dates of symptom onset, diagnosis, and the
+baseline session could all have been used as each subject's reference point,
+the date of diagnosis was chosen as the most naturally available clinical
+metric. Of course, all are only estimates of a common timeframe of disease
+progression, and the random intercepts within-subject will (amongst others)
+account for differences in the time of diagnosis across subjects due to the
+linearity of the model.
+
+*Within-subject fixed effects:* The goal here was to define a broad set of
+standard measures that capture different notions of 'progression' in a clinical
+context. The interest is in whether apathy develops over time, and, more
+specifically, whether this accompanies changes in other symptom domains.
 
 
 ### Data selection
