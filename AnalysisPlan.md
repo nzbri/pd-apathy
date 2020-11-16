@@ -46,13 +46,17 @@ Methods / inference:
 
 This would render the following (pseudo) BRMS formula:
 ```R
-formula = apathy ~
-  1 + sex + ethnicity + education +
-  diagnosis_age + years_from_diagnosis +
-  diagnosis_age:years_from_diagnosis +
-  UPDRS_motor_score + global_z + LED +
-  poly(baseline_date, 2) +
-  (1 + years_from_diagnosis | subject_id),
+model <- brms::brm(
+  formula = apathy ~
+    1 + sex + ethnicity + education +
+    diagnosis_age + years_from_diagnosis +
+    diagnosis_age:years_from_diagnosis +
+    UPDRS_motor_score + global_z + LED +
+    poly(baseline_date, 2) +
+    (1 + years_from_diagnosis | subject_id),
+  family = brms::bernoulli(link = "logit"),
+  data = data
+)
 ```
 
 
