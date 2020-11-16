@@ -7,27 +7,51 @@ analyses in more detail.
 ### Quantifying prevalence and dynamics of apathy
 
 Core analysis: a Bayesian, mixed effects, logistic regression relating
-diagnosed apathy to core patient information.
+reported apathy to core patient information. The model itself seeks to explain
+both the cross-sectional prevalence of apathy (including the effects of age,
+sex, etc.) and its first-order temporal dynamics (including whether progression
+is better modelled by correlations with motor/cognitive scores than simply
+years since diagnosis).
 
-Fixed effects:
+Fixed effects (cross sectional):
  + Intercept (i.e. overall prevalence).
  + Sex.
  + Ethnicity.
  + Education.
  + Age at diagnosis (or symptom onset?).
+
+Fixed effects (within subject):
  + Time since diagnosis.
- + Medication: levodopa equivalent dose (LED).
+ + UPDRS motor score.
  + Global cognitive score (aggregate z-score across four domains).
+ + Medication: levodopa equivalent dose (LED).
+
+Fixed effects (interactions):
+ + Age at diagnosis and time since diagnosis.
 
 Random effects:
  + Subject-specific intercept (i.e. baseline propensity)
  + Subject-specific slope with time since diagnosis (i.e. rate of progression).
+
+Confounds:
+ + Date of baseline session (quadratic).
 
 Methods:
  + [`brms`](https://github.com/paul-buerkner/brms)\
    See e.g. Horne et al., medRxiv, 2020 (DOI:
    [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
    for a related set of analyses focusing on PDD.
+
+This would render the following (pseudo) BRMS formula:
+```R
+formula = apathy ~
+  1 + sex + ethnicity + education +
+  diagnosis_age + years_from_diagnosis +
+  diagnosis_age:years_from_diagnosis +
+  UPDRS_motor_score + global_z + LED +
+  poly(baseline_date, 2) +
+  (1 + years_from_diagnosis | subject_id),
+```
 
 
 ### Data selection
