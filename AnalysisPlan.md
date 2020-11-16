@@ -28,7 +28,7 @@ Model definition:
     + Medication: levodopa equivalent dose (LED).
 
  + Fixed effects (interactions):
-    + Age at diagnosis and time since diagnosis.
+    + Age at diagnosis and sex with time since diagnosis.
 
  + Random effects:
     + Subject-specific intercept (i.e. baseline propensity)
@@ -48,11 +48,15 @@ This would render the following (pseudo) BRMS formula:
 ```R
 model <- brms::brm(
   formula = apathy ~
-    1 + sex + ethnicity + education +
-    diagnosis_age + years_from_diagnosis +
-    diagnosis_age:years_from_diagnosis +
-    UPDRS_motor_score + global_z + LED +
+    # Cross subject
+    1 + sex + ethnicity + education + diagnosis_age +
+    # Within subject
+    years_from_diagnosis + UPDRS_motor_score + global_z + LED +
+    # Interactions
+    (sex + diagnosis_age):years_from_diagnosis +
+    # Confounds
     poly(baseline_date, 2) +
+    # Random effects
     (1 + years_from_diagnosis | subject_id),
   family = brms::bernoulli(link = "logit"),
   data = data
