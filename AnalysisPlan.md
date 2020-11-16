@@ -13,30 +13,32 @@ sex, etc.) and its first-order temporal dynamics (including whether progression
 is better modelled by correlations with motor/cognitive scores than simply
 years since diagnosis).
 
-Fixed effects (cross sectional):
- + Intercept (i.e. overall prevalence).
- + Sex.
- + Ethnicity.
- + Education.
- + Age at diagnosis (or symptom onset?).
+Model definition:
+ + Fixed effects (cross sectional):
+    + Intercept (i.e. overall prevalence).
+    + Sex.
+    + Ethnicity.
+    + Education.
+    + Age at diagnosis (or symptom onset?).
 
-Fixed effects (within subject):
- + Time since diagnosis.
- + UPDRS motor score.
- + Global cognitive score (aggregate z-score across four domains).
- + Medication: levodopa equivalent dose (LED).
+ + Fixed effects (within subject):
+    + Time since diagnosis.
+    + UPDRS motor score.
+    + Global cognitive score (aggregate z-score across four domains).
+    + Medication: levodopa equivalent dose (LED).
 
-Fixed effects (interactions):
- + Age at diagnosis and time since diagnosis.
+ + Fixed effects (interactions):
+    + Age at diagnosis and time since diagnosis.
 
-Random effects:
- + Subject-specific intercept (i.e. baseline propensity)
- + Subject-specific slope with time since diagnosis (i.e. rate of progression).
+ + Random effects:
+    + Subject-specific intercept (i.e. baseline propensity)
+    + Subject-specific slope with time since diagnosis (i.e. rate of
+      progression).
 
-Confounds:
- + Date of baseline session (quadratic).
+ + Confounds:
+    + Date of baseline session (quadratic).
 
-Methods:
+Methods / inference:
  + [`brms`](https://github.com/paul-buerkner/brms)\
    See e.g. Horne et al., medRxiv, 2020 (DOI:
    [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
