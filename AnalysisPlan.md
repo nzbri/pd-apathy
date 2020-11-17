@@ -7,10 +7,10 @@ analyses in more detail.
 
 ### Table of contents
 
- + [Quantifying prevalence and dynamics of apathy](core-analyis)
- + [Data collection and variable definitions](data-collection)
- + [Data selection](data-selection)
- + [Exploratory analyses & visualisations](exploratory-analyses)
+ + [Quantifying prevalence and dynamics of apathy](#core-analyis)
+ + [Data collection and variable definitions](#data-collection)
+ + [Data selection](#data-selection)
+ + [Exploratory analyses & visualisations](#exploratory-analyses)
 
 
 <a name="core-analyis"></a>
