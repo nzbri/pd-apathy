@@ -4,6 +4,16 @@ This contains the core hypotheses and details of the key analyses to be
 performed. A [separate document](Imaging/AnalysisPlan.md) details the imaging
 analyses in more detail.
 
+
+### Table of contents
+
+ + [Quantifying prevalence and dynamics of apathy](core-analyis)
+ + [Data collection and variable definitions](data-collection)
+ + [Data selection](data-selection)
+ + [Exploratory analyses & visualisations](exploratory-analyses)
+
+
+<a name="core-analyis"></a>
 ### Quantifying prevalence and dynamics of apathy
 
 Core analysis: a Bayesian, mixed effects, logistic regression relating
@@ -79,7 +89,11 @@ context. The interest is in whether apathy develops over time, and, more
 specifically, whether this accompanies changes in other symptom domains.
 
 
-### Data selection
+<a name="data-collection"></a>
+### Data collection and variable definitions
+
+This subsection contains a brief overview of the most salient information with
+regards to the study protocols and derived variables.
 
 ##### Definition of apathy
 
@@ -119,6 +133,10 @@ References:
  + `NZBRI PD Progression Study/Admin/Study description/Progression_study_Explanation of Data Export for MJFF_NZBRI_KW01.docx`
  + <https://github.com/nzbri/redcap/blob/6090f1ee3449130a85a32cc9a9badb170be1b0bb/python/export.py#L828>
 
+
+<a name="data-selection"></a>
+### Data selection
+
 ##### Inclusion criteria
 
  + Subject: `participant_group == 'PD'`
@@ -135,6 +153,7 @@ References:
  + Session: `np_excluded == TRUE`
 
 
+<a name="exploratory-analyses"></a>
 ### Exploratory analyses & visualisations
 
  + Summarise number of participants, follow up visits, time between sessions
