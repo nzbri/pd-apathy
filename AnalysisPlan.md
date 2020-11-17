@@ -16,31 +16,31 @@ analyses in more detail.
 <a name="core-analyis"></a>
 ### Quantifying prevalence and dynamics of apathy
 
-Core analysis: a Bayesian, mixed effects, logistic regression relating
-reported apathy to core patient information. The model itself seeks to explain
-both the cross-sectional prevalence of apathy (including the effects of age,
-sex, etc.) and its first-order temporal dynamics (including whether progression
-is better modelled by correlations with motor/cognitive scores than simply
-years since diagnosis).
+Core analysis: a hierarchical Bayesian logistic regression relating reported
+apathy to core patient information. The model itself seeks to explain both the
+cross-sectional prevalence of apathy (including the effects of age, sex, etc.)
+and its first-order temporal dynamics (including whether progression is better
+modelled by correlations with motor/cognitive scores than simply years since
+diagnosis).
 
 Model definition:
- + Fixed effects (cross sectional):
+ + Subject-level predictors:
     + Intercept (i.e. overall prevalence).
     + Sex.
     + Ethnicity.
     + Education.
     + Age at diagnosis.
 
- + Fixed effects (within subject):
+ + Session-level predictors:
     + Time since diagnosis.
     + UPDRS motor score.
     + Global cognitive score (aggregate z-score across four domains).
     + Medication: levodopa equivalent dose (LED).
 
- + Fixed effects (interactions):
+ + Interactions:
     + Age at diagnosis and sex with time since diagnosis.
 
- + Random effects:
+ + Hierarchically modelled variability, grouped by subject:
     + Subject-specific intercept (i.e. baseline propensity)
     + Subject-specific slope with time since diagnosis (i.e. rate of
       progression).
@@ -56,17 +56,18 @@ Methods / inference:
 
 This would render the following (pseudo) BRMS formula:
 ```R
+# See vignette("brms_multilevel") for notation and nomenclature
 model <- brms::brm(
   formula = apathy ~
-    # Cross subject
+    # pterms: subject-level
     1 + sex + ethnicity + education + diagnosis_age +
-    # Within subject
+    # pterms: session-level
     years_from_diagnosis + UPDRS_motor_score + global_z + LED +
-    # Interactions
+    # pterms: interaction
     (sex + diagnosis_age):years_from_diagnosis +
-    # Confounds
+    # pterms: confounds
     poly(baseline_date, 2) +
-    # Random effects
+    # gterms
     (1 + years_from_diagnosis | subject_id),
   family = brms::bernoulli(link = "logit"),
   data = data
