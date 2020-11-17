@@ -100,6 +100,25 @@ analyses therefore pertain to this metric, but it should be noted that the
 sub-scores are available for more detailed analyses, and the responses from the
 other tests are available to examine the consistency of the measures.
 
+##### Cognitive scores
+
+A large number of cognitive tests are administered to participants, and most of
+these are automatically collapsed down to a simple set of summary measures.
+Primarily, this is as a cross-domain global z-score (i.e. `global_z`), which is
+itself the mean over more than 20 tests. The individual tests are z-scored
+based on either control data or published conversion tables, where available.
+
+Finally, these scores are also available on a per domain basis:
+ + `attention_domain`: Attention, working memory and processing speed.
+ + `executive_domain`: Executive function.
+ + `visuo_domain`: Visuoperceptual / visuospatial.
+ + `learning_memory_domain`: Learning and memory.
+ + `language_domain`: Language.
+
+References:
+ + `NZBRI PD Progression Study/Admin/Study description/Progression_study_Explanation of Data Export for MJFF_NZBRI_KW01.docx`
+ + <https://github.com/nzbri/redcap/blob/6090f1ee3449130a85a32cc9a9badb170be1b0bb/python/export.py#L828>
+
 ##### Inclusion criteria
 
  + Subject: `participant_group == 'PD'`
