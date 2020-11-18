@@ -84,7 +84,7 @@ full_data <- full_data %>%
   ungroup() %>%
   mutate(across(
     starts_with("apathy_present"),
-    ~ factor(.x, levels = c(0, 1, 2), labels = c("Unkown", "No", "Yes"))
+    ~ factor(.x, levels = c(0, 1, 2), labels = c("Unknown", "No", "Yes"))
   ))
 #full_data %>% select(subject_id, session_date, starts_with("apathy_present")) %>% print(n = 20)
 
