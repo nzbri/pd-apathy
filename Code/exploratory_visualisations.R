@@ -633,8 +633,13 @@ for (years in seq(from = 0.0, to = 14.0, by = delta)) {
     group_by(subject_id) %>%
     slice_max(years_from_baseline - delta * (apathy_present == "Unknown")) %>%
     ungroup() %>%
-    # Record status
-    mutate(current_status = apathy_present) %>%
+    # Record status (as character as we add more categories)
+    mutate(current_status = as.character(apathy_present)) %>%
+    mutate(current_status = if_else(
+      (current_status == "No") & (apathy_present.worst_to_date == "Yes"),
+      "Remission",
+      current_status
+    )) %>%
     select(subject_id, current_status)
 
   # And see if we can work out why data is missing
@@ -654,7 +659,7 @@ for (years in seq(from = 0.0, to = 14.0, by = delta)) {
           "Unknown",
           if_else(dead, "Deceased", "No follow-ups"),
         ),
-        as.character(current_status)
+        current_status
       )
     ) %>%
     select(subject_id | contains("apathy_status"))
@@ -668,7 +673,12 @@ for (years in seq(from = 0.0, to = 14.0, by = delta)) {
 status_by_year <- status_by_year %>%
   mutate(across(
     contains("apathy_status"),
-    ~ fct_rev(factor(.x, levels = c("Yes", "No", "Unknown", "No follow-ups", "Deceased")))
+    ~ factor(
+      .x,
+      levels = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups"),
+      labels = c("Y", "R", "N", "U", "D", NA),  # , "?",
+      exclude = NULL  # i.e. include NA as a level, helps with plot ordering
+    )
   ))
 
 #status_by_year <- rownames_to_column(as_tibble(sapply(select(status_by_year, contains("apathy_status")), function(x) table(x)), rownames = NA))
@@ -687,11 +697,18 @@ status_by_year %>%
     fill = stratum,
     label = stratum
   )) +
-  scale_x_discrete(expand = c(.1, .1)) +
+  scale_x_discrete(expand = c(.1, .1), labels = seq(0,10,2)) +
   geom_flow() +
   geom_stratum(alpha = .5) +
-  geom_text(stat = "stratum", size = 3) +
-  theme(legend.position = "none") +
-  ggtitle("vaccination survey responses at three points in time")
+  geom_text(stat = "stratum", size = 2) +
+  scale_fill_discrete(labels = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups")) +
+  scale_y_reverse() +
+  #theme(legend.position = "none") +
+  labs(
+    x = "Years from baseline",
+    y = "Patients",
+    fill = "Apathy status"
+  ) +
+  theme_minimal()
 
 ###############################################################################
