@@ -616,3 +616,82 @@ print(plt)
 save_plot(plt, "apathy_v_session-date", width = 6.0, height = 8.0)
 
 ###############################################################################
+# Alluvial plots of changing apathy status
+
+status_by_year = full_data %>% select(subject_id) %>% unique()
+delta = 2.0  # years
+for (years in seq(from = 0.0, to = 14.0, by = delta)) {
+  print(years)
+
+  # Pull out the status within the current time window
+  current_status <- full_data %>%
+    # Extract all sessions with recorded apathy within window of past `delta` years
+    filter(
+      (years_from_baseline <= years) & (years_from_baseline > years - delta)
+    ) %>%
+    # And take the most recent (favouring positive evidence)
+    group_by(subject_id) %>%
+    slice_max(years_from_baseline - delta * (apathy_present == "Unknown")) %>%
+    ungroup() %>%
+    # Record status
+    mutate(current_status = apathy_present) %>%
+    select(subject_id, current_status)
+
+  # And see if we can work out why data is missing
+  current_status <-
+    left_join(full_data, current_status, by = "subject_id") %>%
+    # Does a subject have data at a later date?
+    group_by(subject_id) %>%
+    mutate(subsequent_sessions_present = (FU_latest >= years)) %>%
+    slice_head() %>%  # Back to one session per subject
+    ungroup() %>%
+    # Use that info to recode missing data
+    mutate(
+      "apathy_status.{years}_years" := if_else(
+        is.na(current_status),
+        if_else(
+          subsequent_sessions_present,
+          "Unknown",
+          if_else(dead, "Deceased", "No follow-ups"),
+        ),
+        as.character(current_status)
+      )
+    ) %>%
+    select(subject_id | contains("apathy_status"))
+  print(current_status %>% count(across(contains("apathy_status"))))
+
+  status_by_year <- status_by_year %>%
+    left_join(current_status, by = "subject_id")
+
+}
+
+status_by_year <- status_by_year %>%
+  mutate(across(
+    contains("apathy_status"),
+    ~ fct_rev(factor(.x, levels = c("Yes", "No", "Unknown", "No follow-ups", "Deceased")))
+  ))
+
+#status_by_year <- rownames_to_column(as_tibble(sapply(select(status_by_year, contains("apathy_status")), function(x) table(x)), rownames = NA))
+#status_by_year <- status_by_year %>%
+#  count(across(contains("apathy_status")))
+
+# https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
+status_by_year %>%
+  count(across(contains("apathy_status"))) %>%
+  to_lodes_form(axes = 1:6, weight = n) %>%
+  ggplot(aes(
+    x = x,
+    y = n,
+    alluvium = alluvium,
+    stratum = stratum,
+    fill = stratum,
+    label = stratum
+  )) +
+  scale_x_discrete(expand = c(.1, .1)) +
+  geom_flow() +
+  geom_stratum(alpha = .5) +
+  geom_text(stat = "stratum", size = 3) +
+  theme(legend.position = "none") +
+  ggtitle("vaccination survey responses at three points in time")
+
+###############################################################################

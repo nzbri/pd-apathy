@@ -17,7 +17,7 @@
 ###############################################################################
 
 required_packages = c(
-  "chchpd", "rstan", "brms", "tidyverse"
+  "chchpd", "rstan", "brms", "tidyverse", "ggalluvial"
 )
 
 # Check all present and correct
@@ -62,12 +62,14 @@ library(brms)
 # -----------------------------------------------------------------------------
 
 library(tidyverse)
+library(ggalluvial)
 
 ###############################################################################
 # Print summary of environment
 
 print(paste("Current directory:", getwd()))
 
+print("Core packages:")
 print(
   required_packages %>%
     map(packageDescription, fields = c("Package", "Version")) %>%
