@@ -33,11 +33,29 @@ participants <- participants %>%
 # -----------------------------------------------------------------------------
 
 sessions <- chchpd::import_sessions()
-# Remove study-specific variables and duplicate sessions
 sessions <- sessions %>%
+  group_by(session_id) %>%
+  # Tidy up and collate all the different studies
+  arrange(study) %>%
+  mutate(studies = list(as.character(study))) %>%
+  mutate(mri_scan_no = na_if(mri_scan_no, "None")) %>%
+  fill(study_excluded, mri_scan_no, .direction = "downup") %>%
+  ungroup %>%
+  # Remove study-specific variables and duplicate sessions
   mutate(across(c(study_excluded), as.logical)) %>%
-  select(subject_id, session_id, session_date, study_excluded, age, mri_scan_no) %>%
-  distinct(session_id, .keep_all = TRUE)
+  select(
+    subject_id, session_id, session_date,
+    studies, study_excluded, age, mri_scan_no
+  ) %>%
+  distinct(.keep_all = TRUE)
+
+# Check we have got unique sessions
+stopifnot(
+  sessions %>%
+    group_by(session_id) %>%
+    filter(n() > 1) %>%
+    is_empty()
+)
 
 # @m-macaskill: Convention for e.g. `study_excluded` is to go off positive
 # evidence, as some of the data predates some of the auto-validations that
