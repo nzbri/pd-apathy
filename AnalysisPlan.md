@@ -190,6 +190,8 @@ References:
  + Subject: Incomplete neuropsychiatric assessment at baseline
  + Session: screening visit only
  + Session: `np_excluded == TRUE`
+ + Session: data inconsistencies
+    + Gap between patient and significant other sessions greater than 90 days.
 
 
 <a name="exploratory-analyses"></a>

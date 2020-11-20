@@ -174,6 +174,10 @@ full_data <-
   left_join(motor_scores, by = "session_id") %>%
   left_join(mds_updrs, by = "session_id")
 
+# Remove obvious data inconsistencies
+full_data <- full_data %>%
+  filter(abs(as.numeric(NPI_date - session_date, units = "days")) <= 90)
+
 # Remove subjects with missing / incomplete baselines
 full_data <- filter(
   full_data,
