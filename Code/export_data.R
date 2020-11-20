@@ -54,22 +54,18 @@ participants <- participants %>%
 
 # -----------------------------------------------------------------------------
 
-sessions <- chchpd::import_sessions()
+sessions <- chchpd::import_sessions(exclude = TRUE)  # Deals with `study_excluded` internally
 sessions <- sessions %>%
   sanitise_data() %>%
+  # Tidy up and collate information across sessions
   group_by(session_id) %>%
-  # Tidy up and collate all the different studies
   arrange(study) %>%
   mutate(studies = list(as.character(study))) %>%
   mutate(mri_scan_no = na_if(mri_scan_no, "None")) %>%
-  fill(study_excluded, mri_scan_no, .direction = "downup") %>%
+  fill(mri_scan_no, .direction = "downup") %>%
   ungroup %>%
   # Remove study-specific variables and duplicate sessions
-  mutate(across(c(study_excluded), as.logical)) %>%
-  select(
-    subject_id, session_id, session_date,
-    studies, study_excluded, age, mri_scan_no
-  ) %>%
+  select(subject_id, session_id, session_date, age, studies, mri_scan_no) %>%
   distinct(.keep_all = TRUE)
 
 # Check we have got unique sessions
@@ -80,18 +76,8 @@ stopifnot(
     plyr::empty()
 )
 
-# @m-macaskill: Convention for e.g. `study_excluded` is to go off positive
-# evidence, as some of the data predates some of the auto-validations that
-# generate these fields (i.e. exclude on `FALSE` but not `NA`).
-# See e.g. the source for `chchpd::import_sessions()` itself
-#sessions %>% count(study_excluded) %>% print(n = Inf)
-
 sessions <- sessions %>%
-  filter(!is.na(session_id)) %>%
-  filter(is.na(study_excluded) | study_excluded != TRUE) %>%
   filter(!is.na(session_date) & session_date <= lubridate::today())  # Exclude anything only scheduled to happen
-
-# TODO: Sanity check for different `mri_scan_no`?
 
 # -----------------------------------------------------------------------------
 
@@ -103,6 +89,12 @@ neuropsych <- neuropsych %>%
 
 neuropsych <- neuropsych %>%
   filter(is.na(np_excluded) | np_excluded != TRUE)
+
+# @m-macaskill: Convention for e.g. `np_excluded` is to go off positive
+# evidence, as some of the data predates some of the auto-validations that
+# generate these fields (i.e. exclude on `FALSE` but not `NA`).
+# See e.g. the source for `chchpd::import_sessions()` itself
+#neuropsych %>% count(np_excluded) %>% print(n = Inf)
 
 # -----------------------------------------------------------------------------
 
