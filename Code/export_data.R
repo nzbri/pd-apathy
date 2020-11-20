@@ -77,6 +77,7 @@ stopifnot(
 )
 
 sessions <- sessions %>%
+  filter(!map_lgl(studies, ~ "Screening PD" %in% .x)) %>%
   filter(!is.na(session_date) & session_date <= lubridate::today())  # Exclude anything only scheduled to happen
 
 # -----------------------------------------------------------------------------

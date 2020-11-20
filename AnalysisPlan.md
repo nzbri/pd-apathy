@@ -188,6 +188,7 @@ References:
    Rationale: Cognitive decline will be too strong a confound for patients who
    are already presenting with dementia.
  + Subject: Incomplete neuropsychiatric assessment at baseline
+ + Session: screening visit only
  + Session: `np_excluded == TRUE`
 
 
