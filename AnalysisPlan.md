@@ -96,6 +96,28 @@ specifically, whether this accompanies changes in other symptom domains.
 This subsection contains a brief overview of the most salient information with
 regards to the study protocols and derived variables.
 
+##### Session types
+
+Broadly speaking, there are three types of sessions:
+ + Full sessions are the most comprehensive, containing the full battery of ≈25
+   neuropsychiatric tests (i.e. that are used for the global cognitive scores
+   discussed below), as well as all the other measures.
+ + Short sessions are a stripped down version of the above. The key data from
+   our point of view is MoCA, HADS, UPDRS Part III, and medications.
+ + Screening sessions were used when enrolling the 2015 cohort. These were even
+   shorter than the 'short' sessions and included MoCA, HADS, and a handful of
+   neuropsych tests (but no UPDRS).
+
+Furthermore, some information is collected from significant others /
+caregivers. This happens at both short and full sessions, but not at the
+screening sessions. As such, some other measures (e.g. the NPI, as discussed
+below) are also absent from screening sessions. Finally, this significant other
+session may take place on a different date, but should be within a month or so
+of the participant session.
+
+For more information, see the discussion in
+[issue #8](https://github.com/nzbri/pd-apathy/issues/8).
+
 ##### Definition of apathy
 
 There are three possible sources of information about apathy within the data
@@ -105,15 +127,30 @@ the [MDS-Unified Parkinson's Disease Rating Scale (MDS-UPDRS)](https://www.movem
 and the [Geriatric Depression Scale (GDS)](https://doi.org/10.1300/J018v05n01_09).
 
 They all differ slightly in the consistency of administration, scoring of
-apathetic symptoms, and procedure (see
-[issue #1](https://github.com/nzbri/pd-apathy/issues/1)).
+apathetic symptoms, and procedure.
+ + *NPI:* This is administered at the significant other sessions.
+ + *MDS-UPDRS:* This is collected from the patient at full sessions. We only
+   have the apathy specific portions of the MDS-UPDRS (Part IA, Q1.5) after
+   2010 when the new test was introduced. Furthermore, in short sessions only
+   Part III (motor examination) is collected, so neither these or the screening
+   sessions contain this apathy measure.
+ + *GDS:* This is collected at both the short and full sessions in a
+   conditional two-step process. Four screening questions (including two on
+   apathy) are given, and any positive responses gives a further eleven
+   questions (with another two apathy-related questions).
+
+For more information, see the discussion in
+[issue #1](https://github.com/nzbri/pd-apathy/issues/1).
 
 Our core measure of apathy here is the binary response for the presence/absence
-of symptoms from the NPI. This has been most consistently administered within
-the cohort here, and widely used in other studies. The core hypotheses and
-analyses therefore pertain to this metric, but it should be noted that the
-sub-scores are available for more detailed analyses, and the responses from the
-other tests are available to examine the consistency of the measures.
+of symptoms from the NPI. This has been more consistently administered than the
+MDS-UPDRS question within the cohort here, does not have the complication of
+the two-step procedure like the GDS, and has been widely used in other studies.
+The core hypotheses and analyses therefore pertain to this metric, but it
+should be noted that the sub-scores are available for more detailed analyses,
+and the responses from the other tests are available to examine the consistency
+of the measures (as well as to potentially compare self-report v. significant
+other responses).
 
 ##### Cognitive scores
 
