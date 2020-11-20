@@ -77,7 +77,7 @@ stopifnot(
   sessions %>%
     group_by(session_id) %>%
     filter(n() > 1) %>%
-    is_empty()
+    plyr::empty()
 )
 
 # @m-macaskill: Convention for e.g. `study_excluded` is to go off positive
