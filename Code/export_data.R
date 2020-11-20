@@ -19,10 +19,32 @@
 source("initialise_environment.R")
 
 ###############################################################################
+
+# Small set of first-pass data consistency checks / modifications
+sanitise_data <- function(data) {
+  nrows = nrow(data)
+
+  # Check ID columns
+  cleaned_data <- data %>%
+    filter(across(
+      matches("subject_id") | matches("session_id"),
+      ~ !is.na(.x)
+    ))
+  # Warn if missing
+  nrows_removed = nrows - nrow(cleaned_data)
+  if (nrows_removed > 0) {
+    warning(paste("Removed", nrows_removed, "rows missing subject/session IDs."))
+  }
+
+  return(cleaned_data)
+}
+
+###############################################################################
 # Load from database, excluding as necessary
 
 participants <- chchpd::import_participants()
 participants <- participants %>%
+  sanitise_data() %>%
   select(-survey_id) %>%
   mutate(across(c(participant_group, ethnicity), as.factor)) %>%
   mutate(across(c(excluded_from_followup), as.logical))
@@ -34,6 +56,7 @@ participants <- participants %>%
 
 sessions <- chchpd::import_sessions()
 sessions <- sessions %>%
+  sanitise_data() %>%
   group_by(session_id) %>%
   # Tidy up and collate all the different studies
   arrange(study) %>%
@@ -74,6 +97,7 @@ sessions <- sessions %>%
 
 neuropsych <- chchpd::import_neuropsyc(concise = TRUE)
 neuropsych <- neuropsych %>%
+  sanitise_data() %>%
   mutate(across(c(diagnosis, diagnosis_baseline, np_group), as.factor)) %>%
   select(-npi)  # Use data from CSV below explicitly
 
@@ -88,6 +112,7 @@ npi <- read_csv(file.path("..", "Data", "npi_2020-07-13.csv"))
 # Remove columns that are irrelevant / already covered by `sessions` and
 # `neuropsych` / specific to other domains
 npi <- npi %>%
+  sanitise_data() %>%
   filter(is.na(session_neuropsych_excluded) | session_neuropsych_excluded != "Y" ) %>%
   select(
     -X1, -subject_id, -record_id, -npi_data_missing, -npi_data_missing_reason,
@@ -104,10 +129,14 @@ npi <- npi %>%
 # -----------------------------------------------------------------------------
 
 medications <- chchpd::import_medications(concise = TRUE)
+medications <- medications %>%
+  sanitise_data()
 
 # -----------------------------------------------------------------------------
 
 hads <- chchpd::import_HADS(concise = TRUE)
+hads <- hads %>%
+  sanitise_data()
 
 # -----------------------------------------------------------------------------
 
@@ -115,12 +144,14 @@ hads <- chchpd::import_HADS(concise = TRUE)
 
 motor_scores <- chchpd::import_motor_scores()
 motor_scores <- motor_scores %>%
+  sanitise_data() %>%
   rename(UPDRS_motor_score = Part_III)
 
 # Import raw MDS-UPDRS scores for apathy question
 # Q1.5 is apathy
 mds_updrs = chchpd::import_MDS_UPDRS(concise = FALSE)
 mds_updrs <- mds_updrs %>%
+  sanitise_data() %>%
   mutate(
     UPDRS_apathy = factor(
       Q1_5,
