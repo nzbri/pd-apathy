@@ -106,7 +106,6 @@ npi <- read_csv(file.path("..", "Data", "npi_2020-07-13.csv"))
 # `neuropsych` / specific to other domains
 npi <- npi %>%
   sanitise_data() %>%
-  filter(is.na(session_neuropsych_excluded) | session_neuropsych_excluded != "Y" ) %>%
   select(
     -X1, -subject_id, -record_id, -npi_data_missing, -npi_data_missing_reason,
     -npi_notes, -npi_occ_disruption_total, -npi_session) %>%
