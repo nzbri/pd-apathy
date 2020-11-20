@@ -184,9 +184,17 @@ full_data <- filter(
     )
   )
 )
+# TODO: What if baseline is just not in the session list?! (e.g. 370PDS)
+#full_data %>%
+#  group_by(subject_id) %>%
+#  mutate(baseline_present = any(session_number == 1)) %>%
+#  ungroup() %>%
+#  filter(baseline_present == FALSE) %>%
+#  mutate(baseline_present = NULL)
 
-# TODO: Missing sessions in NPI CSV file?
-# ggplot(full_data %>% filter(!is.na(npi) & is.na(npi_total))) + geom_histogram(aes(session_date))
+# For convenience
+full_data <- full_data %>%
+  arrange(subject_id, session_date)
 
 colnames(full_data)
 
