@@ -22,10 +22,15 @@ source("initialise_environment.R")
 
 # Small set of first-pass data consistency checks / modifications
 sanitise_data <- function(data) {
-  nrows = nrow(data)
+  cleaned_data <- data
+
+  # Makes sure things work as expected
+  cleaned_data <- cleaned_data %>%
+    ungroup()
 
   # Check ID columns
-  cleaned_data <- data %>%
+  nrows = nrow(cleaned_data)
+  cleaned_data <- cleaned_data %>%
     filter(across(
       matches("subject_id") | matches("session_id"),
       ~ !is.na(.x)
