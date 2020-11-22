@@ -201,7 +201,7 @@ save_plot(plt, "years-from-baseline")
 # NPI_apathy_score
 # HADS_anxiety
 # HADS_depression
-# H_Y
+# Hoehn_Yahr
 
 #Baseline vars?
 # symptom_onset_age

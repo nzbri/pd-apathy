@@ -137,7 +137,12 @@ hads <- hads %>%
 motor_scores <- chchpd::import_motor_scores()
 motor_scores <- motor_scores %>%
   sanitise_data() %>%
-  rename(UPDRS_motor_score = Part_III)
+  rename(UPDRS_motor_score = Part_III, Hoehn_Yahr = H_Y) %>%
+  mutate(Hoehn_Yahr = factor(
+    Hoehn_Yahr,
+    levels = c(0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0),
+    ordered = TRUE
+  ))
 
 # Import raw MDS-UPDRS scores for apathy question
 # Q1.5 is apathy
