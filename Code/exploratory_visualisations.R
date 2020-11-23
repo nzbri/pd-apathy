@@ -21,7 +21,7 @@ source("initialise_environment.R")
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2020-11-10.rds")
+  file.path("..", "Data", "raw-data_2020-11-23.rds")
 )
 
 ###############################################################################
@@ -35,7 +35,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-10_types.csv"),
+  file.path("..", "Data", "raw-data_2020-11-23_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -44,7 +44,7 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-10.csv"),
+  file.path("..", "Data", "raw-data_2020-11-23.csv"),
   col_types = col_types
 )
 
@@ -95,21 +95,23 @@ full_data <- full_data %>%
   arrange(subject_id, session_date)
 
 ###############################################################################
-# Pull out baseline sessions
+# Pull out 'baseline' sessions
 
-baseline_data <- filter(full_data, session_number == 1)
+# These don't have a definition w.r.t. the data collection, so we just take the
+# first full session
+baseline_data <- full_data %>%
+  filter((days_since_first_visit) < 90 & full_assessment) %>%
+  group_by(subject_id) %>%
+  slice_min(session_date) %>%
+  ungroup()
+# baseline_data %>% pull(studies) %>% flatten() %>% as.data.frame() %>% factor() %>% table()
 
-# Check we don't have any obviously weird baseline sessions
-stopifnot(all(
-  (baseline_data %>% pull(years_from_baseline)) == 0.0
-))
-stopifnot(all(
-  (
-    full_data %>%
-      filter(session_number > 1) %>%
-      pull(years_from_baseline)
-  ) > 0.0
-))
+# Occasionally useful to have some dummy first-visit sessions
+dummy_sessions <- full_data %>%
+  filter((neuropsych_session_number == 1) & (days_since_first_visit > 0)) %>%
+  select(subject_id, session_id, first_visit_date) %>%
+  mutate(session_date = first_visit_date, days_since_first_visit = 0)
+# bind_rows(full_data, dummy_sessions)
 
 ###############################################################################
 # Useful functions
@@ -131,11 +133,11 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 # When was the data collected
 plt <- full_data %>%
   mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
-  ggplot(aes(x = session_date, fill = (session_number == 1))) +
+  ggplot(aes(x = session_date, fill = (neuropsych_session_number == 1))) +
   geom_bar(position = "stack") +
   scale_fill_discrete(
     breaks = c(TRUE, FALSE),
-    labels = c("Baseline", "Follow-up")
+    labels = c("First assessment", "Follow-up")
   ) +
   theme_light() +
   theme(
@@ -154,34 +156,47 @@ save_plot(plt, "session-type_v_year")
 
 # How many follow-ups per subject
 plt <- full_data %>%
-  #mutate(date_baseline = lubridate::floor_date(date_baseline, unit = "year")) %>%
+  #mutate(first_visit_date = lubridate::floor_date(first_visit_date, unit = "year")) %>%
   group_by(subject_id) %>%
-  filter(session_number == max(session_number)) %>%
+  filter(neuropsych_session_number == max(neuropsych_session_number)) %>%
   ungroup() %>%
-  ggplot(aes(x = session_number)) +  # fill = ordered(date_baseline)
+  ggplot(aes(x = neuropsych_session_number)) +  # fill = ordered(first_visit_date)
   geom_bar(position = "stack") +
   theme_light() +
   labs(
-    x = "Total number of sessions",
+    x = "Total number of neuropsychiatric assessments",
     y = "Number of patients"
   )
 print(plt)
 save_plot(plt, "session-number")
 
-# How far after baseline did the follow-ups occur?
+# How far after enrollment did the follow-ups occur?
 plt <- full_data %>%
-  filter(session_number != 1) %>%
-  ggplot(aes(x = years_from_baseline)) +
+  #filter(neuropsych_session_number != 1) %>%
+  ggplot(aes(
+    x = days_since_first_visit / 365.25,
+    fill = (neuropsych_session_number == 1)
+  )) +
   geom_histogram(
     position = "stack", binwidth = 1.0, boundary = 0.0, color = "white"
   ) +
+  scale_fill_discrete(
+    breaks = c(TRUE, FALSE),
+    labels = c("First assessment", "Follow-up")
+  ) +
   theme_light() +
+  theme(
+    legend.position = c(0.95, 0.95),
+    legend.justification = c(1.0, 1.0),
+    legend.background = element_rect(colour = "black")
+  ) +
   labs(
-    x = "Years from baseline",
-    y = "Number of sessions (excluding baselines)"
+    x = "Years since first visit",
+    y = "Number of sessions",
+    fill = "Session type"
   )
 print(plt)
-save_plot(plt, "years-from-baseline")
+save_plot(plt, "years-from-first-visit")
 
 ###############################################################################
 # Key properties of 'raw' data, independent of apathy
@@ -398,7 +413,7 @@ for (variable in list(
 
   plt <- baseline_data %>%
     ggplot(
-      aes_string(x = "date_baseline", y = variable$name)
+      aes_string(x = "session_date", y = variable$name)
     ) +
     geom_point(
       aes(colour = diagnosis),
@@ -467,7 +482,8 @@ for (variable in list(
   plt <- full_data %>%
     #filter(full_assessment == TRUE) %>%
     ggplot(aes_string(
-      x = "session_number", fill = paste("!is.na(", variable$name, ")", sep = "")
+      x = "neuropsych_session_number",
+      fill = paste("!is.na(", variable$name, ")", sep = "")
     )) +
     geom_bar(position = "stack") +
     scale_fill_discrete(
@@ -546,20 +562,20 @@ print(plt)
 ###############################################################################
 # "Matchstick" plots of progression
 
-# Apathy status v. years from baseline
+# Apathy status v. years from first visit
 plt <- full_data %>%
   # Calculate how long each subject has been followed up for in total
   group_by(subject_id) %>%
+  filter(n() > 1) %>%  # Don't plot single-sessions
   arrange(session_date) %>%
-  mutate(latest_years_from_baseline = max(years_from_baseline)) %>%
+  mutate(latest_session = max(days_since_first_visit)) %>%
   ungroup() %>%
   # And order subjects based on that
-  arrange(desc(latest_years_from_baseline)) %>%
+  arrange(desc(latest_session)) %>%
   mutate(case_num = match(subject_id, unique(subject_id))) %>%
-  filter(latest_years_from_baseline > 0.0) %>%
   # And then plot!
   ggplot(aes(
-    x = years_from_baseline,
+    x = days_since_first_visit / 365.25,
     y = case_num,
     group = subject_id
   )) +
@@ -569,7 +585,7 @@ plt <- full_data %>%
   scale_y_discrete(breaks = NULL) +
   scale_colour_manual(values = colours.apathy_present) +
   labs(
-    x = "Years from baseline",
+    x = "Years since first session",
     y = "Patients (at least one follow-up)",
     colour = "Apathetic"
   ) +
@@ -582,12 +598,21 @@ plt <- full_data %>%
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy_v_years-from-baseline", width = 6.0, height = 8.0)
+save_plot(plt, "apathy_v_years-followed-up", width = 6.0, height = 8.0)
 
 # Apathy status v. session date
 plt <- full_data %>%
-  # Order subjects based on date of baseline
-  arrange(desc(date_baseline)) %>%
+#plt <- bind_rows(full_data, dummy_sessions) %>%
+  #mutate(across(
+  #  starts_with("apathy_present"),
+  #  ~ replace_na(.x, "Unknown")
+  #)) %>%
+  #arrange(desc(first_visit_date)) %>%
+  # Order subjects based on first session
+  group_by(subject_id) %>%
+  mutate(min_session_date = min(session_date)) %>%
+  ungroup() %>%
+  arrange(desc(min_session_date)) %>%
   mutate(case_num = match(subject_id, unique(subject_id))) %>%
   # And then plot!
   ggplot(aes(

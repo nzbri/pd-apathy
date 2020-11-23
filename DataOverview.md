@@ -5,23 +5,35 @@ simple overviews of demographics and some quality control measures.
 
 All images are clickable links to the higher-quality PDFs.
 
+### Definitions
+
+ + *Session / assessment:* The exclusion criteria are such that we only
+   consider sessions where a neuropsychiatric assessment is performed. However,
+   subjects may have many more sessions than assessments.
+
+ + *Baseline:* We use this term fairly loosely here, as there are no major
+   differences in data collection between the first and subsequent assessments
+   (and many subject's first visits are in fact screening sessions). As such,
+   we take the first full assessment that happened within 90 days of the first
+   visit as a 'baseline', though this is purely for illustrative purposes.
+
 ### Data collection
 
 The following figures show some summaries of key metrics pertaining to data
-collection: number of sessions, times from baseline, etc.
+collection: number of sessions, times between sessions, etc.
 
 ---------
 
 <a href="Figures/session-type_v_year.pdf">
 <img src="Figures/session-type_v_year.jpg" width="45%">
 </a>
+<a href="Figures/years-from-first-visit.pdf">
+<img src="Figures/years-from-first-visit.jpg" width="45%">
+</a>
 <br>
 
 <a href="Figures/session-number.pdf">
 <img src="Figures/session-number.jpg" width="45%">
-</a>
-<a href="Figures/years-from-baseline.pdf">
-<img src="Figures/years-from-baseline.jpg" width="45%">
 </a>
 
 **Figure**: Summaries of the key variables relating to data collection.
@@ -88,8 +100,8 @@ within-subject are not completely captured by the cross-sectional summary
 
 ---------
 
-<a href="Figures/apathy_v_years-from-baseline.pdf">
-<img src="Figures/apathy_v_years-from-baseline.jpg" width="45%">
+<a href="Figures/apathy_v_years-followed-up.pdf">
+<img src="Figures/apathy_v_years-followed-up.jpg" width="45%">
 </a>
 <a href="Figures/apathy_v_session-date.pdf">
 <img src="Figures/apathy_v_session-date.jpg" width="45%">
@@ -149,11 +161,9 @@ recruitment date.
 
 The figure below shows several effects:
 
- + There a large number of missing sessions in 2015. This was due to different
-   data collection procedures at the start of the PET study, and as these were
-   mostly new participants this is also responsible for the large spike in
-   missing assessments in baseline sessions (discussed with Kyla Horne,
-   28/10/2020).
+ + In general, there is more missing data from the UPDRS than the NPI. This
+   because only Part III of the UPDRS is collected in short assessments, and
+   this does not contain the apathy measure.
 
  + The missing UPDRS data from 2010 and before relates to the change in
    protocol: the updated MDS-UPDRS contains questions specific to apathy, but
