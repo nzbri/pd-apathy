@@ -47,6 +47,7 @@ Model definition:
 
  + Confounds:
     + Date of first visit (quadratic).
+    + Short or full neuropsychiatric assessment.
 
 Methods / inference:
  + [`brms`](https://github.com/paul-buerkner/brms)\
@@ -66,7 +67,7 @@ model <- brms::brm(
     # pterms: interaction
     (sex + diagnosis_age):years_from_diagnosis +
     # pterms: confounds
-    poly(first_visit_date, 2) +
+    poly(first_visit_date, 2) + full_assessment +
     # gterms
     (1 + years_from_diagnosis | subject_id),
   family = brms::bernoulli(link = "logit"),
