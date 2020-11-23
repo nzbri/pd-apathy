@@ -100,8 +100,6 @@ sessions <- sessions %>%
 # As such, we simply replace `NA` with `FALSE` for these variables.
 #sessions %>% count(study_excluded) %>% print(n = Inf)
 
-#full_data %>% filter(session_id %in% filter(sessions, study_excluded == TRUE)$session_id)
-
 # Check we have got unique sessions
 stopifnot(
   sessions %>%
@@ -139,8 +137,8 @@ npi <- npi %>%
   sanitise_data() %>%
   select(
     -X1, -subject_id, -record_id.x, -record_id.y,
-    -npi_data_missing, -npi_data_missing_reason,
-    -npi_notes, -npi_occ_disruption_total, -npi_session
+    -npi_data_missing, -npi_data_missing_reason, -npi_session, -npi_notes,
+    -npi_occ_disruption_total, -npi_freq_sev_total_calc
   ) %>%
   select(-matches("session_[^i][^d]")) %>%
   select(-contains("redcap")) %>%
@@ -148,6 +146,7 @@ npi <- npi %>%
   select(-matches("npi_[h-l]_")) %>%
   rename_with(~ gsub("npi_", "NPI_", .x, fixed = TRUE)) %>%
   rename_with(~ gsub("NPI_g_", "NPI_apathy_", .x, fixed = TRUE)) %>%
+  rename(NPI_occ_disruption_total = NPI_occ_disruption_total_calc) %>%
   rename_with(
     ~ paste("NPI_", .x, sep = ""), !starts_with("NPI_") & !session_id
   ) %>%
@@ -173,11 +172,14 @@ motor_scores <- chchpd::import_motor_scores()
 motor_scores <- motor_scores %>%
   sanitise_data() %>%
   rename(UPDRS_motor_score = Part_III, Hoehn_Yahr = H_Y) %>%
-  mutate(Hoehn_Yahr = factor(
-    Hoehn_Yahr,
-    levels = c(0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0),
-    ordered = TRUE
-  ))
+  mutate(
+    Hoehn_Yahr = factor(
+      Hoehn_Yahr,
+      levels = c(0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0),
+      ordered = TRUE
+    ),
+    UPDRS_source = factor(UPDRS_source)
+  )
 
 # Import raw MDS-UPDRS scores for apathy question
 # Q1.5 is apathy
