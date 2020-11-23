@@ -46,7 +46,7 @@ Model definition:
       progression).
 
  + Confounds:
-    + Date of baseline session (quadratic).
+    + Date of first visit (quadratic).
 
 Methods / inference:
  + [`brms`](https://github.com/paul-buerkner/brms)\
@@ -66,7 +66,7 @@ model <- brms::brm(
     # pterms: interaction
     (sex + diagnosis_age):years_from_diagnosis +
     # pterms: confounds
-    poly(baseline_date, 2) +
+    poly(first_visit_date, 2) +
     # gterms
     (1 + years_from_diagnosis | subject_id),
   family = brms::bernoulli(link = "logit"),
@@ -178,7 +178,6 @@ References:
 ##### Inclusion criteria
 
  + Subject: `participant_group == 'PD'`
- + Subject: must have at least one included session
  + Session: neuropsychiatric assessments performed\
    N.B. this includes incomplete assessments (i.e. `full_assessment == FALSE`).
 
@@ -187,11 +186,13 @@ References:
  + Subject: `diagnosis_baseline == 'PDD'`\
    Rationale: Cognitive decline will be too strong a confound for patients who
    are already presenting with dementia.
- + Subject: Incomplete neuropsychiatric assessment at baseline
  + Session: screening visit only
- + Session: `np_excluded == TRUE`
- + Session: data inconsistencies
-    + Gap between patient and significant other sessions greater than 90 days.
+ + Session: `any(study_excluded) | np_excluded | study_group == "Excluded"`
+ + Data inconsistencies:
+    + Session: Gap between patient and significant other sessions greater than
+      90 days.
+    + UPDRS measures: Gap between patient and UPDRS sessions greater than 90
+      days.
 
 
 <a name="exploratory-analyses"></a>
