@@ -132,21 +132,25 @@ neuropsych <- neuropsych %>%
 
 # http://npitest.net/about-npi.html
 
-npi <- read_csv(file.path("..", "Data", "npi_2020-07-13.csv"))
+npi <- read_csv(file.path("..", "Data", "npi_2020-07-13_v2.csv"))
 # Remove columns that are irrelevant / already covered by `sessions` and
 # `neuropsych` / specific to other domains
 npi <- npi %>%
   sanitise_data() %>%
   select(
-    -X1, -subject_id, -record_id, -npi_data_missing, -npi_data_missing_reason,
-    -npi_notes, -npi_occ_disruption_total, -npi_session) %>%
+    -X1, -subject_id, -record_id.x, -record_id.y,
+    -npi_data_missing, -npi_data_missing_reason,
+    -npi_notes, -npi_occ_disruption_total, -npi_session
+  ) %>%
   select(-matches("session_[^i][^d]")) %>%
   select(-contains("redcap")) %>%
   select(-matches("npi_[a-f]_")) %>%
   select(-matches("npi_[h-l]_")) %>%
   rename_with(~ gsub("npi_", "NPI_", .x, fixed = TRUE)) %>%
   rename_with(~ gsub("NPI_g_", "NPI_apathy_", .x, fixed = TRUE)) %>%
-  rename_with(~ paste("NPI_", .x, sep = ""), !starts_with("NPI_") & !session_id) %>%
+  rename_with(
+    ~ paste("NPI_", .x, sep = ""), !starts_with("NPI_") & !session_id
+  ) %>%
   mutate(across(matches("_present"), as.logical))
 
 # -----------------------------------------------------------------------------
