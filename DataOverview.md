@@ -79,6 +79,22 @@ patient- and session-level data included in the main analyses.
 </a>
 <br>
 
+<a href="Figures/HADS-anxiety_at_baseline.pdf">
+<img src="Figures/HADS-anxiety_at_baseline.jpg" width="45%">
+</a>
+<a href="Figures/HADS-anxiety_at_session.pdf">
+<img src="Figures/HADS-anxiety_at_session.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/HADS-depression_at_baseline.pdf">
+<img src="Figures/HADS-depression_at_baseline.jpg" width="45%">
+</a>
+<a href="Figures/HADS-depression_at_session.pdf">
+<img src="Figures/HADS-depression_at_session.jpg" width="45%">
+</a>
+<br>
+
 <a href="Figures/medication_at_baseline.pdf">
 <img src="Figures/medication_at_baseline.jpg" width="45%">
 </a>

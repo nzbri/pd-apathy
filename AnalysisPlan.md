@@ -35,6 +35,7 @@ Model definition:
     + Time since diagnosis.
     + UPDRS motor score.
     + Global cognitive score (aggregate z-score across four domains).
+    + HADS depression score.
     + Medication: levodopa equivalent dose (LED).
 
  + Interactions:

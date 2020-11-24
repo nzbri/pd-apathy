@@ -126,6 +126,9 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
     plt, ..., width = width, height = height, units = units, dpi = "screen"
   )
 }
+#save_plot <- function(plt, filename, ...) {
+#  print(filename)
+#}
 
 ###############################################################################
 # Key summaries of data collection process itself
@@ -318,6 +321,33 @@ for (dataset in list(
     theme_light()
   print(plt)
   save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep = ""))
+
+  # HADS / diagnosis
+  for (assessment in c("anxiety", "depression")) {
+    varname = paste("HADS_", assessment, sep = "")
+
+    bw = 1.0
+    plt <- dataset$data %>%
+      ggplot(aes_string(varname, fill = "diagnosis")) +
+      #geom_bar(color = "white", alpha = 0.5) +
+      geom_histogram(
+        position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
+      ) +
+      stat_density(
+        geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
+        aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+      ) +
+      scale_x_continuous(limits = c(-0.5, 21.5)) +
+      labs(
+        x = paste("HADS", assessment, "at", dataset$at),
+        y = paste("Number of", dataset$of),
+        fill = "Diagnosis",
+        title = paste(sum(!is.na(dataset$data[[varname]])), dataset$of)
+      ) +
+      theme_light()
+    print(plt)
+    save_plot(plt, paste("HADS-", assessment, "_at_", dataset$at, sep = ""))
+  }
 
   # Medication / diagnosis
   bw = 100.0
