@@ -350,7 +350,7 @@ for (dataset in list(
   }
 
   # Medication / diagnosis
-  bw = 100.0
+  bw = 2.0
   plt <- dataset$data %>%
     ggplot(aes(LED, fill = diagnosis)) +
     geom_histogram(
@@ -360,7 +360,7 @@ for (dataset in list(
       geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
-    scale_x_continuous(limits = c(0.0, 3000.0)) +
+    scale_x_sqrt(limits = c(0.0, 3000.0)) +
     labs(
       x = paste("Medication (LED) at", dataset$at),
       y = paste("Number of", dataset$of),
