@@ -54,6 +54,10 @@ participants <- participants %>%
   sanitise_data() %>%
   mutate(across(c(participant_group, ethnicity), as.factor)) %>%
   mutate(across(c(excluded_from_followup), as.logical)) %>%
+  rename(
+    age_at_diagnosis = diagnosis_age,
+    age_at_symptom_onset = symptom_onset_age
+  ) %>%
   # Drop extraneous info
   select(-survey_id, -participant_status, -excluded_from_followup, -age_today)
 
@@ -215,8 +219,10 @@ full_data <- full_data %>%
   arrange(subject_id, session_date) %>%
   group_by(subject_id) %>%
   mutate(
-    first_visit_date = first(session_date),
-    days_since_first_visit = days_between(first_visit_date, session_date)
+    first_session_date = first(session_date),
+    years_since_first_session = years_between(first_session_date, session_date),
+    age_at_first_session = first(age),
+    session_number = row_number()
   ) %>%
   ungroup()
 
@@ -235,7 +241,7 @@ full_data <- full_data %>%
   arrange(subject_id, session_date) %>%
   group_by(subject_id) %>%
   mutate(
-    neuropsych_session_number = row_number()
+    neuropsych_assessment_number = row_number()
   ) %>%
   ungroup()
 
