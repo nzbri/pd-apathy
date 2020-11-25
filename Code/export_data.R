@@ -18,6 +18,8 @@
 
 source("initialise_environment.R")
 
+source("utils.R")
+
 ###############################################################################
 
 # Small set of first-pass data consistency checks / modifications
@@ -42,17 +44,6 @@ sanitise_data <- function(data) {
   }
 
   return(cleaned_data)
-}
-
-# -----------------------------------------------------------------------------
-
-days_between <- function(start_date, end_date) {
-  # https://stackoverflow.com/q/15569333
-  days <- lubridate::time_length(
-    lubridate::interval(start_date, end_date),
-    unit = "day"
-  )
-  return(days)
 }
 
 ###############################################################################
