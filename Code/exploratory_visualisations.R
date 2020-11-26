@@ -825,7 +825,13 @@ plt <- status_by_year %>%
   mutate(year = as.numeric(gsub("\\D", "", year))) %>%
   filter(year <= sample_years[n_intervals$plot]) %>%
   ggplot(aes(x = factor(year), fill = apathy_status)) +
-  geom_bar(position = "fill", alpha = .5) +
+  geom_bar(position = "fill", alpha = .5, colour = "black") +
+  geom_text(
+    stat = "count",
+    position = position_fill(vjust = 0.5),
+    aes(label = apathy_status, y = ..count..),
+    size = 2
+  ) +
   # Painful matching of colours and orders to alluvial plot
   scale_y_continuous(
     trans = "reverse",
