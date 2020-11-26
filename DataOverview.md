@@ -122,11 +122,19 @@ within-subject are not completely captured by the cross-sectional summary
 
 ---------
 
-<a href="Figures/apathy_v_years-followed-up.pdf">
-<img src="Figures/apathy_v_years-followed-up.jpg" width="45%">
+<a href="Figures/apathy_v_years-enrolled_matchstick.pdf">
+<img src="Figures/apathy_v_years-enrolled_matchstick.jpg" width="45%">
 </a>
-<a href="Figures/apathy_v_session-date.pdf">
-<img src="Figures/apathy_v_session-date.jpg" width="45%">
+<a href="Figures/apathy_v_session-date_matchstick.pdf">
+<img src="Figures/apathy_v_session-date_matchstick.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/apathy_v_years-enrolled_alluvial.pdf">
+<img src="Figures/apathy_v_years-enrolled_alluvial.jpg" width="45%">
+</a>
+<a href="Figures/apathy_v_session-date_bar.pdf">
+<img src="Figures/apathy_v_session-date_bar.jpg" width="45%">
 </a>
 <br>
 

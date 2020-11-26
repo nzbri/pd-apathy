@@ -651,7 +651,7 @@ plt <- full_data %>%
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy_v_years-followed-up", width = 6.0, height = 8.0)
+save_plot(plt, "apathy_v_years-enrolled_matchstick", width = 6.0, height = 8.0)
 
 # Apathy status v. session date
 plt <- full_data %>%
@@ -691,41 +691,66 @@ plt <- full_data %>%
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy_v_session-date", width = 6.0, height = 8.0)
+save_plot(plt, "apathy_v_session-date_matchstick", width = 6.0, height = 8.0)
 
 ###############################################################################
-# Alluvial plots of changing apathy status
+# Alluvial plots of changing apathy status over different intervals
 
+delta = 2.0  # Interval in years
+n_intervals = list(total = 8, plot = 6)  # How many intervals to assess / plot
+# Initial offset of one year helps avoid aliasing the two-year follow-up pattern
+sample_years = seq(
+  from = 1.0, to = delta * (n_intervals$total - 1) + 1.0, by = delta
+)
+status_labels = list(
+  short = c("Y", "R", "N", "U", "D", NA),
+  long = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups")
+)
+
+# Calculate each patient's status in each interval
 status_by_year = full_data %>% select(subject_id) %>% unique()
-delta = 2.0  # years
-for (years in seq(from = 0.0, to = 14.0, by = delta)) {
+for (years in sample_years) {
   print(years)
 
   # Pull out the status within the current time window
   current_status <- full_data %>%
+    # Calculate time since first neuropsych assessment
+    # group_by(subject_id) %>%
+    # mutate(
+    #   years_from_baseline = years_between(min(session_date), session_date)
+    # ) %>%
+    # ungroup() %>%
     # Extract all sessions with recorded apathy within window of past `delta` years
     filter(
-      (years_from_baseline <= years) & (years_from_baseline > years - delta)
+      #(years_from_baseline <= years) & (years_from_baseline > years - delta)
+      between(years_since_first_session, years - delta, years)
     ) %>%
     # And take the most recent (favouring positive evidence)
     group_by(subject_id) %>%
-    slice_max(years_from_baseline - delta * (apathy_present == "Unknown")) %>%
+    slice_max(years_since_first_session - delta * (apathy_present == "Unknown")) %>%
     ungroup() %>%
     # Record status (as character as we add more categories)
     mutate(current_status = as.character(apathy_present)) %>%
+    # See if the patient had apathy in the past
     mutate(current_status = if_else(
       (current_status == "No") & (apathy_present.worst_to_date == "Yes"),
       "Remission",
       current_status
     )) %>%
+    # And tidy up
     select(subject_id, current_status)
 
   # And see if we can work out why data is missing
   current_status <-
     left_join(full_data, current_status, by = "subject_id") %>%
-    # Does a subject have data at a later date?
+    # Extract some key info
     group_by(subject_id) %>%
-    mutate(subsequent_sessions_present = (FU_latest >= years)) %>%
+    mutate(
+      dead_at_years = dead & ((age_at_first_session + years) >= age_at_death),
+      latest_followup = max(years_since_first_session)
+    ) %>%
+    # Does a subject have data at a later date?
+    mutate(subsequent_sessions_present = (latest_followup > years)) %>%
     slice_head() %>%  # Back to one session per subject
     ungroup() %>%
     # Use that info to recode missing data
@@ -734,8 +759,8 @@ for (years in seq(from = 0.0, to = 14.0, by = delta)) {
         is.na(current_status),
         if_else(
           subsequent_sessions_present,
-          "Unknown",
-          if_else(dead, "Deceased", "No follow-ups"),
+          "Unknown",  # i.e. no data in this interval, but patient is seen again
+          if_else(dead_at_years, "Deceased", "No follow-ups"),
         ),
         current_status
       )
@@ -748,25 +773,23 @@ for (years in seq(from = 0.0, to = 14.0, by = delta)) {
 
 }
 
+# Recode factor for apathy status to short levels
 status_by_year <- status_by_year %>%
   mutate(across(
     contains("apathy_status"),
     ~ factor(
-      .x,
-      levels = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups"),
-      labels = c("Y", "R", "N", "U", "D", NA),  # , "?",
+      .x, levels = status_labels$long, labels = status_labels$short,
       exclude = NULL  # i.e. include NA as a level, helps with plot ordering
     )
   ))
 
-#status_by_year <- rownames_to_column(as_tibble(sapply(select(status_by_year, contains("apathy_status")), function(x) table(x)), rownames = NA))
-#status_by_year <- status_by_year %>%
-#  count(across(contains("apathy_status")))
+# -----------------------------------------------------------------------------
 
+# Alluvial plot
 # https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
-status_by_year %>%
+plt <- status_by_year %>%
   count(across(contains("apathy_status"))) %>%
-  to_lodes_form(axes = 1:6, weight = n) %>%
+  to_lodes_form(axes = 1:(n_intervals$plot), weight = n) %>%
   ggplot(aes(
     x = x,
     y = n,
@@ -775,18 +798,58 @@ status_by_year %>%
     fill = stratum,
     label = stratum
   )) +
-  scale_x_discrete(expand = c(.1, .1), labels = seq(0,10,2)) +
   geom_flow() +
   geom_stratum(alpha = .5) +
   geom_text(stat = "stratum", size = 2) +
-  scale_fill_discrete(labels = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups")) +
+  scale_x_discrete(labels = sample_years[1:(n_intervals$plot)]) +
+  scale_fill_discrete(labels = status_labels$long) +
   scale_y_reverse() +
-  #theme(legend.position = "none") +
   labs(
-    x = "Years from baseline",
+    x = "Years since first assessment",
     y = "Patients",
-    fill = "Apathy status"
+    fill = "Apathetic?",
+    title = paste("Apathy status at", delta, "year intervals")
   ) +
   theme_minimal()
+print(plt)
+save_plot(plt, "apathy_v_years-enrolled_alluvial", width = 8, height = 6)
+
+# -----------------------------------------------------------------------------
+
+# Bar plot
+plt <- status_by_year %>%
+  pivot_longer(
+    contains("apathy_status"), names_to = "year", values_to = "apathy_status"
+  ) %>%
+  filter(apathy_status %in% levels(apathy_status)[1:3]) %>%
+  mutate(year = as.numeric(gsub("\\D", "", year))) %>%
+  filter(year <= sample_years[n_intervals$plot]) %>%
+  ggplot(aes(x = factor(year), fill = apathy_status)) +
+  geom_bar(position = "fill", alpha = .5) +
+  # Painful matching of colours and orders to alluvial plot
+  scale_y_continuous(
+    trans = "reverse",
+    breaks = seq(0.0, 1.0, 0.2),
+    labels = rev(seq(0.0, 1.0, 0.2))
+  ) +
+  scale_fill_discrete(
+    breaks = status_labels$short[1:3],
+    labels = status_labels$long[1:3],
+    drop = FALSE
+  ) +
+  labs(
+    x = "Years since first assessment",
+    y = "Proportion of patients (known status only)",
+    fill = "Apathetic?",
+    title = paste("Apathy status at", delta, "year intervals")
+  ) +
+  theme_light() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+print(plt)
+save_plot(plt, "apathy_v_years-enrolled_bar")
 
 ###############################################################################
