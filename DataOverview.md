@@ -9,7 +9,10 @@ All images are clickable links to the higher-quality PDFs.
 
  + *Session / assessment:* The exclusion criteria are such that we only
    consider sessions where a neuropsychiatric assessment is performed. However,
-   subjects may have many more sessions than assessments.
+   subjects may have many more sessions than assessments. Typically, we simply
+   use the term session, though there are a couple of places where the
+   distinction is important (e.g. session numbering: a patient's 5th session
+   may only be their 3rd assessment).
 
  + *Baseline:* We use this term fairly loosely here, as there are no major
    differences in data collection between the first and subsequent assessments
@@ -27,13 +30,16 @@ collection: number of sessions, times between sessions, etc.
 <a href="Figures/session-type_v_year.pdf">
 <img src="Figures/session-type_v_year.jpg" width="45%">
 </a>
-<a href="Figures/years-from-first-visit.pdf">
-<img src="Figures/years-from-first-visit.jpg" width="45%">
+<a href="Figures/session-type_v_years-enrolled.pdf">
+<img src="Figures/session-type_v_years-enrolled.jpg" width="45%">
 </a>
 <br>
 
 <a href="Figures/session-number.pdf">
 <img src="Figures/session-number.jpg" width="45%">
+</a>
+<a href="Figures/assessment-number.pdf">
+<img src="Figures/assessment-number.jpg" width="45%">
 </a>
 
 **Figure**: Summaries of the key variables relating to data collection.
@@ -144,8 +150,8 @@ recruitment date.
 
 ---------
 
-<a href="Figures/diagnosis-age_v_baseline-date.pdf">
-<img src="Figures/diagnosis-age_v_baseline-date.jpg" width="45%">
+<a href="Figures/age-at-diagnosis_v_baseline-date.pdf">
+<img src="Figures/age-at-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
 <a href="Figures/age_v_baseline-date.pdf">
 <img src="Figures/age_v_baseline-date.jpg" width="45%">
@@ -155,8 +161,8 @@ recruitment date.
 <a href="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.pdf">
 <img src="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
-<a href="Figures/years-from-diagnosis_v_baseline-date.pdf">
-<img src="Figures/years-from-diagnosis_v_baseline-date.jpg" width="45%">
+<a href="Figures/years-since-diagnosis_v_baseline-date.pdf">
+<img src="Figures/years-since-diagnosis_v_baseline-date.jpg" width="45%">
 </a>
 <br>
 
@@ -190,16 +196,16 @@ The figure below shows several effects:
 <a href="Figures/npi-presence_v_year.pdf">
 <img src="Figures/npi-presence_v_year.jpg" width="45%">
 </a>
-<a href="Figures/npi-presence_v_session.pdf">
-<img src="Figures/npi-presence_v_session.jpg" width="45%">
+<a href="Figures/npi-presence_v_assessment-number.pdf">
+<img src="Figures/npi-presence_v_assessment-number.jpg" width="45%">
 </a>
 <br>
 
 <a href="Figures/updrs-presence_v_year.pdf">
 <img src="Figures/updrs-presence_v_year.jpg" width="45%">
 </a>
-<a href="Figures/updrs-presence_v_session.pdf">
-<img src="Figures/updrs-presence_v_session.jpg" width="45%">
+<a href="Figures/updrs-presence_v_assessment-number.pdf">
+<img src="Figures/updrs-presence_v_assessment-number.jpg" width="45%">
 </a>
 
 **Figure**: Breakdown of the sessions with available apathy measures by both

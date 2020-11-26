@@ -18,10 +18,12 @@
 
 source("initialise_environment.R")
 
+source("utils.R")
+
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2020-11-23.rds")
+  file.path("..", "Data", "raw-data_2020-11-26.rds")
 )
 
 ###############################################################################
@@ -35,7 +37,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-23_types.csv"),
+  file.path("..", "Data", "raw-data_2020-11-26_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -44,19 +46,22 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-23.csv"),
+  file.path("..", "Data", "raw-data_2020-11-26.csv"),
   col_types = col_types
 )
 
 ###############################################################################
 # Preprocess data
 
+n_patients <- length(unique(full_data$subject_id))
+n_sessions <- nrow(full_data)
+
 # Add some useful extra timing info
 full_data <- full_data %>%
   mutate(
-    years_from_diagnosis = age - diagnosis_age,
-    years_from_symptom_onset = age - symptom_onset_age,
-    years_between_symptoms_and_diagnosis = diagnosis_age - symptom_onset_age
+    years_since_diagnosis = age - age_at_diagnosis,
+    years_since_symptom_onset = age - age_at_symptom_onset,
+    years_between_symptoms_and_diagnosis = age_at_diagnosis - age_at_symptom_onset
   )
 
 # Reorder and relabel diagnosis
@@ -100,17 +105,17 @@ full_data <- full_data %>%
 # These don't have a definition w.r.t. the data collection, so we just take the
 # first full session
 baseline_data <- full_data %>%
-  filter((days_since_first_visit) < 90 & full_assessment) %>%
+  filter((years_since_first_session) < 0.25 & full_assessment) %>%
   group_by(subject_id) %>%
   slice_min(session_date) %>%
   ungroup()
 # baseline_data %>% pull(studies) %>% flatten() %>% as.data.frame() %>% factor() %>% table()
 
 # Occasionally useful to have some dummy first-visit sessions
-dummy_sessions <- full_data %>%
-  filter((neuropsych_session_number == 1) & (days_since_first_visit > 0)) %>%
-  select(subject_id, session_id, first_visit_date) %>%
-  mutate(session_date = first_visit_date, days_since_first_visit = 0)
+# dummy_sessions <- full_data %>%
+#   filter((neuropsych_assessment_number == 1) & (years_since_first_session > 0)) %>%
+#   select(subject_id, session_id, first_session_date) %>%
+#   mutate(session_date = first_session_date, years_since_first_session = 0)
 # bind_rows(full_data, dummy_sessions)
 
 ###############################################################################
@@ -136,7 +141,7 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 # When was the data collected
 plt <- full_data %>%
   mutate(session_date = lubridate::floor_date(session_date, unit = "year")) %>%
-  ggplot(aes(x = session_date, fill = (neuropsych_session_number == 1))) +
+  ggplot(aes(x = session_date, fill = (neuropsych_assessment_number == 1))) +
   geom_bar(position = "stack") +
   scale_fill_discrete(
     breaks = c(TRUE, FALSE),
@@ -152,23 +157,40 @@ plt <- full_data %>%
     x = "Session year",
     y = "Number of sessions",
     fill = "Session type",
-    title = paste(dim(full_data)[1], "sessions")
+    title = paste(n_sessions, "sessions")
   )
 print(plt)
 save_plot(plt, "session-type_v_year")
 
-# How many follow-ups per subject
+# How many neuropsych assessments per subject
 plt <- full_data %>%
-  #mutate(first_visit_date = lubridate::floor_date(first_visit_date, unit = "year")) %>%
+  #mutate(first_session_date = lubridate::floor_date(first_session_date, unit = "year")) %>%
   group_by(subject_id) %>%
-  filter(neuropsych_session_number == max(neuropsych_session_number)) %>%
+  filter(neuropsych_assessment_number == max(neuropsych_assessment_number)) %>%
   ungroup() %>%
-  ggplot(aes(x = neuropsych_session_number)) +  # fill = ordered(first_visit_date)
+  ggplot(aes(x = neuropsych_assessment_number)) +  # fill = ordered(first_session_date)
   geom_bar(position = "stack") +
   theme_light() +
   labs(
     x = "Total number of neuropsychiatric assessments",
-    y = "Number of patients"
+    y = "Number of patients",
+    title = paste(n_patients, "patients")
+  )
+print(plt)
+save_plot(plt, "assessment-number")
+
+# How many sessions per subject
+plt <- full_data %>%
+  group_by(subject_id) %>%
+  filter(session_number == max(session_number)) %>%
+  ungroup() %>%
+  ggplot(aes(x = session_number)) +
+  geom_bar(position = "stack") +
+  theme_light() +
+  labs(
+    x = "Total number of sessions",
+    y = "Number of patients",
+    title = paste(n_patients, "patients")
   )
 print(plt)
 save_plot(plt, "session-number")
@@ -177,8 +199,8 @@ save_plot(plt, "session-number")
 plt <- full_data %>%
   #filter(neuropsych_session_number != 1) %>%
   ggplot(aes(
-    x = days_since_first_visit / 365.25,
-    fill = (neuropsych_session_number == 1)
+    x = years_since_first_session,
+    fill = (neuropsych_assessment_number == 1)
   )) +
   geom_histogram(
     position = "stack", binwidth = 1.0, boundary = 0.0, color = "white"
@@ -194,12 +216,13 @@ plt <- full_data %>%
     legend.background = element_rect(colour = "black")
   ) +
   labs(
-    x = "Years since first visit",
+    x = "Years since first session",
     y = "Number of sessions",
-    fill = "Session type"
+    fill = "Session type",
+    title = paste(n_sessions, "sessions")
   )
 print(plt)
-save_plot(plt, "years-from-first-visit")
+save_plot(plt, "session-type_v_years-enrolled")
 
 ###############################################################################
 # Key properties of 'raw' data, independent of apathy
@@ -342,7 +365,7 @@ for (dataset in list(
         x = paste("HADS", assessment, "at", dataset$at),
         y = paste("Number of", dataset$of),
         fill = "Diagnosis",
-        title = paste(sum(!is.na(dataset$data[[varname]])), dataset$of)
+        title = paste(sum(!is.na(dataset$data[varname])), dataset$of)
       ) +
       theme_light()
     print(plt)
@@ -432,10 +455,10 @@ save_plot(plt, "motor-scores_v_age", width = 10.0, height = 4.0)
 
 # Plot different variables v baseline date
 for (variable in list(
-  list(name = "diagnosis_age", description = "Age at diagnosis", family = Gamma(link = "log")),
+  list(name = "age_at_diagnosis", description = "Age at diagnosis", family = Gamma(link = "log")),
   list(name = "age", description = "Age at baseline", family = Gamma(link = "log")),
   list(name = "years_between_symptoms_and_diagnosis", description = "Years between symptom onset and diagnosis", family = gaussian),
-  list(name = "years_from_diagnosis", description = "Years between diagnosis and baseline", family = gaussian),
+  list(name = "years_since_diagnosis", description = "Years between diagnosis and baseline", family = gaussian),
   list(name = "global_z", filename = "cognitive-scores", description = "Global cognitive z-score", family = gaussian),
   list(name = "UPDRS_motor_score", filename = "motor-scores", description = "UPDRS (Part III) motor score", family = Gamma(link = "log"))
 )) {
@@ -458,7 +481,7 @@ for (variable in list(
     ) +
     theme_light() +
     labs(
-      x = "Date of baseline measurement",
+      x = "Date of baseline assessment",
       y = variable$description,
       title = paste(sum(!is.na(baseline_data[variable$name])), "patients")
     )
@@ -512,7 +535,7 @@ for (variable in list(
   plt <- full_data %>%
     #filter(full_assessment == TRUE) %>%
     ggplot(aes_string(
-      x = "neuropsych_session_number",
+      x = "neuropsych_assessment_number",
       fill = paste("!is.na(", variable$name, ")", sep = "")
     )) +
     geom_bar(position = "stack") +
@@ -527,13 +550,13 @@ for (variable in list(
       legend.background = element_rect(colour = "black")
     ) +
     labs(
-      x = "Session number",
+      x = "Neuropsychiatric assessment number",
       y = "Number of sessions",
       fill = variable$description,
       title = paste(dim(full_data)[1], "sessions")
     )
   print(plt)
-  save_plot(plt, paste(variable$filename, "-presence_v_session", sep = ""))
+  save_plot(plt, paste(variable$filename, "-presence_v_assessment-number", sep = ""))
 
 }
 
@@ -598,14 +621,14 @@ plt <- full_data %>%
   group_by(subject_id) %>%
   filter(n() > 1) %>%  # Don't plot single-sessions
   arrange(session_date) %>%
-  mutate(latest_session = max(days_since_first_visit)) %>%
+  mutate(latest_session = max(years_since_first_session)) %>%
   ungroup() %>%
   # And order subjects based on that
   arrange(desc(latest_session)) %>%
   mutate(case_num = match(subject_id, unique(subject_id))) %>%
   # And then plot!
   ggplot(aes(
-    x = days_since_first_visit / 365.25,
+    x = years_since_first_session,
     y = case_num,
     group = subject_id
   )) +
@@ -638,7 +661,7 @@ plt <- full_data %>%
   #  ~ replace_na(.x, "Unknown")
   #)) %>%
   #arrange(desc(first_visit_date)) %>%
-  # Order subjects based on first session
+  # Order subjects based on first neuropsych assessment
   group_by(subject_id) %>%
   mutate(min_session_date = min(session_date)) %>%
   ungroup() %>%
