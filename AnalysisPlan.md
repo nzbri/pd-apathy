@@ -7,14 +7,16 @@ analyses in more detail.
 
 ### Table of contents
 
- + [Quantifying prevalence and dynamics of apathy](#core-analyis)
+ + [Core analysis: summary](#core-analysis-summary)
  + [Data collection and variable definitions](#data-collection)
  + [Data selection](#data-selection)
  + [Exploratory analyses & visualisations](#exploratory-analyses)
+ + [Core analysis: methodological details.](#core-analysis-details)
+ + [Additional analyses](#additional-analyses)
 
 
-<a name="core-analyis"></a>
-### Quantifying prevalence and dynamics of apathy
+<a name="core-analysis-summary"></a>
+### Core analysis: summary &mdash; Quantifying prevalence and dynamics of apathy
 
 Core analysis: a hierarchical Bayesian logistic regression relating reported
 apathy to core patient information. The model itself seeks to explain both the
@@ -43,38 +45,12 @@ Model definition:
 
  + Hierarchically modelled variability, grouped by subject:
     + Subject-specific intercept (i.e. baseline propensity)
-    + Subject-specific slope with time since diagnosis (i.e. rate of
+    + Subject-specific slopes with session-level predictors (i.e. rates of
       progression).
 
  + Confounds:
     + Date of first visit (quadratic).
     + Short or full neuropsychiatric assessment.
-
-Methods / inference:
- + [`brms`](https://github.com/paul-buerkner/brms)\
-   See e.g. Horne et al., medRxiv, 2020 (DOI:
-   [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
-   for a related set of analyses focusing on PDD.
-
-This would render the following (pseudo) BRMS formula:
-```R
-# See vignette("brms_multilevel") for notation and nomenclature
-model <- brms::brm(
-  formula = apathy ~
-    # pterms: subject-level
-    1 + sex + ethnicity + education + diagnosis_age +
-    # pterms: session-level
-    years_from_diagnosis + UPDRS_motor_score + global_z + LED +
-    # pterms: interaction
-    (sex + diagnosis_age):years_from_diagnosis +
-    # pterms: confounds
-    poly(first_visit_date, 2) + full_assessment +
-    # gterms
-    (1 + years_from_diagnosis | subject_id),
-  family = brms::bernoulli(link = "logit"),
-  data = data
-)
-```
 
 ##### Rationale
 
@@ -86,7 +62,7 @@ progression, and the random intercepts within-subject will (amongst others)
 account for differences in the time of diagnosis across subjects due to the
 linearity of the model.
 
-*Within-subject fixed effects:* The goal here was to define a broad set of
+*Session-level predictors:* The goal here was to define a broad set of
 standard measures that capture different notions of 'progression' in a clinical
 context. The interest is in whether apathy develops over time, and, more
 specifically, whether this accompanies changes in other symptom domains.
@@ -211,3 +187,69 @@ References:
 
  + Plots of apathy scores over time (maybe just frequency × severity against
    age?). Repeat for e.g. key cognitive scores.
+
+
+<a name="core-analysis-details"></a>
+### Core analysis: methodological details
+
+##### Additional exclusion criteria
+
+ + Session: Core measure of apathy missing (i.e. `is.na(NPI_apathy_present)`).
+
+##### Data imputation
+
+ + MICE procedure
+ + Variable selection
+
+<https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
+
+##### Variable transformations
+
+ + z-scoring
+ + LED transformation
+
+##### Model specification and inference
+
+ + Priors
+
+Methods / inference:
+ + [`brms`](https://github.com/paul-buerkner/brms)\
+   See e.g. Horne et al., medRxiv, 2020 (DOI:
+   [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
+   for a related set of analyses focusing on PDD.
+
+This would render the following (pseudo) BRMS formula:
+```R
+# See vignette("brms_multilevel") for notation and nomenclature
+model <- brms::brm(
+  formula = apathy ~
+    # pterms: subject-level
+    1 + sex + ethnicity + education + diagnosis_age +
+    # pterms: session-level
+    years_from_diagnosis + UPDRS_motor_score + global_z + LED +
+    # pterms: interaction
+    (sex + diagnosis_age):years_from_diagnosis +
+    # pterms: confounds
+    poly(first_visit_date, 2) + full_assessment +
+    # gterms
+    (1 + years_from_diagnosis | subject_id),
+  family = brms::bernoulli(link = "logit"),
+  data = data
+)
+```
+
+##### Model comparison
+
+ + LOO-IC and incremental model comparison
+
+##### Conditional analyses
+
+ + Interactions / random effects
+ + Temporal predictability
+ + Cognitive subdomains
+
+
+<a name="additional-analyses"></a>
+### Additional analyses
+
+
