@@ -54,7 +54,7 @@ full_data <- full_data %>%
     # Clinical measures
     diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
     # Confounds
-    full_assessment, first_session_date
+    first_session_date
   ) %>%
   # Add some useful extra timing info
   mutate(years_since_diagnosis = age - age_at_diagnosis)

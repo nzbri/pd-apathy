@@ -53,7 +53,6 @@ Model definition:
 
  + Confounds:
     + Date of first visit (quadratic).
-    + Short or full neuropsychiatric assessment.
 
 ##### Rationale
 
@@ -222,7 +221,7 @@ richer description of subjects/sessions for imputation.
     # Clinical measures
     diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
     # Confounds
-    full_assessment, first_session_date
+    first_session_date
 ```
 
 ##### Variable transformations
