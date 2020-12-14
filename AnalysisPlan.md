@@ -222,10 +222,25 @@ richer description of subjects/sessions for imputation.
 
 ##### Data imputation
 
- + MICE procedure
+Data imputation is performed by the [`mice`](https://github.com/amices/mice)
+package. This can "can impute mixes of continuous, binary, unordered
+categorical and ordered categorical data. In addition, MICE can impute
+continuous two-level data" (`help("mice")`). In general, we emphasise the
+former (i.e. faithfulness to the properties of the variables) over the latter
+(i.e. the multi-level structure), if they are in conflict.
 
-<https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
+For the most part, imputation proceeds as per the MICE defaults. For
+continuous subject-level variables, we use the available `2lonly.pmm` method,
+but otherwise ignore the subject structure. While this has its disadvantages,
+it means we preserve some of the idiosyncrasies of e.g. the cognitive scores,
+as opposed to assuming normality. See e.g.
+<https://statisticalhorizons.com/predictive-mean-matching>. The only other step
+is to post-hoc replace any inconsistent imputations of non-continuous
+subject-level variables by setting all instances to the mode.
 
+Useful resources:
+ + <https://stefvanbuuren.name/fimd/>
+ + <https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
 
 ##### Variable transformations
 
