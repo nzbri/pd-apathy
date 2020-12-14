@@ -202,14 +202,34 @@ References:
 ##### Data imputation
 
  + MICE procedure
- + Variable selection
 
 <https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
+
+The following subset of variables is taken as the 'core' set of variables going
+forwards. While not all are used in the main model, they provide a slightly
+richer description of subjects/sessions for imputation.
+```R
+    # Database
+    subject_id, session_id,
+    # Subject-level
+    sex, ethnicity, education, handedness, side_of_onset,
+    # Age related
+    age, age_at_symptom_onset, age_at_diagnosis,
+    # Cognitive scores
+    global_z, MoCA, WTAR,
+    # Neuropsych tests
+    NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
+    # Clinical measures
+    diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
+    # Confounds
+    full_assessment, first_session_date
+```
 
 ##### Variable transformations
 
  + z-scoring
  + LED transformation
+ + Derived variables
 
 ##### Model specification and inference
 

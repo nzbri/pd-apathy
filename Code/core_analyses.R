@@ -34,7 +34,6 @@ full_data <- full_data %>%
 # Data preprocessing / variable selection
 
 # TODO:
-#  + Codify the subset of variables used going forwards (maybe subset in imputation section?)
 #  + Transformation / scaling of variables
 
 full_data <- full_data %>%
@@ -42,12 +41,19 @@ full_data <- full_data %>%
   arrange(subject_id, session_date) %>%
   # Variables of interest
   select(
-    subject_id, session_id, diagnosis,
+    # Database
+    subject_id, session_id,
+    # Subject-level
     sex, ethnicity, education, handedness, side_of_onset,
+    # Age related
     age, age_at_symptom_onset, age_at_diagnosis,
+    # Cognitive scores
     global_z, MoCA, WTAR,
+    # Neuropsych tests
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
-    Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
+    # Clinical measures
+    diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
+    # Confounds
     full_assessment, first_session_date
   ) %>%
   # Add some useful extra timing info
