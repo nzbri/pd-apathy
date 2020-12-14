@@ -31,10 +31,7 @@ full_data <- full_data %>%
   drop_na(NPI_apathy_present)
 
 ###############################################################################
-# Data preprocessing / variable selection
-
-# TODO:
-#  + Transformation / scaling of variables
+# Variable selection
 
 full_data <- full_data %>%
   # For convenience
@@ -55,9 +52,7 @@ full_data <- full_data %>%
     diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
     # Confounds
     first_session_date
-  ) %>%
-  # Add some useful extra timing info
-  mutate(years_since_diagnosis = age - age_at_diagnosis)
+  )
 
 ###############################################################################
 # Imputation
@@ -65,6 +60,16 @@ full_data <- full_data %>%
 # TODO:
 #  + MICE for imputation
 #  + Do we formulate this as a two-level model?
+
+###############################################################################
+# Data preprocessing / transformations
+
+# TODO:
+#  + Transformation / scaling of variables
+
+imputed_data <- imputed_data %>%
+  # Add some useful extra timing info
+  mutate(years_since_diagnosis = age - age_at_diagnosis)
 
 ###############################################################################
 # Fit models

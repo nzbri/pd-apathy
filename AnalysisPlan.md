@@ -198,11 +198,7 @@ References:
 
  + Session: Core measure of apathy missing (i.e. `is.na(NPI_apathy_present)`).
 
-##### Data imputation
-
- + MICE procedure
-
-<https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
+##### Variable selection
 
 The following subset of variables is taken as the 'core' set of variables going
 forwards. While not all are used in the main model, they provide a slightly
@@ -223,6 +219,13 @@ richer description of subjects/sessions for imputation.
     # Confounds
     first_session_date
 ```
+
+##### Data imputation
+
+ + MICE procedure
+
+<https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html>
+
 
 ##### Variable transformations
 
