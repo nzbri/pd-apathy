@@ -26,12 +26,16 @@ modelled by correlations with motor/cognitive scores than simply years since
 diagnosis).
 
 Model definition:
+ + Intercept (i.e. overall prevalence).
+
  + Subject-level predictors:
-    + Intercept (i.e. overall prevalence).
     + Sex.
     + Ethnicity.
     + Education.
     + Age at diagnosis.
+
+ + Hierarchically modelled variability, grouped by subject:
+    + Subject-specific intercept (i.e. baseline propensity)
 
  + Session-level predictors:
     + Time since diagnosis.
@@ -44,7 +48,6 @@ Model definition:
     + Age at diagnosis and sex with time since diagnosis.
 
  + Hierarchically modelled variability, grouped by subject:
-    + Subject-specific intercept (i.e. baseline propensity)
     + Subject-specific slopes with session-level predictors (i.e. rates of
       progression).
 
@@ -210,37 +213,52 @@ References:
 
 ##### Model specification and inference
 
- + Priors
+Model specification / inference is performed by the [`brms`](https://github.com/paul-buerkner/brms)
+package. See e.g. Horne et al., medRxiv, 2020 (DOI: [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
+for a related set of analyses focusing on PDD. The full set of variables to
+test is detailed earlier.
 
-Methods / inference:
- + [`brms`](https://github.com/paul-buerkner/brms)\
-   See e.g. Horne et al., medRxiv, 2020 (DOI:
-   [10.1101/2020.09.01.20186312](https://doi.org/10.1101/2020.09.01.20186312))
-   for a related set of analyses focusing on PDD.
+We place weakly informative `N(0,1)` priors on each of the population-level
+('fixed') effects regression parameters, and these should be appropriate given
+the data transformations detailed above.
 
-This would render the following (pseudo) BRMS formula:
+Together with the model description outlined earlier, this would render the
+following (pseudo) BRMS formula:
 ```R
 # See vignette("brms_multilevel") for notation and nomenclature
 model <- brms::brm(
-  formula = apathy ~
-    # pterms: subject-level
-    1 + sex + ethnicity + education + diagnosis_age +
-    # pterms: session-level
-    years_from_diagnosis + UPDRS_motor_score + global_z + LED +
-    # pterms: interaction
-    (sex + diagnosis_age):years_from_diagnosis +
-    # pterms: confounds
-    poly(first_visit_date, 2) + full_assessment +
-    # gterms
-    (1 + years_from_diagnosis | subject_id),
+  formula = apathy ~ 1 + ... + (... | subject_id),
   family = brms::bernoulli(link = "logit"),
-  data = data
+  prior = brms::set_prior("normal(0.0, 1.0)", class = "b"),
+  data = transformed_data
 )
 ```
 
 ##### Model comparison
 
- + LOO-IC and incremental model comparison
+We iteratively compare nested families of models, and pick the winning model
+based on generalisability to unseen subjects as measured via the LOOIC/ELPD.
+See [issue #6](https://github.com/nzbri/pd-apathy/issues/6) for a more
+detailed discussion of this approach.
+
+The procedure is roughly as follows:
+ + Start with a base/null model (e.g. `apathy ~ 1`), and a set of variables to
+   test (e.g. `age, sex`).
+ + Fit the full set of models implied by the different possible combinations.
+   For the example here, this would be:
+    + `apathy ~ 1`
+    + `apathy ~ 1 + age`
+    + `apathy ~ 1 + sex`
+    + `apathy ~ 1 + age + sex`
+ + Score each model using the ELPD, estimated via leave-one-out
+   cross-validation.
+ + Take the winning model as the base model for the next set of variables, and
+   repeat.
+
+We will also report the difference in ELPD between each of the single-term
+models and the base model, though this is not used explicitly. Rather this is
+simply another readout of model performance, albeit one that is less useful in
+the presence of strongly correlated variables.
 
 ##### Conditional analyses
 
