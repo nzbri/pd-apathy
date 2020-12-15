@@ -49,9 +49,9 @@ full_data <- full_data %>%
     # Neuropsych tests
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
-    diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
+    diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED,
     # Confounds
-    first_session_date
+    first_session_date, session_date, UPDRS_source
   )
 
 ###############################################################################
@@ -62,19 +62,28 @@ imputed_data <- full_data %>%
 
 # Prepare MICE settings
 method <- mice::make.method(imputed_data)
-pred = mice::make.predictorMatrix(imputed_data)
+pred = mice::make.predictorMatrix(imputed_data)  # target = rows, predictors = columns
 # Remove database specific variables
 pred[, c("subject_id", "subject_int", "session_id")] <- 0
+# Remove variables that cause problems as predictors
+# https://stefvanbuuren.name/fimd/sec-toomany.html#finding-problems-loggedevents
+pred[, c("diagnosis", "Hoehn_Yahr", "UPDRS_source")] <- 0
 # Tweak default methods for imputing data to account for 2-level structure, where continuous
 # https://stefvanbuuren.name/fimd/sec-mlguidelines.html
 # https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html
 method[c("age_at_symptom_onset", "age_at_diagnosis", "education")] <- "2lonly.pmm"
 pred[c("age_at_symptom_onset", "age_at_diagnosis", "education"), "subject_int"] <- -2
+# Break feedback loop between correlated age variables
+# full_data %>% select(contains("age")) %>% mice::md.pattern()
+pred["age_at_symptom_onset", "age_at_diagnosis"] <- 0
 
 # Run imputation
 imputed_data <- imputed_data %>%
   mutate(subject_id = as.integer(as.factor(subject_id))) %>%
-  mice::mice(m = 1, method = method, predictorMatrix = pred) %>%
+  mice::mice(
+    m = 1, maxit = 10,
+    method = method, predictorMatrix = pred
+  ) %>%
   mice::complete(action = 1) %>%
   as_tibble() %>%
   mutate(subject_int = NULL)

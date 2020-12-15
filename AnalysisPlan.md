@@ -215,9 +215,9 @@ richer description of subjects/sessions for imputation.
     # Neuropsych tests
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
-    diagnosis, Hoehn_Yahr, UPDRS_motor_score, UPDRS_source, LED,
+    diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED,
     # Confounds
-    first_session_date
+    first_session_date, session_date, UPDRS_source
 ```
 
 ##### Data imputation
