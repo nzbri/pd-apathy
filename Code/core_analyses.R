@@ -57,9 +57,41 @@ full_data <- full_data %>%
 ###############################################################################
 # Imputation
 
-# TODO:
-#  + MICE for imputation
-#  + Do we formulate this as a two-level model?
+imputed_data <- full_data %>%
+  mutate(subject_int = as.integer(as.factor(subject_id)))
+
+# Prepare MICE settings
+method <- mice::make.method(imputed_data)
+pred = mice::make.predictorMatrix(imputed_data)
+# Remove database specific variables
+pred[, c("subject_id", "subject_int", "session_id")] <- 0
+# Tweak default methods for imputing data to account for 2-level structure, where continuous
+# https://stefvanbuuren.name/fimd/sec-mlguidelines.html
+# https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html
+method[c("age_at_symptom_onset", "age_at_diagnosis", "education")] <- "2lonly.pmm"
+pred[c("age_at_symptom_onset", "age_at_diagnosis", "education"), "subject_int"] <- -2
+
+# Run imputation
+imputed_data <- imputed_data %>%
+  mutate(subject_id = as.integer(as.factor(subject_id))) %>%
+  mice::mice(m = 1, method = method, predictorMatrix = pred) %>%
+  mice::complete(action = 1) %>%
+  as_tibble() %>%
+  mutate(subject_int = NULL)
+
+# Ensure subject-level variables are consistent
+# https://stackoverflow.com/a/8189441
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+imputed_data <- imputed_data %>%
+  group_by(subject_id) %>%
+  mutate(
+    across(c(sex, ethnicity, handedness, side_of_onset), ~ mode(.x))
+  ) %>%
+  ungroup()
 
 ###############################################################################
 # Data preprocessing / transformations
