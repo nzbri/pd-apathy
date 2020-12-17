@@ -83,14 +83,15 @@ pred["age_at_symptom_onset", "age_at_diagnosis"] <- 0
 
 # Run imputation
 imputed_data <- imputed_data %>%
-  mutate(subject_id = as.integer(as.factor(subject_id))) %>%
   mice::mice(
     m = 1, maxit = 10,
     method = method, predictorMatrix = pred
   ) %>%
-  mice::complete(action = 1) %>%
+  # https://stackoverflow.com/a/30892119
+  mice::complete(action = "long", include = TRUE) %>%
   as_tibble() %>%
-  mutate(subject_int = NULL)
+  mutate(subject_int = NULL) %>%
+  mice::as.mids()
 
 # Ensure subject-level variables are consistent
 # https://stackoverflow.com/a/8189441
@@ -100,50 +101,62 @@ mode <- function(x) {
 }
 
 imputed_data <- imputed_data %>%
-  group_by(subject_id) %>%
+  mice::complete(action = "long", include = TRUE) %>%
+  as_tibble() %>%
+  group_by(.imp, subject_id) %>%
   mutate(
     across(c(sex, ethnicity, handedness, side_of_onset), ~ mode(.x))
   ) %>%
-  ungroup()
+  ungroup() %>%
+  mice::as.mids()
 
 ###############################################################################
 # Data preprocessing / transformations
 
-imputed_data <- imputed_data %>%
+transformed_data <- imputed_data %>%
+  mice::complete(action = "long", include = FALSE) %>%
+  as_tibble() %>%
+  mutate(.id = NULL) %>%
   # Add some useful extra timing info
   mutate(years_since_diagnosis = age - age_at_diagnosis)
 
 # Store means / standard deviations for later
-imputed_data.mean <- imputed_data %>%
+transformed_data.mean <- transformed_data %>%
+  group_by(.imp) %>%
   summarise(across(
     where(is.numeric) | where(is.logical),
     ~ mean(.x, na.rm = TRUE)
   ))
-imputed_data.sd <- imputed_data %>%
+transformed_data.sd <- transformed_data %>%
+  group_by(.imp) %>%
   summarise(across(
     where(is.numeric) | where(is.logical),
     ~ sd(.x, na.rm = TRUE)
   ))
 
 # Center / rescale selected columns
-transformed_data <- imputed_data %>%
+transformed_data <- transformed_data %>%
   mutate(first_session_date2 = scale(first_session_date) ^ 2) %>%
   # Center & rescale
+  group_by(.imp) %>%
   mutate(across(
     c(age_at_diagnosis, education, first_session_date, first_session_date2),
     ~ as.vector(scale(.x, center = TRUE, scale = TRUE))
   )) %>%
+  ungroup() %>%
   # Rescale only
+  group_by(.imp) %>%
   mutate(across(
     c(years_since_diagnosis, HADS_depression, UPDRS_motor_score),
     ~ as.vector(scale(.x, center = FALSE, scale = TRUE))
   )) %>%
+  ungroup() %>%
   # Split LED into two regressors, and rescale
   mutate(
     taking_medication = (LED > 0.0),
     transformed_dose = sqrt(LED)
   ) %>%
-  group_by(taking_medication) %>%
+  group_by(.imp, taking_medication) %>%
   mutate(
     transformed_dose = as.vector(scale(transformed_dose, center = TRUE, scale = TRUE))
   ) %>%
@@ -206,7 +219,7 @@ for (
   writeLines("Fitting individual models")
 
   # Fit each model in turn, recording LOO info
-  models = vector("list", length(formulas))
+  models <- vector("list", length(formulas))
   for (i in seq_along(formulas)) {
     writeLines(paste("\n", strrep("-", 36), sep = ""))
     writeLines(paste("Model", i))
@@ -225,11 +238,14 @@ for (
       prior <- brms::empty_prior()
     }
 
-    model <- brms::brm(
+    model <- brms::brm_multiple(
       formula = formulas[[i]],
       family = brms::bernoulli(link = "logit"),
       prior = prior,
-      data = transformed_data,
+      data = lapply(
+        group_split(transformed_data, .imp, .keep = FALSE),
+        as.data.frame
+      ),
       silent = TRUE, refresh = 0
     )
     model <- add_criterion(model, "loo")
