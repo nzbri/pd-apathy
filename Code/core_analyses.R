@@ -160,7 +160,6 @@ transformed_data <- imputed_data %>%
 # Fit models
 
 # TODO:
-#  + Set priors
 #  + Add confounds
 #  + Base model comparison
 #  + Logging
@@ -193,9 +192,21 @@ for (
   for (i in seq_along(formulas)) {
     print(formulas[[i]])
 
+    prior <- brms::get_prior(
+      formula = formulas[[i]],
+      family = brms::bernoulli(link = "logit"),
+      data = transformed_data
+    )
+    if (any(prior$class == "b")) {
+      prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
+    } else {
+      prior <- brms::empty_prior()
+    }
+
     model <- brms::brm(
       formula = formulas[[i]],
       family = brms::bernoulli(link = "logit"),
+      prior = prior,
       data = transformed_data
     )
     model <- add_criterion(model, "loo")
@@ -205,7 +216,7 @@ for (
   }
 
   #print(models)
-  #tail(models, n = 1)
+  #print(tail(models, n = 1))
 
   # This is awful! For some reason the canonical `do.call` versions crash RStudio
   comparison <- eval(parse(text = paste(
