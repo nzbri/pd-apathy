@@ -164,7 +164,6 @@ transformed_data <- imputed_data %>%
 # Fit models
 
 # TODO:
-#  + Add confounds
 #  + Base model comparison
 
 filename <- file.path(
@@ -179,6 +178,7 @@ options(width = 1024)
 base_formula <- "NPI_apathy_present ~ 1"
 for (
   covariates in list(
+    c("first_session_date", "first_session_date2"),
     c("sex", "ethnicity", "education", "age_at_diagnosis"),
     c("(1 | subject_id)"),
     c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression", "taking_medication + transformed_dose")
