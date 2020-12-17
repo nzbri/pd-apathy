@@ -146,66 +146,84 @@ transformed_data <- imputed_data %>%
   ungroup() %>%
   mutate(
     transformed_dose = if_else(is.na(transformed_dose), 0.0, transformed_dose)
-  )
+  ) %>%
   #select(taking_medication, transformed_dose) %>% print(n = 100)
   #ggplot(aes(transformed_dose)) + geom_histogram()
+  # Set reference level for some factors
+  mutate(
+    ethnicity = relevel(ethnicity, ref = "New Zealand European"),
+    taking_medication = factor(taking_medication, levels = c(FALSE, TRUE), labels = c("No", "Yes")),
+    taking_medication = relevel(taking_medication, ref = "Yes"),
+  )
 
 ###############################################################################
 # Fit models
 
 # TODO:
 #  + Set priors
-#  + Wrap this in an outer loop for groups of covariates
+#  + Add confounds
+#  + Base model comparison
+#  + Logging
 
 base_formula <- "NPI_apathy_present ~ 1"
-covariates <- c("age_at_diagnosis", "education", "sex")  # "ethnicity"
-#covariates <- c("(1 | subject_id)")
-combinations <- unlist(
-  lapply(seq_along(covariates), combn, x = covariates, simplify = FALSE),
-  recursive = FALSE
-)
-formulas <- combinations %>%
-  lapply(
-    function(combination) {
-      paste(base_formula, "+", paste(combination, collapse = " + "))
-    }
-  ) %>%
-  prepend(base_formula) %>%
-  lapply(as.formula)
-print(formulas)
-
-# Fit each model in turn, recording LOO info
-models = vector("list", length(formulas))
-for (i in seq_along(formulas)) {
-  print(formulas[[i]])
-
-  model <- brms::brm(
-    formula = formulas[[i]],
-    family = brms::bernoulli(link = "logit"),
-    data = transformed_data
+for (
+  covariates in list(
+    c("sex", "ethnicity", "education", "age_at_diagnosis"),
+    c("(1 | subject_id)"),
+    c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression", "taking_medication + transformed_dose")
   )
-  model <- add_criterion(model, "loo")
-  #print(summary(model))
+) {
 
-  models[[i]] <- model
+  combinations <- unlist(
+    lapply(seq_along(covariates), combn, x = covariates, simplify = FALSE),
+    recursive = FALSE
+  )
+  formulas <- combinations %>%
+    lapply(
+      function(combination) {
+        paste(base_formula, "+", paste(combination, collapse = " + "))
+      }
+    ) %>%
+    prepend(base_formula) %>%
+    lapply(as.formula)
+  #print(formulas)
+
+  # Fit each model in turn, recording LOO info
+  models = vector("list", length(formulas))
+  for (i in seq_along(formulas)) {
+    print(formulas[[i]])
+
+    model <- brms::brm(
+      formula = formulas[[i]],
+      family = brms::bernoulli(link = "logit"),
+      data = transformed_data
+    )
+    model <- add_criterion(model, "loo")
+    print(summary(model))
+
+    models[[i]] <- model
+  }
+
+  #print(models)
+  #tail(models, n = 1)
+
+  # This is awful! For some reason the canonical `do.call` versions crash RStudio
+  comparison <- eval(parse(text = paste(
+    "brms::loo_compare(",
+    "models[[",
+    paste(seq_along(formulas), collapse = "]], models[["),
+    "]]",
+    ", criterion = \"loo\", model_names = formulas)",
+    sep = ""
+  )))
+  # brms::loo_compare(models) #, criterion = "loo")
+  # do.call(brms::loo_compare, c(models, criterion = "loo"))
+  # do.call(brms::loo_compare, models)
+  print(comparison)
+  winning_formula <- rownames(comparison)[1]
+  print(winning_formula)
+
+  base_formula <- winning_formula
 }
-print(models)
-#tail(models, n = 1)
-
-# This is awful! For some reason the canonical `do.call` versions crash RStudio
-comparison <- eval(parse(text = paste(
-  "brms::loo_compare(",
-  "models[[",
-  paste(seq_along(formulas), collapse = "]], models[["),
-  "]]",
-  ", criterion = \"loo\", model_names = formulas)",
-  sep = ""
-)))
-# brms::loo_compare(models) #, criterion = "loo")
-# do.call(brms::loo_compare, c(models, criterion = "loo"))
-# do.call(brms::loo_compare, models)
-print(comparison)
-winning_formula <- rownames(comparison)[1]
-print(winning_formula)
 
 ###############################################################################
