@@ -163,9 +163,6 @@ transformed_data <- imputed_data %>%
 ###############################################################################
 # Fit models
 
-# TODO:
-#  + Base model comparison
-
 filename <- file.path(
   "..", "Results", paste("core-analyses_", date_string, ".Rout", sep = "")
 )
@@ -263,6 +260,20 @@ for (
   print(comparison)
   winning_formula <- rownames(comparison)[1]
   writeLines(paste("\nWinning formula:", sQuote(winning_formula)))
+
+  # ---------------------------------------------------------------------------
+  writeLines(paste("\n", strrep("-", 72), sep = ""))
+  writeLines("Comparison of individual terms to baseline")
+
+  for (i in seq_along(covariates)) {
+    individual_comparison <- brms::loo_compare(
+      models[[1]], models[[i + 1]],
+      criterion = "loo",
+      model_names = c("base_model", paste("base_model +", covariates[[i]]))
+    )
+    writeLines("")
+    print(individual_comparison)
+  }
 
   # ---------------------------------------------------------------------------
 
