@@ -105,12 +105,50 @@ imputed_data <- imputed_data %>%
 ###############################################################################
 # Data preprocessing / transformations
 
-# TODO:
-#  + Transformation / scaling of variables
-
 imputed_data <- imputed_data %>%
   # Add some useful extra timing info
   mutate(years_since_diagnosis = age - age_at_diagnosis)
+
+# Store means / standard deviations for later
+imputed_data.mean <- imputed_data %>%
+  summarise(across(
+    where(is.numeric) | where(is.logical),
+    ~ mean(.x, na.rm = TRUE)
+  ))
+imputed_data.sd <- imputed_data %>%
+  summarise(across(
+    where(is.numeric) | where(is.logical),
+    ~ sd(.x, na.rm = TRUE)
+  ))
+
+# Center / rescale selected columns
+transformed_data <- imputed_data %>%
+  mutate(first_session_date2 = scale(first_session_date) ^ 2) %>%
+  # Center & rescale
+  mutate(across(
+    c(age_at_diagnosis, education, first_session_date, first_session_date2),
+    ~ as.vector(scale(.x, center = TRUE, scale = TRUE))
+  )) %>%
+  # Rescale only
+  mutate(across(
+    c(years_since_diagnosis, HADS_depression, UPDRS_motor_score),
+    ~ as.vector(scale(.x, center = FALSE, scale = TRUE))
+  )) %>%
+  # Split LED into two regressors, and rescale
+  mutate(
+    taking_medication = (LED > 0.0),
+    transformed_dose = sqrt(LED)
+  ) %>%
+  group_by(taking_medication) %>%
+  mutate(
+    transformed_dose = as.vector(scale(transformed_dose, center = TRUE, scale = TRUE))
+  ) %>%
+  ungroup() %>%
+  mutate(
+    transformed_dose = if_else(is.na(transformed_dose), 0.0, transformed_dose)
+  )
+  #select(taking_medication, transformed_dose) %>% print(n = 100)
+  #ggplot(aes(transformed_dose)) + geom_histogram()
 
 ###############################################################################
 # Fit models
@@ -144,7 +182,7 @@ for (i in seq_along(formulas)) {
   model <- brms::brm(
     formula = formulas[[i]],
     family = brms::bernoulli(link = "logit"),
-    data = imputed_data
+    data = transformed_data
   )
   model <- add_criterion(model, "loo")
   #print(summary(model))
