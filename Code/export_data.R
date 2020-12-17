@@ -20,6 +20,8 @@ source("initialise_environment.R")
 
 source("utils.R")
 
+date_string = format(lubridate::ymd(lubridate::today()))
+
 ###############################################################################
 
 # Small set of first-pass data consistency checks / modifications
@@ -289,8 +291,6 @@ full_data %>% summarise(across(.fns = ~ sum(is.na(.x)))) %>% print(width = Inf)
 
 ###############################################################################
 # Save to file
-
-date_string = lubridate::ymd(lubridate::today())
 
 saveRDS(
   full_data,

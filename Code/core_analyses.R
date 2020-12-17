@@ -18,6 +18,10 @@
 
 source("initialise_environment.R")
 
+source("utils.R")
+
+date_string = format(lubridate::ymd(lubridate::today()))
+
 ###############################################################################
 
 full_data <- readRDS(
@@ -162,7 +166,15 @@ transformed_data <- imputed_data %>%
 # TODO:
 #  + Add confounds
 #  + Base model comparison
-#  + Logging
+
+filename <- file.path(
+  "..", "Results", paste("core-analyses_", date_string, ".Rout", sep = "")
+)
+sink(file = filename)
+options(width = 1024)
+
+# Data summary?
+#writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
 
 base_formula <- "NPI_apathy_present ~ 1"
 for (
@@ -172,6 +184,11 @@ for (
     c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression", "taking_medication + transformed_dose")
   )
 ) {
+  writeLines(paste("\n", strrep("*", 72), sep = ""))
+  writeLines(paste("Base formula:", sQuote(base_formula)))
+  writeLines(paste("Covariates:  ", paste(lapply(covariates, sQuote), collapse = ", ")))
+
+  # ---------------------------------------------------------------------------
 
   combinations <- unlist(
     lapply(seq_along(covariates), combn, x = covariates, simplify = FALSE),
@@ -187,10 +204,18 @@ for (
     lapply(as.formula)
   #print(formulas)
 
+  # ---------------------------------------------------------------------------
+  writeLines(paste("\n", strrep("-", 72), sep = ""))
+  writeLines("Fitting individual models")
+
   # Fit each model in turn, recording LOO info
   models = vector("list", length(formulas))
   for (i in seq_along(formulas)) {
-    print(formulas[[i]])
+    writeLines(paste("\n", strrep("-", 36), sep = ""))
+    writeLines(paste("Model", i))
+    #writeLines("Formula:")
+    #writeLines(format(formulas[[i]]))
+    writeLines("")
 
     prior <- brms::get_prior(
       formula = formulas[[i]],
@@ -207,13 +232,18 @@ for (
       formula = formulas[[i]],
       family = brms::bernoulli(link = "logit"),
       prior = prior,
-      data = transformed_data
+      data = transformed_data,
+      silent = TRUE, refresh = 0
     )
     model <- add_criterion(model, "loo")
     print(summary(model))
 
     models[[i]] <- model
   }
+
+  # ---------------------------------------------------------------------------
+  writeLines(paste("\n", strrep("-", 72), sep = ""))
+  writeLines("Model comparison")
 
   #print(models)
   #print(tail(models, n = 1))
@@ -232,9 +262,17 @@ for (
   # do.call(brms::loo_compare, models)
   print(comparison)
   winning_formula <- rownames(comparison)[1]
-  print(winning_formula)
+  writeLines(paste("\nWinning formula:", sQuote(winning_formula)))
+
+  # ---------------------------------------------------------------------------
 
   base_formula <- winning_formula
 }
+writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
+
+sink()
+options(width = 80)
+file.show(filename)
+#writeLines(readLines(filename))
 
 ###############################################################################

@@ -51,7 +51,7 @@ check_packages(required_packages)
 
 library(rstan)
 options(mc.cores = parallel::detectCores())
-rstan::rstan_options(auto_write = TRUE)
+rstan::rstan_options(auto_write = TRUE)  # Cache compiled models
 
 # -----------------------------------------------------------------------------
 
