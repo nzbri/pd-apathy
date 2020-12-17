@@ -233,10 +233,11 @@ For the most part, imputation proceeds as per the MICE defaults. For
 continuous subject-level variables, we use the available `2lonly.pmm` method,
 but otherwise ignore the subject structure. While this has its disadvantages,
 it means we preserve some of the idiosyncrasies of e.g. the cognitive scores,
-as opposed to assuming normality. See e.g.
-<https://statisticalhorizons.com/predictive-mean-matching>. The only other step
-is to post-hoc replace any inconsistent imputations of non-continuous
-subject-level variables by setting all instances to the mode.
+as opposed to assuming normality (see e.g.
+<https://statisticalhorizons.com/predictive-mean-matching>
+for an overview of the `pmm` method). The only other step is to post-hoc
+replace any inconsistent imputations of non-continuous subject-level variables
+by setting all instances to the mode.
 
 Useful resources:
  + <https://stefvanbuuren.name/fimd/>
@@ -244,9 +245,32 @@ Useful resources:
 
 ##### Variable transformations
 
- + z-scoring
- + LED transformation
- + Derived variables
+The following transformations are applied to the raw data. This means the
+variables are all of a similar scale, and as such makes the specification of
+priors etc. more straightforward. Furthermore, we utilise a set of variables
+derived from combinations of other variables.
+
+Derived variables:
+ + `years_since_diagnosis = age - age_at_diagnosis`
+
+Variables to be centred and rescaled:
+ + `age_at_diagnosis`
+ + `education`
+
+Variables to be rescaled (i.e. where the reference point is someone who has
+just been diagnosed):
+ + `years_since_diagnosis`
+ + `HADS_depression`
+ + `UPDRS_motor_score`
+
+More complex transformations:
+ + `LED`: these values are positive and very heavy tailed. However, there is
+   also a subset of subjects who are not taking any medication. Taking the
+   square root of the raw values makes the distribution of values much more
+   Gaussian, albeit bimodal because of the subjects off medication. Splitting
+   this into two groups (indicator variable: `taking_medication`), and then
+   centring `transformed_dose = sqrt(LED)` within group fixes this. See
+   [issue #16](https://github.com/nzbri/pd-apathy/issues/16) for more details.
 
 ##### Model specification and inference
 
