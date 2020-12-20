@@ -1,0 +1,1666 @@
+
+************************************************************************
+Base formula: ‘NPI_apathy_present ~ 1’
+Covariates:   ‘first_session_date’, ‘first_session_date2’
+
+------------------------------------------------------------------------
+Fitting individual models
+
+------------------------------------
+Model 1
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.25      0.07    -1.38    -1.13 1.00     1542     2331
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 2
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + first_session_date 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                   Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept             -1.26      0.07    -1.38    -1.12 1.00     3900     2724
+first_session_date     0.08      0.07    -0.05     0.21 1.00     3125     2394
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 3
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + first_session_date2 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -1.26      0.07    -1.39    -1.12 1.00     3228     2504
+first_session_date2    -0.06      0.07    -0.19     0.07 1.00     3653     2838
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 4
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + first_session_date + first_session_date2 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -1.26      0.07    -1.40    -1.13 1.00     3362     2756
+first_session_date      0.11      0.07    -0.02     0.25 1.00     3341     2805
+first_session_date2    -0.09      0.08    -0.24     0.05 1.00     3194     2985
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------------------------------------------
+Model comparison
+                                                                  elpd_diff se_diff
+NPI_apathy_present ~ 1                                             0.0       0.0   
+NPI_apathy_present ~ 1 + first_session_date                       -0.2       1.2   
+NPI_apathy_present ~ 1 + first_session_date + first_session_date2 -0.5       1.7   
+NPI_apathy_present ~ 1 + first_session_date2                      -0.7       0.9   
+
+Winning formula: ‘NPI_apathy_present ~ 1’
+
+------------------------------------------------------------------------
+Comparison of individual terms to baseline
+
+                                elpd_diff se_diff
+base_model                       0.0       0.0   
+base_model + first_session_date -0.2       1.2   
+
+                                 elpd_diff se_diff
+base_model                        0.0       0.0   
+base_model + first_session_date2 -0.7       0.9   
+
+************************************************************************
+Base formula: ‘NPI_apathy_present ~ 1’
+Covariates:   ‘sex’, ‘ethnicity’, ‘education’, ‘age_at_diagnosis’
+
+------------------------------------------------------------------------
+Fitting individual models
+
+------------------------------------
+Model 1
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.25      0.07    -1.39    -1.12 1.00     1386     2413
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 2
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.08      0.08    -1.23    -0.93 1.00     4236     2917
+sexFemale    -0.70      0.17    -1.04    -0.38 1.00     3177     2435
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 3
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + ethnicity 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept          -1.25      0.07    -1.39    -1.12 1.00     5025     2666
+ethnicityIndian    -0.40      0.89    -2.22     1.28 1.00     5373     3190
+ethnicityMaori     -1.06      0.74    -2.53     0.30 1.00     5206     3189
+ethnicityOther      0.18      0.38    -0.60     0.90 1.00     5119     3169
+ethnicitySamoan    -0.21      0.92    -2.04     1.53 1.00     5065     3146
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 4
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + education 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.26      0.07    -1.40    -1.12 1.00     2943     2563
+education    -0.07      0.07    -0.20     0.06 1.00     3475     2582
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 5
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.26      0.07    -1.39    -1.13 1.00     3576     2673
+age_at_diagnosis     0.13      0.07    -0.00     0.26 1.00     3427     2545
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 6
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept          -1.07      0.08    -1.23    -0.92 1.00     5833     2936
+sexFemale          -0.70      0.16    -1.03    -0.38 1.00     5459     2947
+ethnicityIndian    -0.43      0.88    -2.20     1.26 1.00     5323     3071
+ethnicityMaori     -1.18      0.73    -2.71     0.19 1.00     5151     2819
+ethnicityOther      0.03      0.39    -0.75     0.77 1.00     4788     3079
+ethnicitySamoan    -0.27      0.90    -2.11     1.46 1.00     5263     3058
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 7
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + education 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept    -1.08      0.08    -1.23    -0.93 1.00     5439     3086
+sexFemale    -0.71      0.16    -1.03    -0.39 1.00     3934     3023
+education    -0.08      0.07    -0.22     0.05 1.00     3037     2329
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 8
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.08      0.08    -1.24    -0.94 1.00     4445     2919
+sexFemale           -0.70      0.16    -1.03    -0.38 1.00     3386     2729
+age_at_diagnosis     0.13      0.07    -0.01     0.26 1.01     3741     2556
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 9
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + ethnicity + education 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept          -1.26      0.07    -1.39    -1.12 1.00     5076     3017
+ethnicityIndian    -0.39      0.87    -2.19     1.29 1.00     5385     3131
+ethnicityMaori     -1.07      0.74    -2.58     0.30 1.00     5873     3074
+ethnicityOther      0.23      0.39    -0.57     0.97 1.00     6096     2436
+ethnicitySamoan    -0.23      0.92    -2.02     1.55 1.00     5232     3164
+education          -0.07      0.07    -0.21     0.06 1.00     4858     2906
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 10
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + ethnicity + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.26      0.07    -1.39    -1.12 1.00     5765     3415
+ethnicityIndian     -0.38      0.85    -2.09     1.24 1.00     5570     3168
+ethnicityMaori      -1.05      0.73    -2.57     0.33 1.00     6256     3240
+ethnicityOther       0.13      0.40    -0.68     0.87 1.00     5818     2671
+ethnicitySamoan     -0.23      0.95    -2.08     1.57 1.00     5425     2989
+age_at_diagnosis     0.13      0.07    -0.00     0.26 1.00     5268     2963
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 11
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + education + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.26      0.07    -1.39    -1.13 1.00     3558     2603
+education           -0.06      0.07    -0.20     0.07 1.00     3452     2557
+age_at_diagnosis     0.13      0.07    -0.00     0.26 1.00     3179     3153
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 12
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + education 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept          -1.07      0.08    -1.23    -0.92 1.00     6882     2806
+sexFemale          -0.71      0.16    -1.04    -0.40 1.00     6493     3004
+ethnicityIndian    -0.46      0.89    -2.23     1.27 1.00     6706     3201
+ethnicityMaori     -1.16      0.72    -2.65     0.13 1.00     5482     2855
+ethnicityOther      0.09      0.40    -0.71     0.87 1.00     8038     2989
+ethnicitySamoan    -0.22      0.92    -2.12     1.51 1.00     6976     3243
+education          -0.09      0.07    -0.22     0.05 1.00     6169     3012
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 13
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.08      0.08    -1.23    -0.93 1.00     5460     3052
+sexFemale           -0.70      0.16    -1.03    -0.37 1.00     5927     3197
+ethnicityIndian     -0.42      0.86    -2.10     1.21 1.00     5666     3050
+ethnicityMaori      -1.16      0.74    -2.69     0.18 1.00     5448     2693
+ethnicityOther      -0.01      0.39    -0.80     0.74 1.00     5668     2747
+ethnicitySamoan     -0.27      0.92    -2.10     1.57 1.00     5842     2813
+age_at_diagnosis     0.13      0.07    -0.01     0.26 1.00     6120     3168
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 14
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + education + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.08      0.08    -1.24    -0.94 1.00     5177     3002
+sexFemale           -0.70      0.16    -1.02    -0.39 1.00     4113     2927
+education           -0.08      0.07    -0.21     0.05 1.00     4508     2917
+age_at_diagnosis     0.13      0.07    -0.01     0.27 1.00     4189     3025
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 15
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + ethnicity + education + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.26      0.07    -1.40    -1.12 1.00     5998     2706
+ethnicityIndian     -0.42      0.88    -2.19     1.26 1.00     6168     3164
+ethnicityMaori      -1.07      0.74    -2.61     0.27 1.00     5711     2971
+ethnicityOther       0.17      0.41    -0.68     0.95 1.00     5024     2692
+ethnicitySamoan     -0.19      0.94    -2.10     1.60 1.00     5953     3228
+education           -0.07      0.07    -0.20     0.07 1.00     5185     2993
+age_at_diagnosis     0.12      0.07    -0.01     0.27 1.00     5624     2953
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 16
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + education + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.08      0.08    -1.23    -0.93 1.00     6441     3451
+sexFemale           -0.71      0.16    -1.03    -0.40 1.00     6196     3029
+ethnicityIndian     -0.48      0.88    -2.28     1.22 1.00     7039     2892
+ethnicityMaori      -1.15      0.73    -2.63     0.19 1.00     7144     2851
+ethnicityOther       0.04      0.40    -0.81     0.81 1.00     6454     2826
+ethnicitySamoan     -0.23      0.93    -2.05     1.59 1.00     6306     3032
+education           -0.08      0.07    -0.22     0.05 1.00     7108     3135
+age_at_diagnosis     0.12      0.07    -0.01     0.26 1.00     5883     2934
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------------------------------------------
+Model comparison
+                                                                        elpd_diff se_diff
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis               0.0       0.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + education + age_at_diagnosis  -0.3       1.3  
+NPI_apathy_present ~ 1 + sex + ethnicity                                 -0.6       1.8  
+NPI_apathy_present ~ 1 + sex + age_at_diagnosis                          -0.7       0.5  
+NPI_apathy_present ~ 1 + sex + ethnicity + education                     -0.9       2.2  
+NPI_apathy_present ~ 1 + sex + education + age_at_diagnosis              -1.1       1.3  
+NPI_apathy_present ~ 1 + sex                                             -1.5       1.9  
+NPI_apathy_present ~ 1 + sex + education                                 -1.7       2.3  
+NPI_apathy_present ~ 1 + ethnicity + age_at_diagnosis                    -9.2       4.3  
+NPI_apathy_present ~ 1 + age_at_diagnosis                                -9.6       4.3  
+NPI_apathy_present ~ 1 + ethnicity                                       -9.9       4.7  
+NPI_apathy_present ~ 1 + ethnicity + education + age_at_diagnosis        -9.9       4.4  
+NPI_apathy_present ~ 1 + education + age_at_diagnosis                   -10.2       4.4  
+NPI_apathy_present ~ 1 + ethnicity + education                          -10.4       4.8  
+NPI_apathy_present ~ 1                                                  -10.5       4.7  
+NPI_apathy_present ~ 1 + education                                      -11.1       4.9  
+
+Winning formula: ‘NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis’
+
+------------------------------------------------------------------------
+Comparison of individual terms to baseline
+
+                 elpd_diff se_diff
+base_model + sex  0.0       0.0   
+base_model       -8.9       4.3   
+
+                       elpd_diff se_diff
+base_model + ethnicity  0.0       0.0   
+base_model             -0.5       0.6   
+
+                       elpd_diff se_diff
+base_model              0.0       0.0   
+base_model + education -0.6       1.1   
+
+                              elpd_diff se_diff
+base_model + age_at_diagnosis  0.0       0.0   
+base_model                    -0.9       1.9   
+
+************************************************************************
+Base formula: ‘NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis’
+Covariates:   ‘(1 | subject_id)’
+
+------------------------------------------------------------------------
+Fitting individual models
+
+------------------------------------
+Model 1
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.08      0.08    -1.23    -0.92 1.00     6138     2870
+sexFemale           -0.70      0.17    -1.03    -0.38 1.00     6535     2841
+ethnicityIndian     -0.44      0.88    -2.22     1.18 1.00     5905     2988
+ethnicityMaori      -1.15      0.73    -2.62     0.23 1.00     5658     2675
+ethnicityOther      -0.02      0.39    -0.82     0.71 1.00     5455     2888
+ethnicitySamoan     -0.25      0.92    -2.07     1.52 1.00     5618     3017
+age_at_diagnosis     0.13      0.07    -0.00     0.26 1.00     5198     3031
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 2
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.09      0.24     1.65     2.62 1.00     1157     1816
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.70      0.21    -2.13    -1.32 1.00     1662     1940
+sexFemale           -1.02      0.36    -1.70    -0.32 1.00     1930     2591
+ethnicityIndian     -0.25      0.95    -2.14     1.59 1.00     8002     2912
+ethnicityMaori      -0.59      0.92    -2.40     1.28 1.00     5886     2784
+ethnicityOther       0.14      0.75    -1.29     1.63 1.00     3205     3066
+ethnicitySamoan     -0.17      0.98    -2.12     1.69 1.00     6442     2989
+age_at_diagnosis     0.18      0.15    -0.13     0.48 1.00     2316     2868
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------------------------------------------
+Model comparison
+                                                                               elpd_diff se_diff
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id)    0.0       0.0 
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis                    -129.3      15.1 
+
+Winning formula: ‘NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id)’
+
+------------------------------------------------------------------------
+Comparison of individual terms to baseline
+
+                              elpd_diff se_diff
+base_model + (1 | subject_id)    0.0       0.0 
+base_model                    -129.3      15.1 
+
+************************************************************************
+Base formula: ‘NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id)’
+Covariates:   ‘years_since_diagnosis’, ‘global_z’, ‘UPDRS_motor_score’, ‘HADS_depression’, ‘taking_medication + transformed_dose’
+
+------------------------------------------------------------------------
+Fitting individual models
+
+------------------------------------
+Model 1
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.09      0.23     1.67     2.59 1.00     1223     1866
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -1.70      0.22    -2.15    -1.30 1.00     1410     2054
+sexFemale           -1.01      0.36    -1.73    -0.33 1.00     1801     2809
+ethnicityIndian     -0.25      0.95    -2.11     1.56 1.00     5591     3014
+ethnicityMaori      -0.59      0.90    -2.33     1.20 1.00     5187     3050
+ethnicityOther       0.17      0.74    -1.31     1.62 1.00     2413     2814
+ethnicitySamoan     -0.16      0.96    -2.05     1.70 1.00     6776     2289
+age_at_diagnosis     0.18      0.16    -0.14     0.49 1.00     1751     2443
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 2
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.13      0.24     1.70     2.64 1.00     1173     2079
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -1.85      0.32    -2.50    -1.26 1.00     1741     2838
+sexFemale                -1.03      0.35    -1.72    -0.36 1.00     1918     2724
+ethnicityIndian          -0.24      0.95    -2.14     1.63 1.00     6360     3148
+ethnicityMaori           -0.60      0.91    -2.38     1.15 1.00     5325     3433
+ethnicityOther            0.15      0.75    -1.34     1.63 1.00     2916     3028
+ethnicitySamoan          -0.16      0.96    -2.01     1.74 1.00     6598     3079
+age_at_diagnosis          0.22      0.17    -0.10     0.56 1.00     1595     2711
+years_since_diagnosis     0.17      0.27    -0.35     0.71 1.00     2178     3079
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 3
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.95      0.22     1.56     2.40 1.00     1339     2343
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -2.08      0.22    -2.53    -1.66 1.00     2017     2765
+sexFemale           -0.85      0.34    -1.51    -0.19 1.00     1956     2502
+ethnicityIndian     -0.24      0.94    -2.08     1.59 1.00     5874     2922
+ethnicityMaori      -0.63      0.89    -2.37     1.10 1.00     5051     3154
+ethnicityOther       0.30      0.69    -1.06     1.67 1.00     2992     3206
+ethnicitySamoan     -0.26      0.98    -2.18     1.64 1.00     5215     2925
+age_at_diagnosis     0.06      0.15    -0.23     0.36 1.00     2093     2895
+global_z            -0.70      0.14    -0.99    -0.42 1.00     2942     3048
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 4
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.06      0.22     1.66     2.53 1.00     1171     2304
+
+Population-Level Effects: 
+                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            -2.36      0.33    -3.02    -1.70 1.00     2762     3084
+sexFemale            -0.97      0.34    -1.66    -0.33 1.00     1743     2421
+ethnicityIndian      -0.25      0.98    -2.16     1.70 1.00     5357     2835
+ethnicityMaori       -0.65      0.90    -2.40     1.12 1.00     4772     2764
+ethnicityOther        0.18      0.72    -1.20     1.60 1.00     2874     3220
+ethnicitySamoan      -0.16      0.97    -2.06     1.74 1.00     6080     2686
+age_at_diagnosis      0.13      0.15    -0.17     0.43 1.00     1702     2502
+UPDRS_motor_score     0.69      0.28     0.14     1.23 1.00     3720     3009
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 5
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.96      0.22     1.55     2.44 1.01     1206     2209
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -2.55      0.28    -3.12    -2.02 1.00     2630     2817
+sexFemale           -0.93      0.34    -1.61    -0.26 1.00     1850     2325
+ethnicityIndian     -0.25      0.96    -2.18     1.58 1.00     8523     2902
+ethnicityMaori      -0.59      0.93    -2.51     1.15 1.00     5698     3020
+ethnicityOther       0.25      0.71    -1.11     1.63 1.00     3497     3157
+ethnicitySamoan     -0.25      0.98    -2.17     1.64 1.00     7786     2995
+age_at_diagnosis     0.17      0.15    -0.12     0.47 1.00     1915     2605
+HADS_depression      0.98      0.20     0.59     1.39 1.00     3916     3226
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 6
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.06      0.23     1.64     2.55 1.00     1080     1737
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -1.70      0.21    -2.14    -1.31 1.00     1552     2397
+sexFemale              -1.12      0.35    -1.81    -0.46 1.00     1832     2516
+ethnicityIndian        -0.23      0.96    -2.14     1.60 1.00     5381     3112
+ethnicityMaori         -0.55      0.92    -2.37     1.18 1.00     4266     2862
+ethnicityOther          0.17      0.72    -1.24     1.58 1.00     2435     2582
+ethnicitySamoan        -0.19      0.99    -2.13     1.71 1.00     5231     2973
+age_at_diagnosis        0.07      0.16    -0.25     0.38 1.00     1567     2038
+taking_medicationNo     0.21      0.39    -0.59     0.96 1.00     4194     3202
+transformed_dose       -0.36      0.13    -0.62    -0.10 1.00     2807     3313
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 7
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.92      0.22     1.53     2.40 1.00     1157     2051
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -1.80      0.30    -2.43    -1.23 1.00     1783     2106
+sexFemale                -0.82      0.33    -1.49    -0.17 1.00     1803     2265
+ethnicityIndian          -0.25      0.95    -2.11     1.62 1.00     6331     2854
+ethnicityMaori           -0.64      0.89    -2.40     1.08 1.00     5024     2589
+ethnicityOther            0.33      0.70    -1.10     1.68 1.00     2328     2579
+ethnicitySamoan          -0.30      0.96    -2.13     1.56 1.00     6232     2577
+age_at_diagnosis         -0.05      0.17    -0.37     0.29 1.00     1770     2223
+years_since_diagnosis    -0.38      0.28    -0.92     0.16 1.00     2111     2588
+global_z                 -0.77      0.15    -1.06    -0.49 1.00     2481     2763
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 8
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.06      0.24     1.63     2.58 1.00     1010     2225
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.31      0.36    -3.02    -1.62 1.00     2537     3051
+sexFemale                -0.97      0.36    -1.71    -0.30 1.00     1332     2379
+ethnicityIndian          -0.19      0.98    -2.15     1.69 1.00     5469     3126
+ethnicityMaori           -0.61      0.93    -2.44     1.22 1.00     5235     2833
+ethnicityOther            0.18      0.73    -1.29     1.62 1.00     2683     3180
+ethnicitySamoan          -0.21      0.95    -2.06     1.63 1.00     6437     3158
+age_at_diagnosis          0.11      0.17    -0.22     0.45 1.00     1711     2453
+years_since_diagnosis    -0.11      0.29    -0.68     0.46 1.00     2148     2187
+UPDRS_motor_score         0.74      0.30     0.17     1.33 1.00     2926     3078
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 9
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.96      0.23     1.54     2.45 1.00      985     1894
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.51      0.34    -3.18    -1.88 1.00     1896     2281
+sexFemale                -0.90      0.34    -1.58    -0.25 1.00     1997     2454
+ethnicityIndian          -0.26      0.95    -2.11     1.59 1.00     6043     3516
+ethnicityMaori           -0.58      0.89    -2.41     1.15 1.00     5085     2866
+ethnicityOther            0.26      0.73    -1.11     1.71 1.00     2472     2667
+ethnicitySamoan          -0.24      0.97    -2.11     1.62 1.00     6207     3198
+age_at_diagnosis          0.16      0.16    -0.17     0.48 1.00     1723     2201
+years_since_diagnosis    -0.06      0.26    -0.57     0.47 1.00     2459     2903
+HADS_depression           0.98      0.20     0.61     1.37 1.00     3565     3084
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 10
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.12      0.24     1.70     2.64 1.00     1135     1991
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.23      0.35    -2.94    -1.57 1.00     1656     2099
+sexFemale                -1.21      0.36    -1.91    -0.54 1.00     1624     2234
+ethnicityIndian          -0.23      0.94    -2.07     1.62 1.00     5474     3316
+ethnicityMaori           -0.55      0.93    -2.44     1.24 1.00     5553     2864
+ethnicityOther            0.15      0.73    -1.27     1.54 1.00     2414     2627
+ethnicitySamoan          -0.19      0.98    -2.14     1.74 1.00     5840     3052
+age_at_diagnosis          0.20      0.17    -0.13     0.53 1.00     1577     2119
+years_since_diagnosis     0.60      0.30     0.01     1.20 1.00     1966     2668
+taking_medicationNo       0.41      0.40    -0.39     1.18 1.00     4403     3296
+transformed_dose         -0.48      0.15    -0.77    -0.19 1.00     2904     3034
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 11
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.96      0.22     1.55     2.43 1.00     1104     2315
+
+Population-Level Effects: 
+                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            -2.14      0.34    -2.84    -1.48 1.00     2605     2780
+sexFemale            -0.84      0.35    -1.55    -0.15 1.00     1884     2296
+ethnicityIndian      -0.23      0.96    -2.19     1.63 1.00     5279     3048
+ethnicityMaori       -0.63      0.92    -2.47     1.19 1.00     4827     3119
+ethnicityOther        0.28      0.71    -1.11     1.68 1.00     2753     3212
+ethnicitySamoan      -0.26      0.96    -2.19     1.62 1.00     6761     2799
+age_at_diagnosis      0.07      0.15    -0.23     0.36 1.00     1925     2801
+global_z             -0.68      0.15    -0.99    -0.39 1.00     2760     2740
+UPDRS_motor_score     0.07      0.31    -0.52     0.66 1.00     3687     3071
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 12
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.91      0.21     1.54     2.35 1.00     1175     2381
+
+Population-Level Effects: 
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           -2.70      0.28    -3.27    -2.18 1.00     2673     2632
+sexFemale           -0.82      0.34    -1.46    -0.16 1.00     2082     2662
+ethnicityIndian     -0.22      0.96    -2.09     1.60 1.00     6436     3301
+ethnicityMaori      -0.62      0.88    -2.37     1.10 1.00     6151     3448
+ethnicityOther       0.37      0.72    -1.07     1.76 1.00     3313     3132
+ethnicitySamoan     -0.31      0.95    -2.19     1.54 1.00     7392     3093
+age_at_diagnosis     0.08      0.15    -0.21     0.36 1.00     1744     2396
+global_z            -0.57      0.14    -0.85    -0.30 1.00     2779     2747
+HADS_depression      0.78      0.20     0.39     1.17 1.00     4555     3185
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 13
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.89      0.22     1.49     2.36 1.00     1277     2079
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.19      0.23    -2.68    -1.78 1.00     2253     2343
+sexFemale              -0.99      0.34    -1.65    -0.32 1.00     2367     2839
+ethnicityIndian        -0.24      0.96    -2.11     1.62 1.00     6634     3113
+ethnicityMaori         -0.58      0.87    -2.33     1.06 1.00     5460     2937
+ethnicityOther          0.37      0.70    -1.01     1.73 1.00     3241     3083
+ethnicitySamoan        -0.32      0.95    -2.14     1.50 1.00     7411     3036
+age_at_diagnosis       -0.12      0.15    -0.42     0.16 1.00     2414     2768
+global_z               -0.83      0.14    -1.12    -0.56 1.00     3566     3332
+taking_medicationNo     0.42      0.38    -0.33     1.17 1.00     5346     3315
+transformed_dose       -0.53      0.13    -0.80    -0.27 1.00     3655     3407
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 14
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.97      0.23     1.54     2.46 1.00     1070     1529
+
+Population-Level Effects: 
+                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            -2.91      0.38    -3.69    -2.18 1.00     2552     2950
+sexFemale            -0.90      0.34    -1.56    -0.24 1.00     2055     2308
+ethnicityIndian      -0.25      0.95    -2.11     1.61 1.00     6631     2802
+ethnicityMaori       -0.62      0.92    -2.42     1.21 1.00     5635     2785
+ethnicityOther        0.27      0.73    -1.16     1.74 1.00     2656     2858
+ethnicitySamoan      -0.26      0.95    -2.08     1.64 1.00     6006     2959
+age_at_diagnosis      0.15      0.15    -0.15     0.45 1.00     1986     2548
+UPDRS_motor_score     0.43      0.28    -0.11     0.99 1.00     4001     3167
+HADS_depression       0.92      0.20     0.53     1.30 1.00     3987     3366
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 15
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.01      0.23     1.61     2.48 1.00     1065     2033
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.53      0.35    -3.23    -1.85 1.00     2322     2403
+sexFemale              -1.09      0.35    -1.81    -0.43 1.00     1787     2593
+ethnicityIndian        -0.21      0.93    -1.97     1.63 1.00     7030     3224
+ethnicityMaori         -0.62      0.90    -2.35     1.22 1.00     4985     3069
+ethnicityOther          0.20      0.73    -1.22     1.62 1.00     2574     2974
+ethnicitySamoan        -0.20      0.95    -2.06     1.69 1.00     5419     3015
+age_at_diagnosis        0.00      0.15    -0.30     0.30 1.00     1794     2500
+UPDRS_motor_score       0.85      0.28     0.28     1.39 1.00     3204     3072
+taking_medicationNo     0.36      0.40    -0.42     1.16 1.00     4172     3107
+transformed_dose       -0.42      0.13    -0.67    -0.16 1.00     2395     2968
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 16
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.89      0.21     1.50     2.35 1.00     1241     2044
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.62      0.27    -3.18    -2.09 1.00     2240     2758
+sexFemale              -1.03      0.34    -1.73    -0.37 1.00     1840     2411
+ethnicityIndian        -0.28      0.93    -2.08     1.49 1.00     6577     3010
+ethnicityMaori         -0.55      0.92    -2.41     1.20 1.00     5799     3126
+ethnicityOther          0.27      0.72    -1.12     1.68 1.00     3114     3153
+ethnicitySamoan        -0.26      0.96    -2.14     1.63 1.00     6608     2973
+age_at_diagnosis        0.04      0.15    -0.25     0.35 1.00     1939     2361
+HADS_depression         1.05      0.20     0.67     1.43 1.00     3534     3238
+taking_medicationNo     0.28      0.38    -0.49     1.01 1.00     5260     3279
+transformed_dose       -0.43      0.13    -0.68    -0.18 1.00     3778     3174
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 17
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.92      0.22     1.53     2.37 1.00     1156     2004
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -1.94      0.36    -2.67    -1.23 1.00     2665     3212
+sexFemale                -0.81      0.33    -1.45    -0.16 1.00     1763     2650
+ethnicityIndian          -0.24      0.92    -2.06     1.55 1.00     6602     2766
+ethnicityMaori           -0.65      0.89    -2.40     1.06 1.00     5345     2935
+ethnicityOther            0.33      0.71    -1.09     1.71 1.00     2740     3244
+ethnicitySamoan          -0.29      0.94    -2.10     1.54 1.00     5797     2663
+age_at_diagnosis         -0.07      0.17    -0.40     0.25 1.00     1689     2238
+years_since_diagnosis    -0.43      0.28    -1.00     0.12 1.00     2210     2590
+global_z                 -0.74      0.16    -1.05    -0.43 1.00     2511     2863
+UPDRS_motor_score         0.21      0.32    -0.41     0.82 1.00     3234     3132
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 18
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.86      0.22     1.47     2.32 1.00     1293     1867
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.38      0.34    -3.05    -1.73 1.00     2703     3087
+sexFemale                -0.76      0.34    -1.44    -0.11 1.00     2291     2895
+ethnicityIndian          -0.25      0.96    -2.11     1.61 1.00     5458     2796
+ethnicityMaori           -0.61      0.90    -2.40     1.15 1.00     5545     2910
+ethnicityOther            0.39      0.70    -1.00     1.79 1.00     3314     3052
+ethnicitySamoan          -0.37      0.95    -2.23     1.54 1.00     5923     2920
+age_at_diagnosis         -0.06      0.17    -0.38     0.27 1.00     2235     2679
+years_since_diagnosis    -0.47      0.28    -1.01     0.06 1.00     2644     2817
+global_z                 -0.65      0.15    -0.95    -0.36 1.00     2770     3090
+HADS_depression           0.80      0.20     0.41     1.19 1.00     4348     3333
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 19
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.90      0.22     1.51     2.37 1.00     1251     1898
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.23      0.32    -2.89    -1.63 1.00     1649     2029
+sexFemale                -1.01      0.35    -1.70    -0.32 1.00     2004     2805
+ethnicityIndian          -0.25      0.96    -2.13     1.60 1.00     6390     2903
+ethnicityMaori           -0.60      0.90    -2.38     1.15 1.00     4905     3181
+ethnicityOther            0.36      0.70    -1.03     1.72 1.00     2837     2914
+ethnicitySamoan          -0.31      0.96    -2.18     1.57 1.00     5487     3273
+age_at_diagnosis         -0.10      0.17    -0.45     0.23 1.00     1952     2333
+years_since_diagnosis     0.05      0.30    -0.53     0.64 1.00     1719     2312
+global_z                 -0.83      0.15    -1.13    -0.53 1.00     2263     2704
+taking_medicationNo       0.43      0.40    -0.37     1.21 1.00     4155     2782
+transformed_dose         -0.55      0.15    -0.85    -0.26 1.00     2756     3010
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 20
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.95      0.22     1.53     2.43 1.01      845     1635
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.80      0.38    -3.55    -2.08 1.00     2893     2988
+sexFemale                -0.89      0.34    -1.56    -0.24 1.00     1897     2187
+ethnicityIndian          -0.24      0.94    -2.13     1.62 1.00     5500     2972
+ethnicityMaori           -0.62      0.91    -2.44     1.12 1.00     5393     3331
+ethnicityOther            0.28      0.73    -1.10     1.68 1.00     2935     3468
+ethnicitySamoan          -0.26      0.93    -2.12     1.53 1.00     5741     2892
+age_at_diagnosis          0.08      0.17    -0.24     0.43 1.00     2234     2497
+years_since_diagnosis    -0.25      0.28    -0.80     0.30 1.00     2365     2877
+UPDRS_motor_score         0.53      0.30    -0.06     1.11 1.00     3516     3479
+HADS_depression           0.92      0.20     0.52     1.32 1.00     3782     2976
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 21
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     2.07      0.24     1.66     2.58 1.00     1043     1521
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.71      0.39    -3.49    -1.98 1.00     2205     3009
+sexFemale                -1.15      0.35    -1.86    -0.46 1.00     2120     2728
+ethnicityIndian          -0.21      0.96    -2.09     1.69 1.00     6427     3204
+ethnicityMaori           -0.59      0.90    -2.35     1.15 1.00     6655     3171
+ethnicityOther            0.20      0.73    -1.25     1.58 1.00     2923     3002
+ethnicitySamoan          -0.20      0.95    -2.05     1.63 1.00     7230     2934
+age_at_diagnosis          0.08      0.18    -0.27     0.43 1.00     1999     2753
+years_since_diagnosis     0.31      0.32    -0.31     0.92 1.00     2083     2680
+UPDRS_motor_score         0.75      0.31     0.15     1.35 1.00     3617     3182
+taking_medicationNo       0.44      0.40    -0.37     1.21 1.00     4467     2884
+transformed_dose         -0.48      0.15    -0.77    -0.19 1.00     2855     2901
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 22
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.94      0.23     1.52     2.43 1.00     1030     1945
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.94      0.37    -3.70    -2.25 1.00     1834     2329
+sexFemale                -1.07      0.35    -1.76    -0.39 1.00     1450     2338
+ethnicityIndian          -0.26      0.93    -2.10     1.56 1.00     5473     2776
+ethnicityMaori           -0.57      0.92    -2.34     1.23 1.00     4395     3383
+ethnicityOther            0.30      0.69    -1.07     1.65 1.00     2198     2739
+ethnicitySamoan          -0.27      0.96    -2.12     1.56 1.00     5786     3160
+age_at_diagnosis          0.12      0.16    -0.20     0.45 1.00     1841     2471
+years_since_diagnosis     0.37      0.30    -0.21     0.95 1.00     1931     2482
+HADS_depression           1.03      0.20     0.63     1.43 1.00     3831     3446
+taking_medicationNo       0.40      0.40    -0.41     1.19 1.00     4317     3171
+transformed_dose         -0.51      0.14    -0.80    -0.24 1.00     2250     2864
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 23
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.90      0.22     1.51     2.37 1.00     1036     1454
+
+Population-Level Effects: 
+                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            -2.65      0.38    -3.43    -1.94 1.00     2820     2776
+sexFemale            -0.81      0.33    -1.49    -0.18 1.00     1980     2555
+ethnicityIndian      -0.24      0.95    -2.12     1.67 1.00     6518     2908
+ethnicityMaori       -0.63      0.91    -2.45     1.12 1.00     6129     2925
+ethnicityOther        0.36      0.72    -1.05     1.76 1.00     2914     3035
+ethnicitySamoan      -0.30      0.93    -2.17     1.53 1.00     5910     2727
+age_at_diagnosis      0.08      0.15    -0.20     0.37 1.00     2154     2339
+global_z             -0.59      0.16    -0.91    -0.28 1.00     2903     2870
+UPDRS_motor_score    -0.07      0.32    -0.68     0.57 1.00     3909     3146
+HADS_depression       0.79      0.21     0.38     1.19 1.00     4054     3193
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 24
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.90      0.22     1.51     2.37 1.01     1063     2048
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.32      0.35    -3.02    -1.65 1.00     2769     3234
+sexFemale              -1.00      0.35    -1.70    -0.32 1.00     2195     2875
+ethnicityIndian        -0.23      0.94    -2.06     1.64 1.00     6526     2693
+ethnicityMaori         -0.57      0.92    -2.45     1.26 1.00     5451     3058
+ethnicityOther          0.36      0.71    -0.99     1.79 1.00     3173     3301
+ethnicitySamoan        -0.32      0.97    -2.20     1.58 1.00     6290     3177
+age_at_diagnosis       -0.13      0.15    -0.42     0.17 1.00     2411     2771
+global_z               -0.80      0.16    -1.12    -0.49 1.00     2332     3132
+UPDRS_motor_score       0.15      0.32    -0.47     0.79 1.00     3882     3125
+taking_medicationNo     0.45      0.39    -0.32     1.20 1.00     5238     2799
+transformed_dose       -0.54      0.14    -0.81    -0.28 1.00     3194     3247
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 25
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.79      0.21     1.40     2.23 1.00     1064     1561
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.84      0.28    -3.45    -2.31 1.00     2554     2832
+sexFemale              -0.94      0.32    -1.57    -0.32 1.00     2563     3107
+ethnicityIndian        -0.25      0.94    -2.14     1.62 1.00     5800     2783
+ethnicityMaori         -0.55      0.91    -2.33     1.25 1.00     6240     3141
+ethnicityOther          0.44      0.70    -0.95     1.77 1.00     3165     3316
+ethnicitySamoan        -0.38      0.94    -2.24     1.48 1.00     5737     2391
+age_at_diagnosis       -0.11      0.15    -0.40     0.18 1.00     2523     2846
+global_z               -0.70      0.14    -0.99    -0.42 1.00     3310     3210
+HADS_depression         0.83      0.20     0.44     1.22 1.00     4204     3196
+taking_medicationNo     0.44      0.37    -0.30     1.19 1.00     5361     3086
+transformed_dose       -0.57      0.13    -0.84    -0.32 1.00     3674     3049
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 26
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.89      0.21     1.50     2.33 1.00     1131     1961
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -3.13      0.37    -3.88    -2.43 1.00     2632     2954
+sexFemale              -1.03      0.33    -1.69    -0.39 1.00     1981     2594
+ethnicityIndian        -0.25      0.96    -2.16     1.58 1.00     5795     3094
+ethnicityMaori         -0.59      0.90    -2.42     1.15 1.00     4746     3113
+ethnicityOther          0.31      0.71    -1.13     1.70 1.00     2678     2996
+ethnicitySamoan        -0.27      0.95    -2.12     1.60 1.00     5935     2847
+age_at_diagnosis       -0.01      0.15    -0.30     0.29 1.00     1901     2841
+UPDRS_motor_score       0.58      0.27     0.05     1.13 1.00     3292     3272
+HADS_depression         0.98      0.21     0.57     1.38 1.00     4129     3057
+taking_medicationNo     0.38      0.39    -0.42     1.12 1.00     4242     3283
+transformed_dose       -0.47      0.13    -0.74    -0.21 1.00     2874     3035
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 27
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + HADS_depression 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.87      0.22     1.46     2.32 1.00      979     1786
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.41      0.40    -3.22    -1.66 1.00     2548     3119
+sexFemale                -0.78      0.33    -1.45    -0.14 1.00     2105     2655
+ethnicityIndian          -0.26      0.93    -2.07     1.55 1.00     5357     2858
+ethnicityMaori           -0.63      0.90    -2.38     1.15 1.00     4788     2389
+ethnicityOther            0.37      0.72    -1.03     1.73 1.00     2541     2827
+ethnicitySamoan          -0.34      0.96    -2.24     1.48 1.00     5845     3225
+age_at_diagnosis         -0.07      0.17    -0.39     0.27 1.00     1849     2861
+years_since_diagnosis    -0.50      0.29    -1.05     0.08 1.00     2452     2685
+global_z                 -0.65      0.16    -0.97    -0.34 1.00     2798     3192
+UPDRS_motor_score         0.08      0.32    -0.53     0.70 1.00     3712     3095
+HADS_depression           0.80      0.21     0.40     1.23 1.00     3865     3038
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 28
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.92      0.22     1.53     2.37 1.00     1290     2287
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.35      0.39    -3.11    -1.62 1.00     2411     2823
+sexFemale                -1.00      0.35    -1.70    -0.33 1.00     2002     2737
+ethnicityIndian          -0.23      0.98    -2.12     1.63 1.00     5538     3028
+ethnicityMaori           -0.59      0.91    -2.40     1.19 1.00     5896     3104
+ethnicityOther            0.33      0.73    -1.10     1.77 1.00     2917     3291
+ethnicitySamoan          -0.31      0.94    -2.08     1.58 1.00     6539     3010
+age_at_diagnosis         -0.12      0.17    -0.44     0.22 1.00     2123     3087
+years_since_diagnosis     0.03      0.31    -0.58     0.61 1.00     2411     2857
+global_z                 -0.80      0.16    -1.13    -0.50 1.00     2746     2716
+UPDRS_motor_score         0.15      0.33    -0.50     0.78 1.00     3956     3268
+taking_medicationNo       0.45      0.40    -0.31     1.22 1.00     4289     2938
+transformed_dose         -0.55      0.14    -0.83    -0.26 1.00     3236     3115
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 29
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.82      0.21     1.43     2.27 1.00      963     1778
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.82      0.36    -3.55    -2.15 1.00     2576     2639
+sexFemale                -0.95      0.33    -1.61    -0.30 1.00     2231     2752
+ethnicityIndian          -0.26      0.93    -2.09     1.60 1.00     7202     3129
+ethnicityMaori           -0.55      0.92    -2.33     1.22 1.00     5246     2982
+ethnicityOther            0.41      0.71    -1.02     1.79 1.00     2670     2989
+ethnicitySamoan          -0.39      0.96    -2.29     1.49 1.00     6921     2925
+age_at_diagnosis         -0.12      0.16    -0.43     0.20 1.00     1959     2188
+years_since_diagnosis    -0.04      0.30    -0.63     0.55 1.00     2541     3162
+global_z                 -0.71      0.15    -1.01    -0.41 1.00     2893     2790
+HADS_depression           0.83      0.20     0.44     1.23 1.00     4311     2852
+taking_medicationNo       0.43      0.39    -0.33     1.19 1.00     4126     3158
+transformed_dose         -0.56      0.15    -0.85    -0.28 1.00     3210     3017
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 30
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.92      0.22     1.52     2.40 1.00     1082     1922
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -3.24      0.41    -4.06    -2.47 1.00     2191     2568
+sexFemale                -1.06      0.34    -1.74    -0.39 1.00     1940     1894
+ethnicityIndian          -0.24      0.94    -2.06     1.59 1.00     5782     2981
+ethnicityMaori           -0.60      0.88    -2.37     1.09 1.00     5363     2660
+ethnicityOther            0.30      0.70    -1.09     1.67 1.00     2700     2767
+ethnicitySamoan          -0.29      0.96    -2.11     1.59 1.00     5738     3138
+age_at_diagnosis          0.04      0.17    -0.30     0.38 1.00     1914     2475
+years_since_diagnosis     0.18      0.32    -0.42     0.81 1.00     2085     2660
+UPDRS_motor_score         0.53      0.30    -0.06     1.12 1.00     3279     3454
+HADS_depression           0.97      0.20     0.57     1.36 1.00     3887     3312
+taking_medicationNo       0.42      0.41    -0.39     1.22 1.00     4832     2869
+transformed_dose         -0.50      0.15    -0.78    -0.22 1.00     2947     3258
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 31
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.82      0.22     1.44     2.29 1.00     1077     1855
+
+Population-Level Effects: 
+                    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept              -2.87      0.37    -3.61    -2.18 1.00     2561     2784
+sexFemale              -0.96      0.33    -1.61    -0.32 1.00     1849     2810
+ethnicityIndian        -0.28      0.94    -2.14     1.52 1.00     4362     2426
+ethnicityMaori         -0.56      0.92    -2.39     1.19 1.00     4339     3185
+ethnicityOther          0.42      0.69    -0.94     1.76 1.00     2422     2757
+ethnicitySamoan        -0.35      0.94    -2.20     1.50 1.00     5203     2989
+age_at_diagnosis       -0.12      0.15    -0.40     0.17 1.00     1882     2789
+global_z               -0.70      0.16    -1.02    -0.39 1.00     2526     2925
+UPDRS_motor_score       0.02      0.31    -0.58     0.64 1.00     3218     3120
+HADS_depression         0.83      0.21     0.43     1.24 1.00     3494     3091
+taking_medicationNo     0.46      0.39    -0.32     1.19 1.00     3968     2853
+transformed_dose       -0.57      0.13    -0.84    -0.32 1.00     2866     3133
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------
+Model 32
+
+ Family: bernoulli 
+  Links: mu = logit 
+Formula: NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose 
+   Data: lapply(group_split(transformed_data, .imp, .keep = (Number of observations: 1274) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject_id (Number of levels: 325) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     1.83      0.22     1.43     2.28 1.00     1095     1774
+
+Population-Level Effects: 
+                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept                -2.85      0.40    -3.63    -2.08 1.00     2984     3110
+sexFemale                -0.95      0.33    -1.61    -0.29 1.00     2165     2677
+ethnicityIndian          -0.25      0.97    -2.18     1.59 1.00     5642     2974
+ethnicityMaori           -0.57      0.89    -2.31     1.16 1.00     5401     3306
+ethnicityOther            0.43      0.69    -0.93     1.78 1.00     3195     3362
+ethnicitySamoan          -0.38      0.93    -2.22     1.42 1.00     5463     2836
+age_at_diagnosis         -0.12      0.17    -0.45     0.20 1.00     2027     2787
+years_since_diagnosis    -0.04      0.30    -0.65     0.54 1.00     2493     2634
+global_z                 -0.71      0.16    -1.03    -0.40 1.00     2720     2966
+UPDRS_motor_score         0.03      0.32    -0.61     0.65 1.00     3587     3397
+HADS_depression           0.83      0.20     0.43     1.23 1.00     4367     3195
+taking_medicationNo       0.44      0.39    -0.32     1.22 1.00     4160     2934
+transformed_dose         -0.56      0.15    -0.84    -0.28 1.00     3335     2852
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+
+------------------------------------------------------------------------
+Model comparison
+                                                                                                                                                                                               elpd_diff se_diff
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose                           0.0       0.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + HADS_depression + taking_medication + transformed_dose                      -0.6       0.6  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose  -1.1       0.6  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + HADS_depression + taking_medication + transformed_dose                                              -1.3       0.6  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + HADS_depression                                                                                     -4.1       4.1  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + taking_medication + transformed_dose                                                                -4.9       4.4  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + HADS_depression                                                                 -5.8       4.1  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + taking_medication + transformed_dose                                            -6.0       4.5  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + HADS_depression                                                             -6.0       3.6  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + taking_medication + transformed_dose                                        -6.1       4.4  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + taking_medication + transformed_dose                    -6.9       4.4  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose             -6.9       4.2  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + HADS_depression + taking_medication + transformed_dose                                 -7.0       4.5  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score + HADS_depression                                         -7.1       3.7  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + HADS_depression + taking_medication + transformed_dose                                                         -7.2       4.8  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose                                     -7.2       4.3  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score                                                                                   -9.0       6.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + HADS_depression                                                                                                -9.5       5.5  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + HADS_depression                                                                            -9.7       5.3  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + HADS_depression                                                   -10.3       5.2  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z                                                                                                      -10.3       6.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + HADS_depression                                                                       -10.4       5.5  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z                                                                              -10.8       5.8  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + global_z + UPDRS_motor_score                                                          -10.9       5.8  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score + taking_medication + transformed_dose                              -11.2       6.1  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + taking_medication + transformed_dose                                                  -11.8       6.6  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score + taking_medication + transformed_dose                                                      -12.5       6.3  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + UPDRS_motor_score                                                                                             -13.9       6.9  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis                                                                                         -15.4       7.4  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + years_since_diagnosis + UPDRS_motor_score                                                                     -15.5       7.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + taking_medication + transformed_dose                                                                          -16.6       7.0  
+NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id)                                                                                                                 -16.8       7.4  
+
+Winning formula: ‘NPI_apathy_present ~ 1 + sex + ethnicity + age_at_diagnosis + (1 | subject_id) + global_z + UPDRS_motor_score + HADS_depression + taking_medication + transformed_dose’
+
+------------------------------------------------------------------------
+Comparison of individual terms to baseline
+
+                                   elpd_diff se_diff
+base_model + years_since_diagnosis  0.0       0.0   
+base_model                         -1.5       1.0   
+
+                      elpd_diff se_diff
+base_model + global_z  0.0       0.0   
+base_model            -6.5       5.0   
+
+                               elpd_diff se_diff
+base_model + UPDRS_motor_score  0.0       0.0   
+base_model                     -2.9       2.5   
+
+                             elpd_diff se_diff
+base_model + HADS_depression  0.0       0.0   
+base_model                   -7.3       5.1   
+
+                                                  elpd_diff se_diff
+base_model + taking_medication + transformed_dose  0.0       0.0   
+base_model                                        -0.2       2.6   
+
+************************************************************************
+
