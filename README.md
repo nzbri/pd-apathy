@@ -4,7 +4,9 @@ This repository contains the key code attached with the CMRF-funded
 [*Predictors of apathy in Parkinson's disease*](https://cmrf.org.nz/research/predictors-of-apathy-in-parkinsons-disease/)
 project.
 
-The core hypotheses are detailed in [the analysis plan](AnalysisPlan.md).
+The core hypotheses are detailed in [the analysis plan](AnalysisPlan.md), and
+the imaging analyses are maintained in a separate repository:
+<https://github.com/nzbri/pd-apathy_imaging>.
 
 The general properties of the data itself are detailed in
 [the data overview document](DataOverview.md).
