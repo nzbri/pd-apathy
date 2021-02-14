@@ -29,11 +29,11 @@
 # as.numeric(end_date - start_date, units = "days") / 365.25
 
 time_between <- function(start_date, end_date, unit) {
-  days <- lubridate::time_length(
+  delta <- lubridate::time_length(
     lubridate::interval(start_date, end_date),
     unit = unit
   )
-  return(days)
+  return(delta)
 }
 
 days_between <- function(start_date, end_date) {
