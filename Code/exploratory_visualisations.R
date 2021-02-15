@@ -23,7 +23,7 @@ source("utils.R")
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2020-11-26.rds")
+  file.path("..", "Data", "raw-data_2021-02-15.rds")
 )
 
 ###############################################################################
@@ -37,7 +37,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-26_types.csv"),
+  file.path("..", "Data", "raw-data_2021-02-15_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -46,7 +46,7 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2020-11-26.csv"),
+  file.path("..", "Data", "raw-data_2021-02-15.csv"),
   col_types = col_types
 )
 
@@ -105,7 +105,7 @@ full_data <- full_data %>%
 # These don't have a definition w.r.t. the data collection, so we just take the
 # first full session
 baseline_data <- full_data %>%
-  filter((years_since_first_session) < 0.25 & full_assessment) %>%
+  filter((years_since_first_session < 0.25) & full_assessment) %>%
   group_by(subject_id) %>%
   slice_min(session_date) %>%
   ungroup()
@@ -201,7 +201,7 @@ plt <- full_data %>%
   ggplot(aes(
     x = years_since_first_session,
     fill = (neuropsych_assessment_number == 1)
-  )) +
+  )) +  # fill = apathy_present
   geom_histogram(
     position = "stack", binwidth = 1.0, boundary = 0.0, color = "white"
   ) +
@@ -209,6 +209,7 @@ plt <- full_data %>%
     breaks = c(TRUE, FALSE),
     labels = c("First assessment", "Follow-up")
   ) +
+  #scale_fill_manual(values = colours.apathy_present) +
   theme_light() +
   theme(
     legend.position = c(0.95, 0.95),
@@ -219,6 +220,7 @@ plt <- full_data %>%
     x = "Years since first session",
     y = "Number of sessions",
     fill = "Session type",
+    #fill = "Apathetic"
     title = paste(n_sessions, "sessions")
   )
 print(plt)
@@ -278,10 +280,10 @@ for (dataset in list(
   print(plt)
   save_plot(plt, paste("age_at_", dataset$at, sep = ""))
 
-  # MoCA / diagnosis
+  # MoCA / apathy
   bw = 1.0
   plt <- dataset$data %>%
-    ggplot(aes(MoCA, fill = diagnosis)) +
+    ggplot(aes(MoCA, fill = apathy_present)) +
     #geom_bar(color = "white", alpha = 0.5) +
     geom_histogram(
       position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
@@ -291,20 +293,24 @@ for (dataset in list(
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(0.0, 31.0)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
     labs(
       x = paste("MoCA at", dataset$at),
       y = paste("Number of", dataset$of),
-      fill = "Diagnosis",
+      fill = "Apathetic",
       title = paste(sum(!is.na(dataset$data$MoCA)), dataset$of)
     ) +
     theme_light()
   print(plt)
   save_plot(plt, paste("MoCA_at_", dataset$at, sep = ""))
 
-  # Motor scores / diagnosis
+  # Motor scores / apathy
   bw = 2.0
   plt <- dataset$data %>%
-    ggplot(aes(UPDRS_motor_score, fill = diagnosis)) +
+    ggplot(aes(UPDRS_motor_score, fill = apathy_present)) +
     geom_histogram(
       position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
@@ -313,20 +319,24 @@ for (dataset in list(
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(0.0, 100.0)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
     labs(
       x = paste("UPDRS (Part III) motor score at", dataset$at),
       y = paste("Number of", dataset$of),
-      fill = "Diagnosis",
+      fill = "Apathetic",
       title = paste(sum(!is.na(dataset$data$UPDRS_motor_score)), dataset$of)
     ) +
     theme_light()
   print(plt)
   save_plot(plt, paste("motor-scores_at_", dataset$at, sep = ""))
 
-  # Cognitive scores / diagnosis
+  # Cognitive scores / apathy
   bw = 0.2
   plt <- dataset$data %>%
-    ggplot(aes(global_z, fill = diagnosis)) +
+    ggplot(aes(global_z, fill = apathy_present)) +
     geom_histogram(
       position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
     ) +
@@ -335,23 +345,27 @@ for (dataset in list(
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_continuous(limits = c(-3.5, 3.5)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
     labs(
       x = paste("Global cognitive z-score at", dataset$at),
       y = paste("Number of", dataset$of),
-      fill = "Diagnosis",
+      fill = "Apathetic",
       title = paste(sum(!is.na(dataset$data$global_z)), dataset$of)
     ) +
     theme_light()
   print(plt)
   save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep = ""))
 
-  # HADS / diagnosis
+  # HADS / apathy
   for (assessment in c("anxiety", "depression")) {
     varname = paste("HADS_", assessment, sep = "")
 
     bw = 1.0
     plt <- dataset$data %>%
-      ggplot(aes_string(varname, fill = "diagnosis")) +
+      ggplot(aes_string(varname, fill = "apathy_present")) +
       #geom_bar(color = "white", alpha = 0.5) +
       geom_histogram(
         position = "stack", binwidth = bw, center = 0.0, color = "white", alpha = 0.5
@@ -361,10 +375,14 @@ for (dataset in list(
         aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
       ) +
       scale_x_continuous(limits = c(-0.5, 21.5)) +
+      scale_discrete_manual(
+        aesthetics = c("colour", "fill"),
+        values = colours.apathy_present
+      ) +
       labs(
         x = paste("HADS", assessment, "at", dataset$at),
         y = paste("Number of", dataset$of),
-        fill = "Diagnosis",
+        fill = "Apathetic",
         title = paste(sum(!is.na(dataset$data[varname])), dataset$of)
       ) +
       theme_light()
@@ -372,10 +390,10 @@ for (dataset in list(
     save_plot(plt, paste("HADS-", assessment, "_at_", dataset$at, sep = ""))
   }
 
-  # Medication / diagnosis
+  # Medication / apathy
   bw = 2.0
   plt <- dataset$data %>%
-    ggplot(aes(LED, fill = diagnosis)) +
+    ggplot(aes(LED, fill = apathy_present)) +
     geom_histogram(
       position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
     ) +
@@ -384,10 +402,14 @@ for (dataset in list(
       aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
     ) +
     scale_x_sqrt(limits = c(0.0, 3000.0)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
     labs(
       x = paste("Medication (LED) at", dataset$at),
       y = paste("Number of", dataset$of),
-      fill = "Diagnosis",
+      fill = "Apathetic",
       title = paste(sum(!is.na(dataset$data$LED)), dataset$of)
     ) +
     theme_light()
@@ -399,7 +421,7 @@ for (dataset in list(
 ###############################################################################
 # Simple look at longitudinal measures
 
-# Global-z / diagnosis v. age
+# Global-z / apathy v. age
 plt <- full_data %>%
   #drop_na(global_z) %>%
   #group_by(subject_id) %>% # within each subject:
@@ -411,7 +433,7 @@ plt <- full_data %>%
     x = age,
     y = global_z,
     group = subject_id,
-    colour = diagnosis
+    colour = apathy_present
   )) +
   geom_line(alpha = 0.75, size = 0.25) +
   geom_point(size = 0.5) +
@@ -419,21 +441,22 @@ plt <- full_data %>%
     method = glm, formula = y ~ poly(x, 2) + 1,
     aes(group = NULL, colour = NULL), colour = "black"
   ) +
+  scale_colour_manual(values = colours.apathy_present) +
   labs(
-    x = "Age", y = "Global cognitive z-score", colour = "Diagnosis",
+    x = "Age", y = "Global cognitive z-score", colour = "Apathetic",
     title = paste(sum(!is.na(full_data$global_z)), "sessions")
     ) +
   theme_light()
 print(plt)
 save_plot(plt, "cognitive-scores_v_age", width = 10.0, height = 4.0)
 
-# Motor scores / diagnosis v. age
+# Motor scores / apathy v. age
 plt <- full_data %>%
   ggplot(aes(
     x = age,
     y = UPDRS_motor_score,
     group = subject_id,
-    colour = diagnosis
+    colour = apathy_present
   )) +
   geom_line(alpha = 0.75, size = 0.25) +
   geom_point(size = 0.5) +
@@ -442,8 +465,9 @@ plt <- full_data %>%
     method.args = list(family = Gamma(link = "inverse")),
     mapping = aes(group = NULL, colour = NULL), colour = "black"
   ) +
+  scale_colour_manual(values = colours.apathy_present) +
   labs(
-    x = "Age", y = "UPDRS (Part III) motor score", colour = "Diagnosis",
+    x = "Age", y = "UPDRS (Part III) motor score", colour = "Apathetic",
     title = paste(sum(!is.na(full_data$UPDRS_motor_score)), "sessions")
   ) +
   theme_light()
@@ -469,7 +493,7 @@ for (variable in list(
       aes_string(x = "session_date", y = variable$name)
     ) +
     geom_point(
-      aes(colour = diagnosis),
+      aes(colour = apathy_present),
       # position = position_jitter(w = 0.0, h = 0.2),
       # colour = "grey",
       size = 0.5
@@ -479,10 +503,12 @@ for (variable in list(
       method.args = list(family = variable$family),
       colour = "black"
     ) +
+    scale_colour_manual(values = colours.apathy_present) +
     theme_light() +
     labs(
       x = "Date of baseline assessment",
       y = variable$description,
+      colour = "Apathetic",
       title = paste(sum(!is.na(baseline_data[variable$name])), "patients")
     )
   print(plt)
@@ -571,14 +597,9 @@ for (plot_config in list(
 )) {
 
   plt <- full_data %>%
-    mutate(NPI_apathy_present = factor(
-      NPI_apathy_present,
-      levels = c(NA, FALSE, TRUE),
-      labels = c(NA, "No", "Yes"),
-      exclude = NULL  # i.e. include NA as a level, helps with plot ordering
-    )) %>%
-    ggplot(aes(x = UPDRS_apathy, fill = NPI_apathy_present)) +
+    ggplot(aes(x = UPDRS_apathy, fill = apathy_present)) +
     geom_bar(position = plot_config$position, na.rm = FALSE) +
+    scale_fill_manual(values = colours.apathy_present) +
     theme_light() +
     labs(
       x = "UPDRS apathy",
