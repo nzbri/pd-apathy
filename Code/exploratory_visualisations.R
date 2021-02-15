@@ -280,6 +280,32 @@ for (dataset in list(
   print(plt)
   save_plot(plt, paste("age_at_", dataset$at, sep = ""))
 
+  # Years since diagnosis / apathy
+  bw = 1.0
+  plt <- dataset$data %>%
+    ggplot(aes(years_since_diagnosis, fill = apathy_present)) +
+    geom_histogram(
+      position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
+    ) +
+    stat_density(
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
+    scale_x_continuous(limits = c(0.0, 30.0)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
+    labs(
+      x = paste("Years since diagnosis at", dataset$at),
+      y = paste("Number of", dataset$of),
+      fill = "Apathetic",
+      title = paste(sum(!is.na(dataset$data$years_since_diagnosis)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("years-since-diagnosis_at_", dataset$at, sep = ""))
+
   # MoCA / apathy
   bw = 1.0
   plt <- dataset$data %>%

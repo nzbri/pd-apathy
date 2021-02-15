@@ -61,6 +61,14 @@ patient- and session-level data included in the main analyses.
 </a>
 <br>
 
+<a href="Figures/years-since-diagnosis_at_baseline.pdf">
+<img src="Figures/years-since-diagnosis_at_baseline.jpg" width="45%">
+</a>
+<a href="Figures/years-since-diagnosis_at_session.pdf">
+<img src="Figures/years-since-diagnosis_at_session.jpg" width="45%">
+</a>
+<br>
+
 <a href="Figures/motor-scores_at_baseline.pdf">
 <img src="Figures/motor-scores_at_baseline.jpg" width="45%">
 </a>
