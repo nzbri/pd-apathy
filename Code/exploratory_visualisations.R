@@ -227,7 +227,7 @@ print(plt)
 save_plot(plt, "session-type_v_years-enrolled")
 
 ###############################################################################
-# Key properties of 'raw' data, independent of apathy
+# Key properties of 'raw' data, stratified by apathy status
 
 #Grouping?
 # sex
@@ -277,6 +277,17 @@ for (dataset in list(
       title = paste(sum(!is.na(dataset$data$age)), dataset$of)
     ) +
     theme_light()
+  print(plt)
+  save_plot(plt, paste("age+sex_at_", dataset$at, sep = ""))
+
+  # Recode as age / apathy
+  plt <- plt +
+    aes(fill = apathy_present) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
+    labs(fill = "Apathetic")
   print(plt)
   save_plot(plt, paste("age_at_", dataset$at, sep = ""))
 

@@ -53,6 +53,14 @@ patient- and session-level data included in the main analyses.
 
 --------
 
+<a href="Figures/age+sex_at_baseline.pdf">
+<img src="Figures/age+sex_at_baseline.jpg" width="45%">
+</a>
+<a href="Figures/age+sex_at_session.pdf">
+<img src="Figures/age+sex_at_session.jpg" width="45%">
+</a>
+<br>
+
 <a href="Figures/age_at_baseline.pdf">
 <img src="Figures/age_at_baseline.jpg" width="45%">
 </a>
