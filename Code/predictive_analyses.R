@@ -347,6 +347,9 @@ data.frame(
 ###############################################################################
 vignette("msm-manual")
 
+# TODO:
+# Fix covariate betas to be the same for apathy / no-apathy -> death?
+
 # Recode in terms of next status (including death)
 # transformed_data <- transformed_data %>%
 #   group_by(subject_id) %>%  # within each subject:
@@ -393,7 +396,7 @@ transformed_data <- transformed_data %>%
   mutate(
     ever_apathetic = as.logical(cummax(NPI_apathy_present)),
     # Change in key scores
-    cog_delta = (global_z - lag(global_z)) #/ years_between(lag(session_date), session_date)
+    #cog_delta = (global_z - lag(global_z)) #/ years_between(lag(session_date), session_date)
   ) %>%
   ungroup() %>%
   #filter(!is.na(cog_delta)) %>%
@@ -415,11 +418,11 @@ transformed_data <- transformed_data %>%
   #select(subject_id, session_date, years_since_diagnosis, age, age_at_death, NPI_apathy_present) %>%
   #View()
 
-transformed_data$cog_delta_resid <- residuals(
-  lm(cog_delta ~ 1 + global_z, transformed_data, na.action = "na.exclude")
-)
-cor(transformed_data$global_z, transformed_data$cog_delta, use = "pairwise.complete.obs")
-transformed_data %>% ggplot(aes(x = global_z, y = cog_delta)) + geom_point()
+#transformed_data$cog_delta_resid <- residuals(
+#  lm(cog_delta ~ 1 + global_z, transformed_data, na.action = "na.exclude")
+#)
+#cor(transformed_data$global_z, transformed_data$cog_delta, use = "pairwise.complete.obs")
+#transformed_data %>% ggplot(aes(x = global_z, y = cog_delta)) + geom_point()
 # NEEDS TO TAKE INTO ACCOUNT SUBJECT STRUCTURE
 #cor(transformed_data$global_z, transformed_data$cog_delta2, use = "pairwise.complete.obs")
 #transformed_data$cog_delta2 = residuals(
@@ -451,7 +454,8 @@ mfit <- msm::msm(
   covariates =
     ~ sex + age_at_diagnosis + education
       + UPDRS_motor_score + taking_medication + transformed_dose
-      + global_z + HADS_depression # + cog_delta + ever_apathetic
+      + HADS_depression + global_z # + cog_delta + ever_apathetic
+      #+ attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
 )
 #print(mfit)
 summary(mfit)
@@ -462,10 +466,51 @@ msm::envisits.msm(mfit)      # Number of visits
 msm::efpt.msm(mfit, tostate = 3)  # Time to death
 msm::plot.msm(mfit, range = c(0.01, 3.0))  # Remember factor of 10!
 msm::plot.prevalence.msm(
-  mfit, mintime = 0.0, maxtime = 5.0, initstates = c(0.9, 0.1, 0.0), censtime = 2.0
+  mfit, mintime = 0.0, maxtime = 2.5, initstates = c(0.9, 0.1, 0.0)
 )
 msm::plot.survfit.msm(mfit, from = 1, to = 3, range = c(0.01, 3.0))
 msm::plot.survfit.msm(mfit, from = 2, to = 3, range = c(0.01, 3.0))
+
+# Plot hazard ratios
+msm::hazard.msm(mfit) %>%
+  lapply("[", "State 1 - State 2", ) %>%
+  bind_rows(.id = "covariate") %>%
+  # https://stackoverflow.com/a/38064297
+  ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
+  scale_y_continuous(trans = "log") +  # breaks = c(1.0 / 3.0, 1.0, 3.0)
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab(NULL) +
+  ylab("Hazard ratio (95% CI)") +
+  theme_bw()  # use a white background
+
+# Plot conversion probabilities
+msm::pmatrix.msm(mfit, t = 0.2, covariates = list(sex = "Male", taking_medication = "Yes", global_z = 0.0))
+
+p_apathy <- function(years_since_diagnosis, global_z) {
+  pmat = msm::pmatrix.msm(
+    mfit,
+    t = years_since_diagnosis / 10.0,
+    covariates = list(sex = "Male", taking_medication = "Yes", global_z = global_z)
+  )
+  return(
+    #pmat[["State 1", "State 2"]] / (pmat[["State 1", "State 1"]] + pmat[["State 1", "State 2"]])
+    pmat[["State 1", "State 2"]]
+  )
+}
+expand_grid(global_z = seq(-1.5, 1.5, 0.25), years_since_diagnosis = seq(0.0, 20.0, 0.1)) %>%
+  mutate(pap = map2_dbl(years_since_diagnosis, global_z, p_apathy)) %>%
+  ggplot(aes(x = years_since_diagnosis, y = pap, group = global_z, colour = global_z)) +
+  geom_line() +
+  scale_colour_viridis_c() +
+  theme_bw() +
+  labs(
+    x = "Years since diagnosis",
+    #y = "p(apathetic | alive)",
+    y = "p(apathetic, alive)",
+    colour = "Cognitive\nz-score"
+  )
 
 ###############################################################################
 # Recode data as follow-ups
