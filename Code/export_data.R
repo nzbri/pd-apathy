@@ -151,9 +151,55 @@ npi <- npi %>%
 
 # -----------------------------------------------------------------------------
 
-medications <- chchpd::import_medications(concise = TRUE)
+medications <- chchpd::import_medications(concise = FALSE)
 medications <- medications %>%
-  sanitise_data()
+  sanitise_data() %>%
+  select(session_id, LED, other_medications) %>%
+  mutate(taking_antidepressants = FALSE)
+# Find antidepressants
+# https://www.healthnavigator.org.nz/medicines/a/antidepressants/
+for (drug_name in c(
+  "citalopram", "escitalopram", "fluoxetine", "paroxetine", "sertraline",
+  "venlafaxine",
+  "amitriptyline", "clomipramine", "imipramine", "doxepin", "nortriptyline",
+  "moclobemide", "phenelzine", "tranylcypromine",
+  "mirtazapine"
+)) {
+  # Fuzzy match drug names
+  medications <- medications %>%
+    rowwise() %>%
+    mutate(match = agrepl(
+      drug_name, other_medications, max.distance = 0.1, ignore.case = TRUE
+    )) %>%
+    ungroup() %>%
+    mutate(
+      taking_antidepressants = (taking_antidepressants | match),
+      match = NULL
+    )
+}
+# medications %>% filter(taking_antidepressants) %>% View()
+medications <- medications %>%
+  select(-other_medications)
+
+# Explode medication lists to individual drugs
+# Useful for looking at summary stats and assessing misspellings!
+# medications %>%
+#   ungroup() %>%
+#   select(session_id, other_medications) %>%
+#   # One medication per row
+#   mutate(other_medications = str_split(other_medications, ", ")) %>%
+#   unnest(other_medications) %>%
+#   # Crude removal of dose to help summary groups
+#   mutate(other_medications = gsub("(.*) [0-9].*", "\\1", other_medications)) %>%
+#   mutate(other_medications = tolower(other_medications)) %>%
+#   # Summarise occurrences
+#   count(other_medications) %>% #arrange(desc(n)) %>% View()
+#   # Fuzzy match named medications
+#   # https://stackoverflow.com/a/30912546
+#   rowwise() %>%
+#   mutate(match = agrepl("citalopram", other_medications, max.distance = 0.1, ignore.case = TRUE)) %>%
+#   ungroup() %>%
+#   filter(match) %>% print()
 
 # -----------------------------------------------------------------------------
 
