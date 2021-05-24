@@ -48,8 +48,10 @@ full_data <- full_data %>%
     sex, ethnicity, education, handedness, side_of_onset,
     # Age related
     age, age_at_symptom_onset, age_at_diagnosis,
-    # Cognitive scores
+    # Cognitive scores (and subdomains)
     global_z, MoCA, WTAR,
+    attention_domain, executive_domain, language_domain,
+    learning_memory_domain, visuo_domain,
     # Neuropsych tests
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
@@ -185,13 +187,19 @@ options(width = 1024)
 # Data summary?
 #writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
 
-base_formula <- "NPI_apathy_present ~ 1"
+# brms::negbinomial()
+# https://mc-stan.org/docs/2_25/functions-reference/nbalt.html
+# https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html
+
+base_formula <- "NPI_apathy_present ~ 1"  # NPI_apathy_present, HADS_anxiety, HADS_depression
+#base_formula <- "NPI_apathy_present ~ 1 + sex + age_at_diagnosis + (1 | subject_id)"
 for (
   covariates in list(
     c("first_session_date", "first_session_date2"),
     c("sex", "ethnicity", "education", "age_at_diagnosis"),
     c("(1 | subject_id)"),
     c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression", "taking_medication + transformed_dose")
+    #c("attention_domain", "executive_domain", "language_domain", "learning_memory_domain", "visuo_domain")
   )
 ) {
   writeLines(paste("\n", strrep("*", 72), sep = ""))
