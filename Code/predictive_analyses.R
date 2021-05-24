@@ -452,9 +452,10 @@ mfit <- msm::msm(
   qmatrix = Q.init,
   deathexact = 3,
   covariates =
-    ~ sex + age_at_diagnosis + education
-      + UPDRS_motor_score + taking_medication + transformed_dose
-      + HADS_depression + global_z # + cog_delta + ever_apathetic
+    ~ first_session_date + first_session_date2
+      + sex + education + age_at_diagnosis
+      + taking_medication + transformed_dose + taking_antidepressants + UPDRS_motor_score
+      + HADS_depression  + global_z #+ cog_delta + ever_apathetic
       #+ attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
 )
 #print(mfit)
@@ -464,26 +465,33 @@ msm::pmatrix.msm(mfit, t = 0.2)  # 2 year projection (remember factor of 10!)
 msm::totlos.msm(mfit)        # Time spent in each state
 msm::envisits.msm(mfit)      # Number of visits
 msm::efpt.msm(mfit, tostate = 3)  # Time to death
+msm::pnext.msm(  # Probability of next state
+  mfit, covariates = list(sex = "Male", taking_medication = "Yes", global_z = 0.0)
+)
+#msm::sojourn.msm(mfit)
 msm::plot.msm(mfit, range = c(0.01, 3.0))  # Remember factor of 10!
 msm::plot.prevalence.msm(
-  mfit, mintime = 0.0, maxtime = 2.5, initstates = c(0.9, 0.1, 0.0)
+  mfit, mintime = 0.0, maxtime = 2.5, initstates = c(1.0, 0.0, 0.0),
+  xlab = "Decades since diagnosis"
 )
 msm::plot.survfit.msm(mfit, from = 1, to = 3, range = c(0.01, 3.0))
 msm::plot.survfit.msm(mfit, from = 2, to = 3, range = c(0.01, 3.0))
 
 # Plot hazard ratios
-msm::hazard.msm(mfit) %>%
+plt <- msm::hazard.msm(mfit) %>%
   lapply("[", "State 1 - State 2", ) %>%
   bind_rows(.id = "covariate") %>%
+  mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
   # https://stackoverflow.com/a/38064297
   ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U)) +
   geom_pointrange() +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-  scale_y_continuous(trans = "log") +  # breaks = c(1.0 / 3.0, 1.0, 3.0)
+  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
-  xlab(NULL) +
-  ylab("Hazard ratio (95% CI)") +
+  labs(x = NULL, y = "Hazard ratio (95% CI)", title = "A- to A+") +
   theme_bw()  # use a white background
+print(plt)
+#ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
 
 # Plot conversion probabilities
 msm::pmatrix.msm(mfit, t = 0.2, covariates = list(sex = "Male", taking_medication = "Yes", global_z = 0.0))
@@ -499,7 +507,7 @@ p_apathy <- function(years_since_diagnosis, global_z) {
     pmat[["State 1", "State 2"]]
   )
 }
-expand_grid(global_z = seq(-1.5, 1.5, 0.25), years_since_diagnosis = seq(0.0, 20.0, 0.1)) %>%
+plt <- expand_grid(global_z = seq(-1.5, 1.5, 0.25), years_since_diagnosis = seq(0.0, 20.0, 0.1)) %>%
   mutate(pap = map2_dbl(years_since_diagnosis, global_z, p_apathy)) %>%
   ggplot(aes(x = years_since_diagnosis, y = pap, group = global_z, colour = global_z)) +
   geom_line() +
@@ -511,6 +519,8 @@ expand_grid(global_z = seq(-1.5, 1.5, 0.25), years_since_diagnosis = seq(0.0, 20
     y = "p(apathetic, alive)",
     colour = "Cognitive\nz-score"
   )
+print(plt)
+#ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
 
 ###############################################################################
 # Recode data as follow-ups
