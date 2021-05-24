@@ -304,10 +304,63 @@ for (
   base_formula <- winning_formula
 }
 writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
+sessionInfo()
 
 sink()
 options(width = 80)
 file.show(filename)
 #writeLines(readLines(filename))
+
+###############################################################################
+
+full_formula <-
+  NPI_apathy_present ~ 1 +
+    first_session_date + first_session_date2 +
+    sex + education + age_at_diagnosis +  # ethnicity
+    (1 | subject_id) +
+    years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
+    UPDRS_motor_score + HADS_depression + global_z  # MoCA
+    #attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
+
+prior <- brms::get_prior(
+  formula = full_formula,
+  family = brms::bernoulli(link = "logit"),
+  data = transformed_data
+)
+if (any(prior$class == "b")) {
+  prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
+} else {
+  prior <- brms::empty_prior()
+}
+
+model <- brms::brm_multiple(
+  formula = full_formula,
+  family = brms::bernoulli(link = "logit"),
+  prior = prior,
+  data = lapply(
+    group_split(transformed_data, .imp, .keep = FALSE),
+    as.data.frame
+  ),
+  silent = TRUE, refresh = 0
+)
+print(summary(model))
+
+# Plot odds ratios
+plt <- fixef(model) %>%
+  exp() %>%  # Odds ratio := exp(beta)
+  as_tibble(rownames = "covariate") %>%
+  filter(covariate != "Intercept") %>%
+  mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
+  ggplot(aes(x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
+  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab(NULL) +
+  ylab("Odds ratio (95% CI)") +
+  theme_bw()  # use a white background
+
+print(plt)
+#ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
 
 ###############################################################################
