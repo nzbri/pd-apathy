@@ -23,7 +23,7 @@ source("utils.R")
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-02-15.rds")
+  file.path("..", "Data", "raw-data_2021-05-25.rds")
 )
 
 ###############################################################################
@@ -37,7 +37,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2021-02-15_types.csv"),
+  file.path("..", "Data", "raw-data_2021-05-25_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -46,7 +46,7 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2021-02-15.csv"),
+  file.path("..", "Data", "raw-data_2021-05-25.csv"),
   col_types = col_types
 )
 

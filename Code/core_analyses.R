@@ -25,7 +25,7 @@ date_string = format(lubridate::ymd(lubridate::today()))
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-02-15.rds")
+  file.path("..", "Data", "raw-data_2021-05-25.rds")
 )
 
 ###############################################################################
@@ -55,7 +55,7 @@ full_data <- full_data %>%
     # Neuropsych tests
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
-    diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED,
+    diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED, taking_antidepressants,
     # Confounds
     first_session_date, session_date, UPDRS_source
   )
@@ -173,6 +173,8 @@ transformed_data <- transformed_data %>%
     ethnicity = relevel(ethnicity, ref = "New Zealand European"),
     taking_medication = factor(taking_medication, levels = c(FALSE, TRUE), labels = c("No", "Yes")),
     taking_medication = relevel(taking_medication, ref = "Yes"),
+    taking_antidepressants = factor(as.logical(taking_antidepressants), levels = c(FALSE, TRUE), labels = c("No", "Yes")),
+    taking_antidepressants = relevel(taking_antidepressants, ref = "No")
   )
 
 ###############################################################################
