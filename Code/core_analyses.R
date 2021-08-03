@@ -60,6 +60,29 @@ full_data <- full_data %>%
     first_session_date, session_date, UPDRS_source
   )
 
+full_data %>%
+  summarise(across(everything(), ~mean(is.na(.x)))) %>%
+  print(width = Inf)
+
+# Quick visualisation of structure in missingness
+full_data %>%
+  arrange(session_date) %>%
+  mutate(across(everything(), is.na)) %>%
+  mutate(y = row_number()) %>%
+  pivot_longer(cols = !y, names_to = "x", values_to = "value") %>%
+  mutate(x = factor(x, levels = colnames(full_data))) %>%
+  ggplot(aes(x = x, y = y, fill = value)) +
+  geom_tile() +
+  scale_y_reverse() +
+  labs(
+    x = NULL,
+    y = "Subject (ordered by session date)",
+    fill = "Missing",
+    title = "Data missingness"
+  ) +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ###############################################################################
 # Imputation
 
