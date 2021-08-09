@@ -67,6 +67,9 @@ full_data %>%
 # Quick visualisation of structure in missingness
 full_data %>%
   arrange(session_date) %>%
+  #group_by(subject_id) %>%
+  #fill(everything(), .direction = "downup") %>%
+  #ungroup() %>%
   mutate(across(everything(), is.na)) %>%
   mutate(y = row_number()) %>%
   pivot_longer(cols = !y, names_to = "x", values_to = "value") %>%
@@ -154,10 +157,23 @@ transformed_data <- full_data %>%
 ###############################################################################
 # Imputation
 
+# Start by filling in data within subject
+# MICE imputation is pretty complex for proper two-level modelling, but the
+# naive approach doesn't account for subject structure giving funny results.
+# Here we simply take the previous data point forwards in time (which isn't as
+# silly as it sounds given that a lot of what we are imputing is `global_z`
+# from the more recent and frequent short sessions).
 imputed_data <- transformed_data %>%
+  group_by(subject_id) %>%
+  fill(everything(), .direction = "downup") %>%
+  ungroup() %>%
+  # For MICE
   mutate(subject_int = as.integer(as.factor(subject_id)))
 
 # Prepare MICE settings
+# Note that we cannot have a variable be used as a predictor but not imputed
+# itself (e.g. we may not be interested in `WTAR` per se, but think it might
+# help interpolating other cognitive tests: however, we still need to impute it)
 method <- mice::make.method(imputed_data)
 pred = mice::make.predictorMatrix(imputed_data)  # target = rows, predictors = columns
 # Remove database specific variables as predictors
@@ -165,10 +181,6 @@ pred[, c("subject_id", "subject_int", "session_id")] <- 0
 # Remove variables that cause problems as predictors
 # https://stefvanbuuren.name/fimd/sec-toomany.html#finding-problems-loggedevents
 pred[, c("diagnosis", "Hoehn_Yahr", "UPDRS_source")] <- 0
-# No need to impute unused data
-#pred[c(
-#  "age_at_symptom_onset", "WTAR", "NPI_total", "diagnosis", "Hoehn_Yahr", "UPDRS_source"
-#), ] <- 0
 # Tweak default methods for imputing data to account for 2-level structure, where continuous
 # https://stefvanbuuren.name/fimd/sec-mlguidelines.html
 # https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html
@@ -177,6 +189,9 @@ pred[c("age_at_symptom_onset", "age_at_diagnosis", "education"), "subject_int"] 
 # Break feedback loop between correlated age variables
 # full_data %>% select(contains("age")) %>% mice::md.pattern()
 pred["age_at_symptom_onset", "age_at_diagnosis"] <- 0
+# Conditional structure of transformed variables
+# Don't predict medication yes/no from dose, former comes first in hypothetical generative model
+pred["taking_medication", "transformed_dose"] <- 0
 
 # Run imputation
 imputed_data <- imputed_data %>%
@@ -215,13 +230,13 @@ full_formula <-
   sex + education + age_at_diagnosis +  # ethnicity
   (1 | subject_id) +
   years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
-  UPDRS_motor_score + HADS_depression + HADS_anxiety + #global_z  # MoCA
-  attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
+  UPDRS_motor_score + HADS_depression + HADS_anxiety + global_z # MoCA
+  #attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
 
 prior <- brms::get_prior(
   formula = full_formula,
   family = brms::bernoulli(link = "logit"),
-  data = transformed_data
+  data = mice::complete(imputed_data, action = 1)
 )
 if (any(prior$class == "b")) {
   prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
