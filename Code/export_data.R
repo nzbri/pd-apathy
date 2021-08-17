@@ -123,6 +123,38 @@ neuropsych <- neuropsych %>%
   # Add tag to differentiate from other session types
   mutate(neuropsych_session = TRUE)
 
+# Pull out individual tests
+# https://github.com/nzbri/redcap/blob/master/python/export.py
+# See `pdmci_calc()` for details of tests that go into `global_z`
+# See also https://doi.org/10.1101/2020.05.31.126870
+tests = list(
+  attention = c(
+    "digits_fb_z", "digit_ordering_test_z", "map_search_z", "stroop_colour_z",
+    "stroop_words_z","trails_a_z"
+  ),
+  executive = c(
+    "action_fluency_z", "letter_fluency_z", "category_fluency_z",
+    "category_switching_z", "trails_b_z", "stroop_inhibition_z"
+  ),
+  visuo = c(
+    "jlo_z", "vosp_z", "picture_completion_z", "rey_complex_copy_z"
+  ),
+  memory = c(
+    "cvlt_free_recall_z", c("cvlt_short_delay_z", "cvlt_long_delay_z"),
+    c("rey_complex_immediate_z", "rey_complex_delay_z")
+  ),
+  language = c(
+    "boston_naming_z","language_adas_cog","language_drs2"
+  )
+)
+
+# `concise = FALSE` pulls in more than just these tests so keep separate
+neuropsych_tests <- chchpd::import_neuropsyc(concise = FALSE)
+neuropsych_tests <- neuropsych_tests %>%
+  sanitise_data() %>%
+  select("session_id", unname(unlist(tests))) %>%
+  rename_with(~ paste("nptest_", .x, sep = ""), !session_id)
+
 # -----------------------------------------------------------------------------
 
 # http://npitest.net/about-npi.html
@@ -252,6 +284,7 @@ mds_updrs <- mds_updrs %>%
 full_data <-
   inner_join(participants, sessions, by = "subject_id") %>%
   left_join(neuropsych, by = "session_id") %>%
+  left_join(neuropsych_tests, by = "session_id") %>%
   left_join(npi, by = "session_id") %>%
   left_join(medications, by = "session_id") %>%
   left_join(hads, by = "session_id") %>%
