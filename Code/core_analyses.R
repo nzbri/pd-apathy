@@ -47,7 +47,7 @@ full_data <- full_data %>%
     # Subject-level
     sex, ethnicity, education, handedness, side_of_onset,
     # Age related
-    age, age_at_symptom_onset, age_at_diagnosis,
+    age, age_at_symptom_onset, age_at_diagnosis, age_at_death,
     # Cognitive scores (and subdomains)
     global_z, MoCA, WTAR,
     attention_domain, executive_domain, language_domain,
@@ -58,6 +58,12 @@ full_data <- full_data %>%
     diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED, taking_antidepressants,
     # Confounds
     first_session_date, session_date, UPDRS_source
+  ) %>%
+  mutate(
+    # Add some useful extra timing info
+    years_since_diagnosis = age - age_at_diagnosis,
+    #years_since_symptom_onset = age - age_at_symptom_onset,
+    age = NULL
   )
 
 full_data %>%
@@ -103,10 +109,6 @@ full_data.sd <- full_data %>%
 
 transformed_data <- full_data %>%
   mutate(
-    # Add some useful extra timing info
-    years_since_diagnosis = age - age_at_diagnosis,
-    #years_since_symptom_onset = age - age_at_symptom_onset,
-    age = NULL,
     # Extra confounds
     session_date2 = scale(session_date) ^ 2,
     first_session_date2 = scale(first_session_date) ^ 2
@@ -181,6 +183,10 @@ pred[, c("subject_id", "subject_int", "session_id")] <- 0
 # Remove variables that cause problems as predictors
 # https://stefvanbuuren.name/fimd/sec-toomany.html#finding-problems-loggedevents
 pred[, c("diagnosis", "Hoehn_Yahr", "UPDRS_source")] <- 0
+# Remove age at death: valid missingness!
+pred[, "age_at_death"] <- 0
+pred["age_at_death", ] <- 0
+method["age_at_death"] <- ""
 # Tweak default methods for imputing data to account for 2-level structure, where continuous
 # https://stefvanbuuren.name/fimd/sec-mlguidelines.html
 # https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html
@@ -223,6 +229,7 @@ imputed_data <- imputed_data %>%
   mice::as.mids()
 
 ###############################################################################
+# Simple cross-sectional model
 
 full_formula <-
   NPI_apathy_present ~ 1 +
@@ -412,55 +419,137 @@ file.show(filename)
 #writeLines(readLines(filename))
 
 ###############################################################################
+# Predictive model
 
-full_formula <-
-  NPI_apathy_present ~ 1 +
-    first_session_date + first_session_date2 +
-    sex + education + age_at_diagnosis +  # ethnicity
-    (1 | subject_id) +
-    years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
-    UPDRS_motor_score + HADS_depression + global_z  # MoCA
-    #attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
+#install.packages("VIM")
 
-prior <- brms::get_prior(
-  formula = full_formula,
-  family = brms::bernoulli(link = "logit"),
-  data = transformed_data
-)
-if (any(prior$class == "b")) {
-  prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
-} else {
-  prior <- brms::empty_prior()
+imputed_data2 <- transformed_data %>%
+  group_by(subject_id) %>%
+  fill(everything(), .direction = "downup") %>%
+  ungroup() %>%
+  select(-subject_id, -session_id, -age_at_death) %>%
+  VIM::kNN(
+    weights = "auto",
+    imp_var = FALSE
+  )
+imputed_data2 <- transformed_data %>%
+  select(subject_id, session_id, age_at_death) %>%
+  bind_cols(imputed_data2) %>%
+  group_by(subject_id) %>%
+  mutate(
+    across(c(sex, ethnicity, handedness, side_of_onset), ~ mode(.x))
+  ) %>%
+  ungroup()
+
+fit_predictive_model <- function(data) {
+
+  # Sessions encoding when subjects died
+  # As these are the last session by definition, no covariates are needed
+  death_proxy_sessions <- data %>%
+    filter(!is.na(age_at_death)) %>%
+    select(subject_id, age_at_death, age_at_diagnosis) %>%
+    # Just take one session per subject
+    group_by(subject_id) %>%
+    distinct(subject_id, .keep_all = TRUE) %>%
+    ungroup() %>%
+    # Make key variables
+    mutate(
+      session_id = paste(subject_id, "death", sep = "_"),
+      years_since_diagnosis = 0.01 + age_at_death - (full_data.sd$age_at_diagnosis * age_at_diagnosis + full_data.mean$age_at_diagnosis),
+      years_since_diagnosis = (years_since_diagnosis - full_data.mean$years_since_diagnosis) / full_data.sd$years_since_diagnosis,
+      status = "dead"
+    )
+
+  # Now combine together
+  data <- data %>%
+    group_by(subject_id) %>%  # within each subject:
+    arrange(session_date) %>%  # order by session
+    mutate(
+      ever_apathetic = as.logical(cummax(NPI_apathy_present)),
+    ) %>%
+    ungroup() %>%
+    full_join(death_proxy_sessions) %>%
+    arrange(subject_id, session_id) %>%
+    mutate(
+      # Predict current apathy
+      #status = if_else(is.na(status), as.character(NPI_apathy_present), status),
+      # Predict apathy onset
+      status = if_else(is.na(status), as.character(ever_apathetic), status),
+      status = ordered(
+        status,
+        labels = c("A-", "A+", "dead"),
+        levels = c("FALSE", "TRUE", "dead")
+      ),
+      state = as.numeric(status)
+    ) #%>%
+  #filter(years_since_diagnosis > 0.0)
+  #select(subject_id, session_date, years_since_diagnosis, age, age_at_death, NPI_apathy_present) %>%
+  #View()
+
+  #msm::statetable.msm(state, subject_id, data = data)
+
+  Q.mask <- rbind(
+    c( NA, 1.0, 1.0),  # A-
+    c(0.0,  NA, 1.0),  # A+
+    c(0.0, 0.0,  NA)   # dead
+  )
+  Q.init <- msm::crudeinits.msm(
+    state ~ years_since_diagnosis,
+    #state ~ years_since_first_session,
+    subject = subject_id,
+    data = data,
+    qmatrix = Q.mask
+  )
+
+  constrained <- c(1,2,2)
+  mfit <- msm::msm(
+    state ~ years_since_diagnosis,
+    #state ~ years_since_first_session,
+    subject = subject_id,
+    data = data,
+    qmatrix = Q.init,
+    deathexact = 3,
+    covariates =
+      ~ first_session_date + first_session_date2 #+ session_date + session_date2
+      + sex + education + age_at_diagnosis
+      + taking_medication + transformed_dose + taking_antidepressants + UPDRS_motor_score
+      + HADS_depression + HADS_anxiety + global_z, #+ cog_delta + ever_apathetic
+      #+ attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain,
+    constraint = list(
+      first_session_date = constrained, first_session_date2 = constrained,
+      sexFemale = constrained, education = constrained, age_at_diagnosis = constrained,
+      taking_medicationNo = constrained, transformed_dose = constrained,
+      UPDRS_motor_score = constrained
+    )
+  )
+  #print(mfit)
+  #summary(mfit)
+
+  return(mfit)
 }
 
-model <- brms::brm_multiple(
-  formula = full_formula,
-  family = brms::bernoulli(link = "logit"),
-  prior = prior,
-  data = lapply(
-    group_split(transformed_data, .imp, .keep = FALSE),
-    as.data.frame
-  ),
-  silent = TRUE, refresh = 0
-)
-print(summary(model))
+#mfits <- lapply(mice::complete(imputed_data, action = "all"), fit_predictive_model)
+mfit <- fit_predictive_model(imputed_data2)
 
-# Plot odds ratios
-plt <- fixef(model) %>%
-  exp() %>%  # Odds ratio := exp(beta)
-  as_tibble(rownames = "covariate") %>%
-  filter(covariate != "Intercept") %>%
-  mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
-  ggplot(aes(x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
-  geom_pointrange() +
-  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
-  coord_flip() +  # flip coordinates (puts labels on y axis)
-  xlab(NULL) +
-  ylab("Odds ratio (95% CI)") +
-  theme_bw()  # use a white background
-
-print(plt)
-#ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
+#for (mfit in mfits) {
+for (transition in list(
+  list(states = "State 1 - State 2", label = "A- to A+"),
+  list(states = "State 1 - State 3", label = "A- to death"),
+  list(states = "State 2 - State 3", label = "A+ to death")
+)) {
+  plt <- msm::hazard.msm(mfit) %>%
+    lapply("[", transition$states, ) %>%
+    bind_rows(.id = "covariate") %>%
+    mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
+    # https://stackoverflow.com/a/38064297
+    ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U)) +
+    geom_pointrange() +
+    geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
+    scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0), limits = c(0.2, 5.0)) +
+    coord_flip() +  # flip coordinates (puts labels on y axis)
+    labs(x = NULL, y = "Hazard ratio (95% CI)", title = transition$label) +
+    theme_bw()  # use a white background
+  print(plt)
+}
 
 ###############################################################################

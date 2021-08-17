@@ -17,7 +17,7 @@
 ###############################################################################
 
 required_packages = c(
-  "chchpd", "rstan", "brms", "tidyverse", "ggalluvial"
+  "chchpd", "rstan", "brms", "tidyverse", "ggalluvial", "VIM"
 )
 
 # Check all present and correct
