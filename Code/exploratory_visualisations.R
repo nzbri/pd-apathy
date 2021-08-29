@@ -23,7 +23,7 @@ source("utils.R")
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-05-25.rds")
+  file.path("..", "Data", "raw-data_2021-08-17.rds")
 )
 
 ###############################################################################
@@ -37,7 +37,7 @@ types <- as_tibble(list(
 )
 
 col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2021-05-25_types.csv"),
+  file.path("..", "Data", "raw-data_2021-08-17_types.csv"),
   col_types = "cc"
 )
 col_types <- col_types %>%
@@ -46,7 +46,7 @@ col_types <- col_types %>%
   unlist(use.names = FALSE)
 
 full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2021-05-25.csv"),
+  file.path("..", "Data", "raw-data_2021-08-17.csv"),
   col_types = col_types
 )
 
@@ -316,6 +316,32 @@ for (dataset in list(
     theme_light()
   print(plt)
   save_plot(plt, paste("years-since-diagnosis_at_", dataset$at, sep = ""))
+
+  # Age at diagnosis / apathy
+  bw = 1.0
+  plt <- dataset$data %>%
+    ggplot(aes(age_at_diagnosis, fill = apathy_present)) +
+    geom_histogram(
+      position = "stack", binwidth = bw, boundary = 0.0, color = "white", alpha = 0.5
+    ) +
+    stat_density(
+      geom = "line", position = "identity", size = 1.0, show.legend = FALSE,
+      aes(y = bw * ..count.., colour = ..fill..)  # https://stackoverflow.com/a/37404727
+    ) +
+    scale_x_continuous(limits = c(35.0, 95.0)) +
+    scale_discrete_manual(
+      aesthetics = c("colour", "fill"),
+      values = colours.apathy_present
+    ) +
+    labs(
+      x = paste("Age at diagnosis"),
+      y = paste("Number of", dataset$of),
+      fill = "Apathetic",
+      title = paste(sum(!is.na(dataset$data$age_at_diagnosis)), dataset$of)
+    ) +
+    theme_light()
+  print(plt)
+  save_plot(plt, paste("age-at-diagnosis_at_", dataset$at, sep = ""))
 
   # MoCA / apathy
   bw = 1.0
