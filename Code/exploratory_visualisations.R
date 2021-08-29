@@ -482,6 +482,89 @@ for (dataset in list(
 }
 
 ###############################################################################
+# Global correlations
+
+# Some of the key variables of interest
+plt <- full_data %>%
+  select(
+    age, age_at_diagnosis, years_since_diagnosis, sex, education,
+    NPI_apathy_present,
+    MoCA, global_z,
+    Hoehn_Yahr, UPDRS_motor_score, LED, taking_antidepressants,
+    HADS_anxiety, HADS_depression, NPI_total
+  ) %>%
+  mutate(across(everything(), as.numeric)) %>%
+  mutate(LED = sqrt(LED)) %>%
+  # Compute correlations
+  cor(use = "pairwise.complete.obs", method = "pearson") %>%
+  # Melt to shape needed by ggplot...
+  reshape2::melt() %>%
+  mutate(Var2 = factor(Var2, levels = rev(levels(Var2)))) %>%
+  # And plot
+  ggplot(aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    limits = c(-1.0, 1.0),
+    low = "blue", mid = "white", high = "red"
+  ) +
+  coord_fixed(ratio = 1.0) +
+  labs(
+    fill = "Correlation",
+    title = "Correlations between key variables"
+  ) +
+  theme_light() +
+  theme(
+    #axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  )
+print(plt)
+save_plot(plt, "correlations_key-variables")
+
+
+# And some individual neuropsych tests
+# Partial as all v. highly correlated
+for (tests in list(
+  list(title = "NPI", regex = "NPI_.*_score", suffix = "NPI_"),
+  list(title = "neuropsych", regex = "nptest_*", suffix = "nptest_")
+)) {
+  plt <- full_data %>%
+    select(matches(tests$regex)) %>%
+    rename_with(~ gsub(tests$suffix, "", .x, fixed = TRUE)) %>%
+    #select(starts_with("nptest_")) %>%
+    #select(starts_with("NPI_")) %>%
+    #select(ends_with("_score")) %>%
+    # Compute partial correlations
+    cor(use = "pairwise.complete.obs", method = "pearson") %>%
+    solve() %>% cov2cor() %>% {function(x) -1.0 * x}() %>%
+    # Melt to shape needed by ggplot...
+    reshape2::melt() %>%
+    mutate(Var2 = factor(Var2, levels = rev(levels(Var2)))) %>%
+    # And plot
+    ggplot(aes(x = Var1, y = Var2, fill = value)) +
+    geom_tile() +
+    scale_fill_gradient2(
+      limits = c(-1.0, 1.0),
+      low = "blue", mid = "white", high = "red"
+    ) +
+    coord_fixed(ratio = 1.0) +
+    labs(
+      fill = "Partial\ncorrelation",
+      title = paste("Partial correlations between", tests$title, "tests")
+    ) +
+    theme_light() +
+    theme(
+      #axis.ticks.x = element_blank(),
+      axis.text.x = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank()
+    )
+  print(plt)
+  save_plot(plt, paste("correlations_", tests$title, "-tests", sep = ""))
+}
+
+###############################################################################
 # Simple look at longitudinal measures
 
 # Global-z / apathy v. age

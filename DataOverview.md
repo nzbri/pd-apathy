@@ -44,6 +44,27 @@ collection: number of sessions, times between sessions, etc.
 
 **Figure**: Summaries of the key variables relating to data collection.
 
+### Key correlations
+
+The following figures show the raw correlations between several of the key
+variables of interest. Note that these are for visualisation only: they do not
+take into account e.g. subject structure.
+
+---------
+
+<a href="Figures/correlations_key-variables.pdf">
+<img src="Figures/correlations_key-variables.jpg" width="90%">
+</a>
+
+<a href="Figures/correlations_NPI-tests.pdf">
+<img src="Figures/correlations_NPI-tests.jpg" width="45%">
+</a>
+<a href="Figures/correlations_neuropsych-tests.pdf">
+<img src="Figures/correlations_neuropsych-tests.jpg" width="45%">
+</a>
+
+**Figure**: Summaries of the correlations between key variables.
+
 ---------
 
 ### Demographic information
