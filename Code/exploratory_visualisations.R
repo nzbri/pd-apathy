@@ -217,7 +217,7 @@ plt <- full_data %>%
     legend.background = element_rect(colour = "black")
   ) +
   labs(
-    x = "Years since first session",
+    x = "Years since enrolment",
     y = "Number of sessions",
     fill = "Session type",
     #fill = "Apathetic"
@@ -497,6 +497,7 @@ plt <- full_data %>%
   mutate(LED = sqrt(LED)) %>%
   # Compute correlations
   cor(use = "pairwise.complete.obs", method = "pearson") %>%
+  #solve() %>% cov2cor() %>% {function(x) -1.0 * x}() %>%  # Need to remove [age | age_at_diagnosis, years_since_diagnosis] colinearity
   # Melt to shape needed by ggplot...
   reshape2::melt() %>%
   mutate(Var2 = factor(Var2, levels = rev(levels(Var2)))) %>%
