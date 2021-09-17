@@ -25,14 +25,42 @@ date_string = format(lubridate::ymd(lubridate::today()))
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-05-25.rds")
+  file.path("..", "Data", "raw-data_2021-08-17.rds")
+)
+
+variable_names <- list(
+  first_session_date = "Enrolment date",
+  first_session_date2 = "Enrolment date (squared)",
+  session_date = "Session date",
+  session_date2 = "Session date (squared)",
+  sexFemale = "Sex: female",
+  sexMale = "Sex: male",
+  education = "Education",
+  age_at_diagnosis = "Age at diagnosis",
+  years_since_diagnosis = "Decades since diagnosis",
+  taking_medicationNo = "Unmedicated",
+  taking_medicationYes = "Taking levodopa (or equivalent)",
+  transformed_dose = "Levodopa equivalent dose",
+  taking_antidepressantsYes = "Taking antidepressants",
+  UPDRS_motor_score = "Motor symptoms (UPDRS)",
+  MoCA = "Cognition (MoCA)",
+  HADS_depression = "Depression (HADS)",
+  HADS_anxiety = "Anxiety (HADS)"
 )
 
 ###############################################################################
 # Additional exclusion criteria
 
 full_data <- full_data %>%
+  # Drop sessions missing apathy measure
   drop_na(NPI_apathy_present)
+  # Drop PDD
+  # Could argue either way about dropping unknowns
+  #filter(is.na(diagnosis) | diagnosis != "PDD") %>%
+  # Drop `global_z`: useful for individual test analyses
+  #filter(!is.na(global_z)) %>%
+  # Null implausible values
+  #mutate(LED = replace(LED, LED > 5000, NA))
 
 ###############################################################################
 # Variable selection
@@ -48,11 +76,14 @@ full_data <- full_data %>%
     sex, ethnicity, education, handedness, side_of_onset,
     # Age related
     age, age_at_symptom_onset, age_at_diagnosis, age_at_death,
-    # Cognitive scores (and subdomains)
+    # Cognitive scores
     global_z, MoCA, WTAR,
+    #  Neuropsych subdomains
     attention_domain, executive_domain, language_domain,
     learning_memory_domain, visuo_domain,
-    # Neuropsych tests
+    # Individual neuropsych tests
+    #starts_with("nptest_"),
+    # Key psychological screens
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
     diagnosis, Hoehn_Yahr, UPDRS_motor_score, LED, taking_antidepressants,
@@ -72,6 +103,7 @@ full_data %>%
 
 # Quick visualisation of structure in missingness
 full_data %>%
+  #filter(!is.na(global_z)) %>%
   arrange(session_date) %>%
   #group_by(subject_id) %>%
   #fill(everything(), .direction = "downup") %>%
@@ -116,19 +148,21 @@ transformed_data <- full_data %>%
   # Center & rescale
   mutate(across(
     c(
-      age_at_diagnosis, years_since_diagnosis, education,
+      education,
       session_date, session_date2, first_session_date, first_session_date2,
       MoCA, HADS_depression, HADS_anxiety, UPDRS_motor_score
     ),
     ~ as.vector(scale(.x, center = TRUE, scale = TRUE))
   )) %>%
   ungroup() %>%
-  # Rescale only
-  #mutate(across(
-  #  c(years_since_diagnosis), #, HADS_depression, HADS_anxiety, UPDRS_motor_score),
-  #  ~ as.vector(scale(.x, center = FALSE, scale = TRUE))
-  #)) %>%
-  #ungroup() %>%
+  # Recode years -> decades (and roughly center)
+  mutate(
+    #age = (age - 70.0) / 10.0,
+    age_at_symptom_onset = (age_at_symptom_onset - 70.0) / 10.0,
+    age_at_diagnosis = (age_at_diagnosis - 70.0) / 10.0,
+    age_at_death = (age_at_death - 70.0) / 10.0,
+    years_since_diagnosis = years_since_diagnosis / 10.0,
+  ) %>%
   # Split LED into two regressors, and rescale
   mutate(
     taking_medication = (LED > 0.0),
@@ -151,7 +185,7 @@ transformed_data <- full_data %>%
   mutate(
     ethnicity = relevel(ethnicity, ref = "New Zealand European"),
     taking_medication = factor(taking_medication, levels = c(FALSE, TRUE), labels = c("No", "Yes")),
-    taking_medication = relevel(taking_medication, ref = "Yes"),
+    taking_medication = relevel(taking_medication, ref = "No"),
     taking_antidepressants = factor(as.logical(taking_antidepressants), levels = c(FALSE, TRUE), labels = c("No", "Yes")),
     taking_antidepressants = relevel(taking_antidepressants, ref = "No")
   )
@@ -233,23 +267,16 @@ imputed_data <- imputed_data %>%
 
 full_formula <-
   NPI_apathy_present ~ 1 +
-  first_session_date + first_session_date2 + session_date + session_date2 +
+  first_session_date + first_session_date2 +
   sex + education + age_at_diagnosis +  # ethnicity
   (1 | subject_id) +
   years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
-  UPDRS_motor_score + HADS_depression + HADS_anxiety + global_z # MoCA
-  #attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
+  UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety
+  # global_z
+  # attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
+  # Can't include session_date as advances at the same rate as years since diagnosis etc
 
-prior <- brms::get_prior(
-  formula = full_formula,
-  family = brms::bernoulli(link = "logit"),
-  data = mice::complete(imputed_data, action = 1)
-)
-if (any(prior$class == "b")) {
-  prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
-} else {
-  prior <- brms::empty_prior()
-}
+prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
 
 model <- brms::brm_multiple(
   formula = full_formula,
@@ -269,15 +296,27 @@ plt <- fixef(model) %>%
   exp() %>%  # Odds ratio := exp(beta)
   as_tibble(rownames = "covariate") %>%
   filter(covariate != "Intercept") %>%
+  mutate(confound = str_detect(covariate, "session_date")) %>%
+  mutate(covariate = recode(covariate, !!!variable_names)) %>%
   mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
-  ggplot(aes(x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
+  ggplot(aes(
+    x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5, colour = confound
+  )) +
   geom_pointrange() +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
+  geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
+  geom_vline(xintercept = 7.5, colour = "grey92") +
+  geom_vline(xintercept = 11.5, colour = "grey92") +
+  scale_y_continuous(trans = "log", breaks = c(0.25, 0.5, 1.0, 2.0), limits = c(NA, 2.1)) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
+  scale_colour_manual(values = c("black", "grey"), guide = "none") +
   xlab(NULL) +
   ylab("Odds ratio (95% CI)") +
-  theme_bw()  # use a white background
+  theme_bw() +  # use a white background
+  # https://stackoverflow.com/a/8992102
+  theme( # remove the vertical grid lines
+    panel.grid.major.y = element_blank()
+  )
 
 print(plt)
 #ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
