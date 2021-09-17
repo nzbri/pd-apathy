@@ -877,179 +877,179 @@ for (params in list(
   )
 )) {
 
-delta = 2.0  # Interval in years
-n_intervals = params$n_intervals
-# Initial offset of one year helps avoid aliasing the two-year follow-up pattern
-sample_years = seq(
-  from = 1.0, to = delta * (n_intervals$total - 1) + 1.0, by = delta
-)
-status_labels = list(
-  short = c("Y", "R", "N", "U", "D", NA),
-  long = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups")
-)
+  # ---------------------------------------------------------------------------
 
-# Calculate each patient's status in each interval
-status_by_year = full_data %>% select(subject_id) %>% unique()
-for (years in sample_years) {
-  print(years)
-
-  # Pull out the status within the current time window
-  current_status <- full_data %>%
-    filter(!is.na(.data[[params$time_axis]])) %>%
-    # Calculate time since first neuropsych assessment
-    # group_by(subject_id) %>%
-    # mutate(
-    #   years_from_baseline = years_between(min(session_date), session_date)
-    # ) %>%
-    # ungroup() %>%
-    # Extract all sessions with recorded apathy within window of past `delta` years
-    filter(
-      #(years_from_baseline <= years) & (years_from_baseline > years - delta)
-      between(.data[[params$time_axis]], years - delta, years)
-    ) %>%
-    # And take the most recent (favouring positive evidence)
-    group_by(subject_id) %>%
-    slice_max(.data[[params$time_axis]] - delta * (apathy_present == "Unknown")) %>%
-    ungroup() %>%
-    # Record status (as character as we add more categories)
-    mutate(current_status = as.character(apathy_present)) %>%
-    # See if the patient had apathy in the past
-    mutate(current_status = if_else(
-      (current_status == "No") & (apathy_present.worst_to_date == "Yes"),
-      "Remission",
-      current_status
-    )) %>%
-    # And tidy up
-    select(subject_id, current_status)
-
-  # And see if we can work out why data is missing
-  current_status <-
-    left_join(full_data, current_status, by = "subject_id") %>%
-    filter(!is.na(.data[[params$time_axis]])) %>%
-    # Extract some key info
-    group_by(subject_id) %>%
-    mutate(
-      dead_at_years = dead & ((age_at_first_session + years) >= age_at_death),
-      latest_followup = max(.data[[params$time_axis]])
-    ) %>%
-    # Does a subject have data at a later date?
-    mutate(subsequent_sessions_present = (latest_followup > years)) %>%
-    slice_head() %>%  # Back to one session per subject
-    ungroup() %>%
-    # Use that info to recode missing data
-    mutate(
-      "apathy_status.{years}_years" := if_else(
-        is.na(current_status),
-        if_else(
-          subsequent_sessions_present,
-          "Unknown",  # i.e. no data in this interval, but patient is seen again
-          if_else(dead_at_years, "Deceased", "No follow-ups"),
-        ),
-        current_status
-      )
-    ) %>%
-    select(subject_id | contains("apathy_status"))
-  print(current_status %>% count(across(contains("apathy_status"))))
-
-  status_by_year <- status_by_year %>%
-    left_join(current_status, by = "subject_id")
-
-}
-
-# Recode factor for apathy status to short levels
-status_by_year <- status_by_year %>%
-  mutate(across(
-    contains("apathy_status"),
-    ~ factor(
-      .x, levels = status_labels$long, labels = status_labels$short,
-      exclude = NULL  # i.e. include NA as a level, helps with plot ordering
-    )
-  ))
-
-# -----------------------------------------------------------------------------
-
-# Alluvial plot
-# https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
-plt <- status_by_year %>%
-  count(across(contains("apathy_status"))) %>%
-  to_lodes_form(axes = 1:(n_intervals$plot), weight = n) %>%
-  ggplot(aes(
-    x = x,
-    y = n,
-    alluvium = alluvium,
-    stratum = stratum,
-    fill = stratum,
-    label = stratum
-  )) +
-  geom_flow() +
-  geom_stratum(alpha = .5) +
-  geom_text(stat = "stratum", size = 2) +
-  scale_x_discrete(labels = sample_years[1:(n_intervals$plot)]) +
-  scale_fill_discrete(labels = status_labels$long) +
-  scale_y_reverse() +
-  labs(
-    x = params$label,
-    y = "Patients",
-    fill = "Apathetic?",
-    title = paste("Apathy status at", delta, "year intervals")
-  ) +
-  theme_minimal()
-
-print(plt)
-save_plot(
-  plt,
-  paste("apathy_v_", gsub("_", "-", params$time_axis), "_alluvial", sep = ""),
-  width = 8,
-  height = 6
-)
-
-# -----------------------------------------------------------------------------
-
-# Bar plot
-plt <- status_by_year %>%
-  pivot_longer(
-    contains("apathy_status"), names_to = "year", values_to = "apathy_status"
-  ) %>%
-  filter(apathy_status %in% levels(apathy_status)[1:3]) %>%  # `c(1:3,5)` to include death
-  mutate(year = as.numeric(gsub("\\D", "", year))) %>%
-  filter(year <= sample_years[n_intervals$plot]) %>%
-  ggplot(aes(x = factor(year), fill = apathy_status)) +
-  geom_bar(position = "fill", alpha = .5, colour = "black") +
-  geom_text(
-    stat = "count",
-    position = position_fill(vjust = 0.5),
-    aes(label = apathy_status, y = ..count..),
-    size = 2
-  ) +
-  # Painful matching of colours and orders to alluvial plot
-  scale_y_continuous(
-    trans = "reverse",
-    breaks = seq(0.0, 1.0, 0.2),
-    labels = rev(seq(0.0, 1.0, 0.2))
-  ) +
-  scale_fill_discrete(
-    breaks = status_labels$short[1:3],
-    labels = status_labels$long[1:3],
-    drop = FALSE
-  ) +
-  labs(
-    x = params$label,
-    y = "Proportion of patients (known status only)",
-    fill = "Apathetic?",
-    title = paste("Apathy status at", delta, "year intervals")
-  ) +
-  theme_light() +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.minor.y = element_blank()
+  delta <- 2.0  # Interval in years
+  n_intervals <- params$n_intervals
+  # Initial offset of one year helps avoid aliasing the two-year follow-up pattern
+  sample_years <- seq(
+    from = 1.0, to = delta * (n_intervals$total - 1) + 1.0, by = delta
+  )
+  status_labels <- list(
+    short = c("Y", "R", "N", "U", "D", NA),
+    long = c("Yes", "Remission", "No", "Unknown", "Deceased", "No follow-ups")
   )
 
-print(plt)
-save_plot(
-  plt,
-  paste("apathy_v_", gsub("_", "-", params$time_axis), "_bar", sep = "")
-)
+  # ---------------------------------------------------------------------------
+
+  # Calculate each patient's status in each interval
+  status_by_year <- full_data %>% select(subject_id) %>% unique()
+  for (years in sample_years) {
+    print(years)
+
+    # Pull out the status within the current time window
+    current_status <- full_data %>%
+      filter(!is.na(.data[[params$time_axis]])) %>%
+      # Extract all sessions with recorded apathy within window of past `delta` years
+      filter(
+        #(years_from_baseline <= years) & (years_from_baseline > years - delta)
+        between(.data[[params$time_axis]], years - delta, years)
+      ) %>%
+      # And take the most recent (favouring positive evidence)
+      group_by(subject_id) %>%
+      slice_max(.data[[params$time_axis]] - delta * (apathy_present == "Unknown")) %>%
+      ungroup() %>%
+      # Record status (as character as we add more categories)
+      mutate(current_status = as.character(apathy_present)) %>%
+      # See if the patient had apathy in the past
+      mutate(current_status = if_else(
+        (current_status == "No") & (apathy_present.worst_to_date == "Yes"),
+        "Remission",
+        current_status
+      )) %>%
+      # And tidy up
+      select(subject_id, current_status)
+
+    # And see if we can work out why data is missing
+    current_status <-
+      left_join(full_data, current_status, by = "subject_id") %>%
+      filter(!is.na(.data[[params$time_axis]])) %>%
+      # Extract some key info
+      group_by(subject_id) %>%
+      mutate(
+        dead_at_years = dead & ((age_at_first_session + years) >= age_at_death),
+        latest_followup = max(.data[[params$time_axis]])
+      ) %>%
+      # Does a subject have data at a later date?
+      mutate(subsequent_sessions_present = (latest_followup > years)) %>%
+      slice_head() %>%  # Back to one session per subject
+      ungroup() %>%
+      # Use that info to recode missing data
+      mutate(
+        "apathy_status.{years}_years" := if_else(
+          is.na(current_status),
+          if_else(
+            subsequent_sessions_present,
+            "Unknown",  # i.e. no data in this interval, but patient is seen again
+            if_else(dead_at_years, "Deceased", "No follow-ups"),
+          ),
+          current_status
+        )
+      ) %>%
+      select(subject_id | contains("apathy_status"))
+    print(current_status %>% count(across(contains("apathy_status"))))
+
+    status_by_year <- status_by_year %>%
+      left_join(current_status, by = "subject_id")
+
+  }
+
+  # Recode factor for apathy status to short levels
+  status_by_year <- status_by_year %>%
+    mutate(across(
+      contains("apathy_status"),
+      ~ factor(
+        .x, levels = status_labels$long, labels = status_labels$short,
+        exclude = NULL  # i.e. include NA as a level, helps with plot ordering
+      )
+    ))
+
+  # ---------------------------------------------------------------------------
+  # Alluvial plot
+
+  # https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
+  plt <- status_by_year %>%
+    count(across(contains("apathy_status"))) %>%
+    to_lodes_form(axes = 1:(n_intervals$plot), weight = n) %>%
+    ggplot(aes(
+      x = x,
+      y = n,
+      alluvium = alluvium,
+      stratum = stratum,
+      fill = stratum,
+      label = stratum
+    )) +
+    geom_flow() +
+    geom_stratum(alpha = .5) +
+    geom_text(stat = "stratum", size = 2) +
+    scale_x_discrete(labels = sample_years[1:(n_intervals$plot)]) +
+    scale_fill_discrete(labels = status_labels$long) +
+    scale_y_reverse() +
+    labs(
+      x = params$label,
+      y = "Patients",
+      fill = "Apathetic?",
+      title = paste("Apathy status at", delta, "year intervals")
+    ) +
+    theme_minimal()
+
+  print(plt)
+  save_plot(
+    plt,
+    paste("apathy_v_", gsub("_", "-", params$time_axis), "_alluvial", sep = ""),
+    width = 8,
+    height = 6
+  )
+
+  # ---------------------------------------------------------------------------
+  # Bar plot (normalises for changing dead / unkowns)
+
+  plt <- status_by_year %>%
+    pivot_longer(
+      contains("apathy_status"), names_to = "year", values_to = "apathy_status"
+    ) %>%
+    filter(apathy_status %in% levels(apathy_status)[1:3]) %>%  # `c(1:3,5)` to include death
+    mutate(year = as.numeric(gsub("\\D", "", year))) %>%
+    filter(year <= sample_years[n_intervals$plot]) %>%
+    ggplot(aes(x = factor(year), fill = apathy_status)) +
+    geom_bar(position = "fill", alpha = .5, colour = "black") +
+    geom_text(
+      stat = "count",
+      position = position_fill(vjust = 0.5),
+      aes(label = apathy_status, y = ..count..),
+      size = 2
+    ) +
+    # Painful matching of colours and orders to alluvial plot
+    scale_y_continuous(
+      trans = "reverse",
+      breaks = seq(0.0, 1.0, 0.2),
+      labels = rev(seq(0.0, 1.0, 0.2))
+    ) +
+    scale_fill_discrete(
+      breaks = status_labels$short[1:3],
+      labels = status_labels$long[1:3],
+      drop = FALSE
+    ) +
+    labs(
+      x = params$label,
+      y = "Proportion of patients (known status only)",
+      fill = "Apathetic?",
+      title = paste("Apathy status at", delta, "year intervals")
+    ) +
+    theme_light() +
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.minor.y = element_blank()
+    )
+
+  print(plt)
+  save_plot(
+    plt,
+    paste("apathy_v_", gsub("_", "-", params$time_axis), "_bar", sep = "")
+  )
+
+  # ---------------------------------------------------------------------------
 
 }
 
