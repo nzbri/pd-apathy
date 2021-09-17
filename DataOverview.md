@@ -175,11 +175,19 @@ within-subject are not completely captured by the cross-sectional summary
 </a>
 <br>
 
-<a href="Figures/apathy_v_years-enrolled_alluvial.pdf">
-<img src="Figures/apathy_v_years-enrolled_alluvial.jpg" width="45%">
+<a href="Figures/apathy_v_years-since-first-session_alluvial.pdf">
+<img src="Figures/apathy_v_years-since-first-session_alluvial.jpg" width="45%">
 </a>
-<a href="Figures/apathy_v_years-enrolled_bar.pdf">
-<img src="Figures/apathy_v_years-enrolled_bar.jpg" width="45%">
+<a href="Figures/apathy_v_years-since-first-session_bar.pdf">
+<img src="Figures/apathy_v_years-since-first-session_bar.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/apathy_v_years-since-diagnosis_alluvial.pdf">
+<img src="Figures/apathy_v_years-since-diagnosis_alluvial.jpg" width="45%">
+</a>
+<a href="Figures/apathy_v_years-since-diagnosis_bar.pdf">
+<img src="Figures/apathy_v_years-since-diagnosis_bar.jpg" width="45%">
 </a>
 <br>
 

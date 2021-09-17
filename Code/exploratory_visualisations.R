@@ -864,8 +864,21 @@ save_plot(plt, "apathy_v_session-date_matchstick", width = 6.0, height = 8.0)
 ###############################################################################
 # Alluvial plots of changing apathy status over different intervals
 
+for (params in list(
+  list(
+    time_axis = "years_since_diagnosis",
+    label = "Years since diagnosis",
+    n_intervals = list(total = 20, plot = 12)  # How many intervals to assess / plot
+  ),
+  list(
+    time_axis = "years_since_first_session",
+    label = "Years since enrolment",
+    n_intervals = list(total = 8, plot = 6)  # How many intervals to assess / plot
+  )
+)) {
+
 delta = 2.0  # Interval in years
-n_intervals = list(total = 8, plot = 6)  # How many intervals to assess / plot
+n_intervals = params$n_intervals
 # Initial offset of one year helps avoid aliasing the two-year follow-up pattern
 sample_years = seq(
   from = 1.0, to = delta * (n_intervals$total - 1) + 1.0, by = delta
@@ -882,6 +895,7 @@ for (years in sample_years) {
 
   # Pull out the status within the current time window
   current_status <- full_data %>%
+    filter(!is.na(.data[[params$time_axis]])) %>%
     # Calculate time since first neuropsych assessment
     # group_by(subject_id) %>%
     # mutate(
@@ -891,11 +905,11 @@ for (years in sample_years) {
     # Extract all sessions with recorded apathy within window of past `delta` years
     filter(
       #(years_from_baseline <= years) & (years_from_baseline > years - delta)
-      between(years_since_first_session, years - delta, years)
+      between(.data[[params$time_axis]], years - delta, years)
     ) %>%
     # And take the most recent (favouring positive evidence)
     group_by(subject_id) %>%
-    slice_max(years_since_first_session - delta * (apathy_present == "Unknown")) %>%
+    slice_max(.data[[params$time_axis]] - delta * (apathy_present == "Unknown")) %>%
     ungroup() %>%
     # Record status (as character as we add more categories)
     mutate(current_status = as.character(apathy_present)) %>%
@@ -911,11 +925,12 @@ for (years in sample_years) {
   # And see if we can work out why data is missing
   current_status <-
     left_join(full_data, current_status, by = "subject_id") %>%
+    filter(!is.na(.data[[params$time_axis]])) %>%
     # Extract some key info
     group_by(subject_id) %>%
     mutate(
       dead_at_years = dead & ((age_at_first_session + years) >= age_at_death),
-      latest_followup = max(years_since_first_session)
+      latest_followup = max(.data[[params$time_axis]])
     ) %>%
     # Does a subject have data at a later date?
     mutate(subsequent_sessions_present = (latest_followup > years)) %>%
@@ -973,14 +988,20 @@ plt <- status_by_year %>%
   scale_fill_discrete(labels = status_labels$long) +
   scale_y_reverse() +
   labs(
-    x = "Years since first assessment",
+    x = params$label,
     y = "Patients",
     fill = "Apathetic?",
     title = paste("Apathy status at", delta, "year intervals")
   ) +
   theme_minimal()
+
 print(plt)
-save_plot(plt, "apathy_v_years-enrolled_alluvial", width = 8, height = 6)
+save_plot(
+  plt,
+  paste("apathy_v_", gsub("_", "-", params$time_axis), "_alluvial", sep = ""),
+  width = 8,
+  height = 6
+)
 
 # -----------------------------------------------------------------------------
 
@@ -989,7 +1010,7 @@ plt <- status_by_year %>%
   pivot_longer(
     contains("apathy_status"), names_to = "year", values_to = "apathy_status"
   ) %>%
-  filter(apathy_status %in% levels(apathy_status)[1:3]) %>%
+  filter(apathy_status %in% levels(apathy_status)[1:3]) %>%  # `c(1:3,5)` to include death
   mutate(year = as.numeric(gsub("\\D", "", year))) %>%
   filter(year <= sample_years[n_intervals$plot]) %>%
   ggplot(aes(x = factor(year), fill = apathy_status)) +
@@ -1012,7 +1033,7 @@ plt <- status_by_year %>%
     drop = FALSE
   ) +
   labs(
-    x = "Years since first assessment",
+    x = params$label,
     y = "Proportion of patients (known status only)",
     fill = "Apathetic?",
     title = paste("Apathy status at", delta, "year intervals")
@@ -1023,7 +1044,13 @@ plt <- status_by_year %>%
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank()
   )
+
 print(plt)
-save_plot(plt, "apathy_v_years-enrolled_bar")
+save_plot(
+  plt,
+  paste("apathy_v_", gsub("_", "-", params$time_axis), "_bar", sep = "")
+)
+
+}
 
 ###############################################################################
