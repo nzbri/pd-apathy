@@ -625,11 +625,38 @@ plt <- full_data %>%
   scale_colour_manual(values = colours.apathy_present) +
   labs(
     x = "Years since diagnosis", y = "Medication (LED)", colour = "Apathetic",
-    title = paste(sum(!is.na(full_data$UPDRS_motor_score)), "sessions")
+    title = paste(sum(!is.na(full_data$LED)), "sessions")
   ) +
   theme_light()
 print(plt)
 save_plot(plt, "medication_v_years-since-diagnosis", width = 10.0, height = 4.0)
+
+# LED / apathy v. time to death
+plt <- full_data %>%
+  mutate(LED_positive = na_if(LED, 0.0)) %>%  # Ignore the zeros for smoothing
+  ggplot(aes(
+    x = age_at_death - age,  # This will just drop all the alive patients as NA
+    y = LED,
+    group = subject_id,
+    colour = apathy_present
+  )) +
+  geom_line(alpha = 0.75, size = 0.25) +
+  geom_point(size = 0.5) +
+  geom_smooth(
+    method = glm, formula = y ~ poly(x, 2) + 1,
+    method.args = list(family = Gamma(link = "inverse")),
+    mapping = aes(y = LED_positive, group = NULL, colour = NULL), colour = "black"
+  ) +
+  scale_x_continuous(trans = "reverse") +
+  scale_y_continuous(trans = "sqrt") +
+  scale_colour_manual(values = colours.apathy_present) +
+  labs(
+    x = "Years before death", y = "Medication (LED)", colour = "Apathetic",
+    title = paste(sum(!is.na(full_data$LED + full_data$age_at_death)), "sessions")
+  ) +
+  theme_light()
+print(plt)
+save_plot(plt, "medication_v_years-before-death", width = 6.0, height = 4.0)
 
 ###############################################################################
 # Do the demographics of recruited subjects change over time?
