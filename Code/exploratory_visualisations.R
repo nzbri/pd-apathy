@@ -878,18 +878,20 @@ for (params in list(
   list(
     time_axis = "years_since_diagnosis",
     label = "Years since diagnosis",
-    n_intervals = list(total = 20, plot = 12)  # How many intervals to assess / plot
+    delta = 3.0,  # Interval in years
+    n_intervals = list(total = 12, plot = 9)  # How many intervals to assess / plot
   ),
   list(
     time_axis = "years_since_first_session",
     label = "Years since enrolment",
+    delta = 2.0,  # Interval in years
     n_intervals = list(total = 8, plot = 6)  # How many intervals to assess / plot
   )
 )) {
 
   # ---------------------------------------------------------------------------
 
-  delta <- 2.0  # Interval in years
+  delta <- params$delta
   n_intervals <- params$n_intervals
   # Initial offset of one year helps avoid aliasing the two-year follow-up pattern
   sample_years <- seq(
