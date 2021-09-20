@@ -199,6 +199,11 @@ within-subject are not completely captured by the cross-sectional summary
 <a href="Figures/cognitive-scores_v_age.pdf">
 <img src="Figures/cognitive-scores_v_age.jpg" width="90%">
 </a>
+<br>
+
+<a href="Figures/medication_v_years-since-diagnosis.pdf">
+<img src="Figures/medication_v_years-since-diagnosis.jpg" width="90%">
+</a>
 
 **Figure**: Longitudinal changes in key subject-specific variables.
 

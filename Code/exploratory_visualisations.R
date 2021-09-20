@@ -604,6 +604,33 @@ plt <- full_data %>%
 print(plt)
 save_plot(plt, "motor-scores_v_age", width = 10.0, height = 4.0)
 
+# LED / apathy v. years since diagnosis
+plt <- full_data %>%
+  mutate(LED_positive = na_if(LED, 0.0)) %>%  # Ignore the zeros for smoothing
+  ggplot(aes(
+    x = years_since_diagnosis,  # age - age_at_death
+    y = LED,
+    group = subject_id,
+    colour = apathy_present
+  )) +
+  geom_line(alpha = 0.75, size = 0.25) +
+  geom_point(size = 0.5) +
+  geom_smooth(
+    method = glm, formula = y ~ poly(x, 2) + 1,
+    method.args = list(family = Gamma(link = "inverse")),
+    mapping = aes(y = LED_positive, group = NULL, colour = NULL), colour = "black"
+  ) +
+  scale_x_continuous(limits = c(NA, 25.0)) +
+  scale_y_continuous(trans = "sqrt") +
+  scale_colour_manual(values = colours.apathy_present) +
+  labs(
+    x = "Years since diagnosis", y = "Medication (LED)", colour = "Apathetic",
+    title = paste(sum(!is.na(full_data$UPDRS_motor_score)), "sessions")
+  ) +
+  theme_light()
+print(plt)
+save_plot(plt, "medication_v_years-since-diagnosis", width = 10.0, height = 4.0)
+
 ###############################################################################
 # Do the demographics of recruited subjects change over time?
 
