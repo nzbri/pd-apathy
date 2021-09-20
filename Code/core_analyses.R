@@ -29,24 +29,114 @@ full_data <- readRDS(
 )
 
 variable_names <- list(
+  NPI_apathy_present = "Apathetic",
   first_session_date = "Enrolment date",
   first_session_date2 = "Enrolment date (squared)",
   session_date = "Session date",
   session_date2 = "Session date (squared)",
+  sex = "Sex",
   sexFemale = "Sex: female",
   sexMale = "Sex: male",
-  education = "Education",
+  education = "Education (years)",
+  ethnicity = "Ethnicity",
+  age = "Age",
   age_at_diagnosis = "Age at diagnosis",
   years_since_diagnosis = "Decades since diagnosis",
+  taking_medication = "Taking levodopa (or equivalent)",
   taking_medicationNo = "Unmedicated",
   taking_medicationYes = "Taking levodopa (or equivalent)",
   transformed_dose = "Levodopa equivalent dose",
+  LED = "Levodopa equivalent dose",
+  taking_antidepressants = "Taking antidepressants",
   taking_antidepressantsYes = "Taking antidepressants",
   UPDRS_motor_score = "Motor symptoms (UPDRS)",
   MoCA = "Cognition (MoCA)",
   HADS_depression = "Depression (HADS)",
   HADS_anxiety = "Anxiety (HADS)"
 )
+
+###############################################################################
+# Data summary tables
+# http://www.danieldsjoberg.com/gtsummary/
+
+# Oh seriously :-(
+gtsummary_names <- mapply(
+    {function(item, name) as.formula(paste(name, " ~ \"", item, "\"", sep = ""))},
+    variable_names,
+    names(variable_names)
+  ) %>%
+  as.list()
+gtsummary_names[["first_session_date"]] <- first_session_date ~ "Enrolment decade"
+gtsummary_names[["years_since_diagnosis"]] <- years_since_diagnosis ~ "Years since diagnosis"
+
+session_tbl <- full_data %>%
+  #drop_na(NPI_apathy_present) %>%
+  mutate(
+    # Give apathy better names as we stratify based on this
+    NPI_apathy_present = factor(
+      NPI_apathy_present,
+      levels = c(TRUE, FALSE, NA),
+      labels = c("Yes", "No", "Unknown"),
+      exclude = NULL,
+    ),
+    # Clean up other variables
+    taking_medication = (LED > 0.0),
+    years_since_diagnosis = age - age_at_diagnosis,
+    education = forcats::fct_collapse(
+      as.factor(education),
+      `<10` = as.character(seq(0, 9)),
+      `10-14` = as.character(seq(10, 14)),
+      `15-19` = as.character(seq(15, 19)),
+      `>20` = as.character(seq(20, 29)),
+    ),
+    first_session_date = as.factor(
+      floor(lubridate::year(first_session_date) / 10) * 10  # Round to decade,
+    ),
+    mutate(across(c(MoCA, HADS_anxiety, HADS_depression), as.integer)),
+  ) %>%
+  # Variables of interest
+  select(
+    NPI_apathy_present,
+    age, sex, ethnicity, education,
+    age_at_diagnosis, years_since_diagnosis,
+    taking_medication, LED, taking_antidepressants,
+    UPDRS_motor_score, MoCA, HADS_depression, HADS_anxiety,
+    first_session_date,
+  ) %>%
+  # Make the table!
+  gtsummary::tbl_summary(
+    by = NPI_apathy_present,
+    label = unname(gtsummary_names[colnames(.)]),
+    type = list(
+      gtsummary::all_continuous() ~ "continuous2"
+    ),
+    statistic = list(
+      where(is.integer) ~ "{median} ({p25} \U2013 {p75})",
+      where(is.double) ~ "{mean} (±{sd})",
+      gtsummary::all_categorical() ~ "{n} / {N} ({p}%)"
+    ),
+    digits = list(
+      where(is.double) ~ 1
+    )
+  ) %>%
+  gtsummary::add_n() %>%  # add column with total number of non-missing observations
+  gtsummary::add_p() %>%  # test for a difference between groups
+  gtsummary::bold_labels() %>%
+  gtsummary::modify_header(label ~ "**Variable**") %>%
+  gtsummary::modify_spanning_header(
+    c("stat_1", "stat_2", "stat_3") ~ "**Apathetic**"
+  )
+print(session_tbl)
+
+# Save as Word doc
+# Often needs some postprocessing (extra borders in particular)
+# This is not easy via `as_flex_table()`
+session_tbl %>%
+  gtsummary::as_flex_table() %>%
+  flextable::save_as_docx(
+    path = "../Results/session_summary.docx",
+    pr_section = officer::prop_section(officer::page_size(orient = "landscape"))
+  )
 
 ###############################################################################
 # Additional exclusion criteria
