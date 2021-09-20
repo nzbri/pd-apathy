@@ -119,23 +119,6 @@ baseline_data <- full_data %>%
 # bind_rows(full_data, dummy_sessions)
 
 ###############################################################################
-# Useful functions
-
-save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
-  ggsave(
-    file.path("..", "Figures", paste(filename, ".pdf", sep = "")),
-    plt, ..., width = width, height = height, units = units
-  )
-  ggsave(
-    file.path("..", "Figures", paste(filename, ".jpg", sep = "")),
-    plt, ..., width = width, height = height, units = units, dpi = "screen"
-  )
-}
-#save_plot <- function(plt, filename, ...) {
-#  print(filename)
-#}
-
-###############################################################################
 # Key summaries of data collection process itself
 
 # When was the data collected

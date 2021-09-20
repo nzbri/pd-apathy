@@ -45,3 +45,22 @@ years_between <- function(start_date, end_date) {
 }
 
 ###############################################################################
+# Useful plotting-related functions
+
+save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
+  # Note that this saves to `../Figures/`!
+  ggsave(
+    file.path("..", "Figures", paste(filename, ".pdf", sep = "")),
+    plt, ..., width = width, height = height, units = units
+  )
+  ggsave(
+    file.path("..", "Figures", paste(filename, ".jpg", sep = "")),
+    plt, ..., width = width, height = height, units = units, dpi = "screen"
+  )
+}
+# Just display if want to temporarily disable saving
+#save_plot <- function(plt, filename, ...) {
+#  print(filename)
+#}
+
+###############################################################################

@@ -192,7 +192,7 @@ full_data %>%
   print(width = Inf)
 
 # Quick visualisation of structure in missingness
-full_data %>%
+plt <- full_data %>%
   #filter(!is.na(global_z)) %>%
   arrange(session_date) %>%
   #group_by(subject_id) %>%
@@ -207,12 +207,14 @@ full_data %>%
   scale_y_reverse() +
   labs(
     x = NULL,
-    y = "Subject (ordered by session date)",
+    y = "Session (ordered by date)",
     fill = "Missing",
     title = "Data missingness"
   ) +
-  theme_light() +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(plt)
+save_plot(plt, "data-missingness")
 
 ###############################################################################
 # Data preprocessing / transformations
@@ -376,7 +378,20 @@ model <- brms::brm_multiple(
   chains = 8, iter = 5000,
   silent = TRUE, refresh = 0
 )
+summary(model)
+
+# Save to file
+filename <- file.path(
+  "..", "Results", paste("logistic-regression_", date_string, ".Rout", sep = "")
+)
+sink(file = filename)
+options(width = 1024)
 print(summary(model))
+cat("\n\n\n")
+sessionInfo()
+sink()
+options(width = 80)
+file.show(filename)
 
 # Plot odds ratios
 # TODO:
@@ -393,10 +408,10 @@ plt <- fixef(model) %>%
     x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5, colour = confound
   )) +
   geom_pointrange() +
-  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
   geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
   geom_vline(xintercept = 7.5, colour = "grey92") +
   geom_vline(xintercept = 11.5, colour = "grey92") +
+  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
   scale_y_continuous(trans = "log", breaks = c(0.25, 0.5, 1.0, 2.0), limits = c(NA, 2.1)) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
   scale_colour_manual(values = c("black", "grey"), guide = "none") +
@@ -409,7 +424,7 @@ plt <- fixef(model) %>%
   )
 
 print(plt)
-#ggsave("test.pdf", plt, width = 6, height = 4, units = "in")
+save_plot(plt, "logistic-regression")
 
 ###############################################################################
 # Fit models
