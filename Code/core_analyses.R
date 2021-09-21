@@ -52,7 +52,39 @@ variable_names <- list(
   UPDRS_motor_score = "Motor symptoms (UPDRS)",
   MoCA = "Cognition (MoCA)",
   HADS_depression = "Depression (HADS)",
-  HADS_anxiety = "Anxiety (HADS)"
+  HADS_anxiety = "Anxiety (HADS)",
+  # Individual tests
+  # https://github.com/nzbri/redcap/blob/master/python/export.py
+  # https://doi.org/10.1101/2020.05.31.126870
+  # Attention
+  nptest_digits_fb_z = "Digits forwards/backwards [A]",
+  nptest_digit_ordering_test_z = "Digit ordering [A]",
+  nptest_map_search_z = "Map search (1 min) [A]",
+  nptest_stroop_colour_z = "Stroop color reading [A]",
+  nptest_stroop_words_z = "Stroop word reading [A]",
+  nptest_trails_a_z = "Trail making (part A) [A]",
+  # Executive
+  nptest_action_fluency_z = "Action fluency [E]",
+  nptest_letter_fluency_z = "Letter fluency [E]",
+  nptest_category_fluency_z = "Category fluency [E]",
+  nptest_category_switching_z = "Category switching [E]",
+  nptest_trails_b_z = "Trail making (part B) [E]",
+  nptest_stroop_inhibition_z = "Stroop interference [E]",
+  # Visuo
+  nptest_jlo_z = "Judgement of line orientation [V]",
+  nptest_vosp_z = "VOSP fragmented letters [V]",
+  nptest_picture_completion_z = "Picture completion [V]",
+  nptest_rey_complex_copy_z = "RCFT copy [V]",
+  # Memory
+  nptest_cvlt_free_recall_z = "CVLT-II SF immediate recall [M]",
+  nptest_cvlt_short_delay_z = "CVLT-II SF short delay [M]",
+  nptest_cvlt_long_delay_z = "CVLT-II SF long delay [M]",
+  nptest_rey_complex_immediate_z = "RCFT immediate recall [M]",
+  nptest_rey_complex_delay_z = "RCFT delayed recall [M]",
+  # Language
+  nptest_boston_naming_z = "Boston naming test [L]",
+  nptest_language_adas_cog = "ADAS-Cog: language [L]",
+  nptest_language_drs2 = "Mattis DRS-2: similarities [L]"
 )
 
 ###############################################################################
@@ -148,9 +180,7 @@ full_data <- full_data %>%
   # Could argue either way about dropping unknowns
   #filter(is.na(diagnosis) | diagnosis != "PDD") %>%
   # Drop `global_z`: useful for individual test analyses
-  #filter(!is.na(global_z)) %>%
-  # Null implausible values
-  #mutate(LED = replace(LED, LED > 5000, NA))
+  #filter(!is.na(global_z))  ## nptest
 
 ###############################################################################
 # Variable selection
@@ -172,7 +202,7 @@ full_data <- full_data %>%
     attention_domain, executive_domain, language_domain,
     learning_memory_domain, visuo_domain,
     # Individual neuropsych tests
-    #starts_with("nptest_"),
+    #starts_with("nptest_"),  ## nptest
     # Key psychological screens
     NPI_apathy_present, NPI_total, HADS_anxiety, HADS_depression,
     # Clinical measures
@@ -425,6 +455,144 @@ plt <- fixef(model) %>%
 
 print(plt)
 save_plot(plt, "logistic-regression")
+
+###############################################################################
+# Regularised GLM for individual tests
+
+# Some code snippets marked with below need to be enabled
+## nptest
+
+# Note that confidence intervals are not really meaningful here
+# https://cran.r-project.org/web/packages/penalized/vignettes/penalized.pdf
+# What we do instead is run multiple times on each individual imputation and
+# collate the results post hoc
+
+# Alternative is `brms` with lasso / horseshoe prior (could then only apply
+# shrinkage to `nptest` scores)
+# https://betanalpha.github.io/assets/case_studies/modeling_sparsity.html
+# This is a complete nightmare, see below :-(
+
+# Function to do the model fitting
+fit_regularised_model <- function(data) {
+
+  predictors <- data %>%
+    # Just runs on all variables rather than requiring a formula
+    select(
+      first_session_date, first_session_date2,
+      sex, education, age_at_diagnosis,
+      years_since_diagnosis, taking_medication, transformed_dose, taking_antidepressants,
+      UPDRS_motor_score, HADS_depression, HADS_anxiety, starts_with("nptest_")
+    ) %>%
+    #mutate(across(where(is.character), as.factor)) %>%
+    mutate(across(everything(), as.numeric)) %>%
+    as.matrix()
+
+  response <- data %>%
+    select(NPI_apathy_present) %>%
+    as.matrix()
+
+  cvfit <- glmnet::cv.glmnet(predictors, response, family = "binomial")
+  return(cvfit)
+}
+
+# Illustrative example on single dataset
+cvfit <- fit_regularised_model(mice::complete(imputed_data, action = 1))
+print(cvfit)
+plot(cvfit)
+coef(cvfit, s = "lambda.min")
+plt <- coef(cvfit, s = "lambda.min") %>%  # lambda.1se
+  as.matrix() %>%
+  exp() %>%  # Odds ratio := exp(beta)
+  as_tibble(rownames = "covariate") %>%
+  filter(covariate != "(Intercept)") %>%
+  mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
+  ggplot(aes(x = covariate, y = s1)) +
+  geom_point() +
+  #geom_pointrange() +
+  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
+  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab(NULL) +
+  ylab("Odds ratio (95% CI)") +
+  theme_bw()  # use a white background
+print(plt)
+
+# Fit to all data
+cvfits <- lapply(
+    mice::complete(imputed_data, action = "all"),
+    fit_regularised_model
+  )
+
+# Combine coefficients
+coefs <- cvfits %>%
+  lapply({function(cvfit) coef(cvfit, s = "lambda.min")}) %>%
+  lapply(as.matrix) %>%
+  {function(mat_list) do.call(cbind, mat_list)}() %>%
+  as_tibble(rownames = "covariate", .name_repair = "unique") %>% #View()
+  mutate(covariate = factor(covariate, levels = covariate)) %>%  # Needed to maintain ordering
+  # https://stackoverflow.com/a/69052207
+  pivot_longer(cols = !covariate) %>%
+  group_by(covariate) %>%
+  summarise(mean = mean(value), sd = sd(value)) %>%
+  mutate(lower = mean - 2 * sd, upper = mean + 2 * sd) #%>% print(n = Inf)
+
+# And plot along with resampling uncertainty
+plt <- coefs %>%
+  mutate(across(c(lower, mean, upper), exp)) %>%  # Odds ratio := exp(beta)
+  filter(covariate != "(Intercept)") %>%
+  arrange(covariate) %>%
+  mutate(covariate = recode(covariate, !!!variable_names)) %>%
+  ggplot(aes(
+    x = covariate, y = mean, ymin = lower, ymax = upper
+  )) +
+  geom_pointrange() +  # fatten = 1.5
+  # Split into predefined domains
+  geom_vline(xintercept = 24.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
+  geom_vline(xintercept = 18.5, colour = "grey92") +
+  geom_vline(xintercept = 12.5, colour = "grey92") +
+  geom_vline(xintercept = 8.5, colour = "grey92") +
+  geom_vline(xintercept = 3.5, colour = "grey92") +
+  geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(trans = "log") +
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab(NULL) +
+  ylab("Odds ratio (95% CI)") +
+  theme_bw() +  # use a white background
+  # https://stackoverflow.com/a/8992102
+  theme( # remove the vertical grid lines
+    panel.grid.major.y = element_blank()
+  )
+print(plt)
+save_plot(plt, "regularised-regression", width = 6.0, height = 6.0)
+
+# -----------------------------------------------------------------------------
+
+# # Full brms version of this is a nightmare
+# base_formula <-
+#   nla ~ 1 +
+#   first_session_date + first_session_date2 +
+#   sex + education + age_at_diagnosis
+#   (1 | subject_id) +
+#   years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
+#   UPDRS_motor_score + HADS_depression + HADS_anxiety + MoCA
+#
+# # https://discourse.mc-stan.org/t/horseshoe-prior-on-subset-of-predictors/8140/3
+# nptest_formula <- full_data %>%
+#   select(starts_with("nptest_")) %>%
+#   colnames() %>%
+#   (function(combination) {
+#     paste("nlb ~ 0 +", paste(combination, collapse = " + "))
+#   })() %>%
+#   as.formula()
+#
+# full_formula <- bf(NPI_apathy_present ~ nla + nlb, nl = TRUE) +
+#   lf(base_formula, center = TRUE) +
+#   lf(nptest_formula, center = TRUE)
+#
+# prior <-
+#   brms::set_prior("normal(0.0, 1.0)", class = "b", nlpar = "nla") +
+#   brms::set_prior("horseshoe(3)", class = "b", nlpar = "nlb")
 
 ###############################################################################
 # Fit models

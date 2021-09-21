@@ -17,7 +17,7 @@
 ###############################################################################
 
 required_packages = c(
-  "brms", "chchpd", "flextable", "glmnet", "gtsummary", "rstan",
+  "brms", "chchpd", "flextable", "ggalluvial", "glmnet", "gtsummary", "rstan",
   "tidyverse", "VIM"
 )
 
