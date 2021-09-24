@@ -459,24 +459,31 @@ save_plot(plt, "logistic-regression")
 ###############################################################################
 # Regularised GLM for individual tests
 
-# Some code snippets marked with below need to be enabled
-## nptest
+# Some code snippets marked with `## nptest` need to be enabled during
+# preprocessing
 
 # Note that confidence intervals are not really meaningful here
 # https://cran.r-project.org/web/packages/penalized/vignettes/penalized.pdf
 # What we do instead is run multiple times on each individual imputation and
 # collate the results post hoc
 
+# Furthermore, `glmnet` cannot deal with repeated measures (i.e. multiple
+# sessions per subject): would be overconfident and give biased
+# cross-validation. Therefore we generate multiple datasets and randomly
+# subsample down to one session per subject.
+
 # Alternative is `brms` with lasso / horseshoe prior (could then only apply
 # shrinkage to `nptest` scores)
 # https://betanalpha.github.io/assets/case_studies/modeling_sparsity.html
 # This is a complete nightmare, see below :-(
 
+# -----------------------------------------------------------------------------
 # Function to do the model fitting
+
 fit_regularised_model <- function(data) {
 
   predictors <- data %>%
-    # Just runs on all variables rather than requiring a formula
+    # `glmnet` just runs on all variables rather than requiring a formula
     select(
       first_session_date, first_session_date2,
       sex, education, age_at_diagnosis,
@@ -495,8 +502,36 @@ fit_regularised_model <- function(data) {
   return(cvfit)
 }
 
+# -----------------------------------------------------------------------------
+# Function to resample to one observation per subject
+
+subsample_sessions <- function(data) {
+  data <- data %>%
+    group_by(subject_id) %>%
+    slice_sample(n = 1) %>%
+    ungroup()
+  return(data)
+}
+
+# -----------------------------------------------------------------------------
+# Function to repeatedly subsample data and return fits
+
+repeated_fits <- function(data, n_resamplings) {
+  cvfits = list()
+  for (i in seq(1, n_resamplings)) {
+    cvfits[[i]] <- data %>%
+      subsample_sessions() %>%
+      fit_regularised_model()
+  }
+  return(cvfits)
+}
+
+# -----------------------------------------------------------------------------
 # Illustrative example on single dataset
-cvfit <- fit_regularised_model(mice::complete(imputed_data, action = 1))
+
+cvfit <- mice::complete(imputed_data, action = 1) %>%
+  subsample_sessions() %>%
+  fit_regularised_model()
 print(cvfit)
 plot(cvfit)
 coef(cvfit, s = "lambda.min")
@@ -510,18 +545,23 @@ plt <- coef(cvfit, s = "lambda.min") %>%  # lambda.1se
   geom_point() +
   #geom_pointrange() +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-  scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
+  scale_y_continuous(trans = "log") +
   coord_flip() +  # flip coordinates (puts labels on y axis)
   xlab(NULL) +
   ylab("Odds ratio (95% CI)") +
   theme_bw()  # use a white background
 print(plt)
 
-# Fit to all data
+# -----------------------------------------------------------------------------
+# Full run on multiple datasets
+
+# Generate all the fits
 cvfits <- lapply(
     mice::complete(imputed_data, action = "all"),
-    fit_regularised_model
+    {function(data) repeated_fits(data, n_resamplings = 100)}
   )
+# Flatten to single list
+cvfits <- do.call(list, unlist(cvfits, recursive = FALSE))
 
 # Combine coefficients
 coefs <- cvfits %>%
@@ -532,9 +572,47 @@ coefs <- cvfits %>%
   mutate(covariate = factor(covariate, levels = covariate)) %>%  # Needed to maintain ordering
   # https://stackoverflow.com/a/69052207
   pivot_longer(cols = !covariate) %>%
+  mutate(value = na_if(value, 0.0)) %>%  # Useful for statistics conditional on selection
   group_by(covariate) %>%
-  summarise(mean = mean(value), sd = sd(value)) %>%
-  mutate(lower = mean - 2 * sd, upper = mean + 2 * sd) #%>% print(n = Inf)
+  summarise(
+    # Proportions non-zero
+    p_pos = sum(value > 0.0, na.rm = TRUE) / n(),
+    p_neg = sum(value < 0.0, na.rm = TRUE) / n(),
+    # Summary stats / confidence intervals for selected coefs
+    mean = mean(value, na.rm = TRUE),
+    sd = sd(value, na.rm = TRUE),
+    lower = quantile(value, 0.025, na.rm = TRUE),
+    upper = quantile(value, 0.975, na.rm = TRUE)
+  ) #%>% print(n = Inf)
+  #mutate(lower = mean - 2 * sd, upper = mean + 2 * sd)
+
+# Plots of selection frequency
+plt <- coefs %>%
+  filter(covariate != "(Intercept)") %>%
+  select(covariate, p_pos, p_neg) %>%
+  mutate(p_neg = -1.0 * p_neg) %>%
+  pivot_longer(!covariate) %>%
+  mutate(covariate = recode(covariate, !!!variable_names)) %>%
+  ggplot(aes(x = covariate, y = value, fill = name)) +
+  geom_col() +
+  # Split into predefined domains
+  geom_vline(xintercept = 24.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
+  geom_vline(xintercept = 18.5, colour = "grey92") +
+  geom_vline(xintercept = 12.5, colour = "grey92") +
+  geom_vline(xintercept = 8.5, colour = "grey92") +
+  geom_vline(xintercept = 3.5, colour = "grey92") +
+  scale_x_discrete(limits = rev) +
+  scale_fill_discrete(limits = c("p_pos", "p_neg")) +
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab(NULL) +
+  ylab("Proportion of non-zero coefficients (split positive / negative)") +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    panel.grid.major.y = element_blank()
+  )
+print(plt)
+save_plot(plt, "regularised-regression_proportions", width = 6.0, height = 6.0)
 
 # And plot along with resampling uncertainty
 plt <- coefs %>%
@@ -554,17 +632,17 @@ plt <- coefs %>%
   geom_vline(xintercept = 3.5, colour = "grey92") +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
   scale_x_discrete(limits = rev) +
-  scale_y_continuous(trans = "log") +
+  scale_y_continuous(trans = "log", breaks = seq(0.5, 1.5, 0.25)) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
   xlab(NULL) +
-  ylab("Odds ratio (95% CI)") +
+  ylab("Odds ratio (95% CI) for non-zero coefficients") +
   theme_bw() +  # use a white background
   # https://stackoverflow.com/a/8992102
   theme( # remove the vertical grid lines
     panel.grid.major.y = element_blank()
   )
 print(plt)
-save_plot(plt, "regularised-regression", width = 6.0, height = 6.0)
+save_plot(plt, "regularised-regression_coefs", width = 6.0, height = 6.0)
 
 # -----------------------------------------------------------------------------
 
