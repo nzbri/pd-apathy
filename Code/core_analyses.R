@@ -811,25 +811,34 @@ file.show(filename)
 ###############################################################################
 # Predictive model
 
-#install.packages("VIM")
+# -----------------------------------------------------------------------------
+# Use `VIM` to do single imputation
+# https://cran.r-project.org/web/views/MissingData.html#single
+# Not straightforward to combine multiple predictive models together
 
-imputed_data2 <- transformed_data %>%
+simputed_data <- transformed_data %>%
+  # Fill within subject
   group_by(subject_id) %>%
   fill(everything(), .direction = "downup") %>%
   ungroup() %>%
+  # Then across subjects
   select(-subject_id, -session_id, -age_at_death) %>%
   VIM::kNN(
     weights = "auto",
     imp_var = FALSE
   )
-imputed_data2 <- transformed_data %>%
+# Combine back together with variables not needed / imputed
+simputed_data <- transformed_data %>%
   select(subject_id, session_id, age_at_death) %>%
-  bind_cols(imputed_data2) %>%
+  bind_cols(simputed_data) %>%
   group_by(subject_id) %>%
   mutate(
     across(c(sex, ethnicity, handedness, side_of_onset), ~ mode(.x))
   ) %>%
   ungroup()
+
+# -----------------------------------------------------------------------------
+# Function to do the data preprocessing and model fitting
 
 fit_predictive_model <- function(data) {
 
@@ -845,19 +854,21 @@ fit_predictive_model <- function(data) {
     # Make key variables
     mutate(
       session_id = paste(subject_id, "death", sep = "_"),
-      years_since_diagnosis = 0.01 + age_at_death - (full_data.sd$age_at_diagnosis * age_at_diagnosis + full_data.mean$age_at_diagnosis),
-      years_since_diagnosis = (years_since_diagnosis - full_data.mean$years_since_diagnosis) / full_data.sd$years_since_diagnosis,
+      years_since_diagnosis = (age_at_death - age_at_diagnosis) + 0.01,
+      # Fudge factor above breaks ties in case sessions rounded to same month
       status = "dead"
     )
 
-  # Now combine together
+  # Now combine together and calculate apathy status
   data <- data %>%
+    # Have subjects had previous apathy?
     group_by(subject_id) %>%  # within each subject:
     arrange(session_date) %>%  # order by session
     mutate(
       ever_apathetic = as.logical(cummax(NPI_apathy_present)),
     ) %>%
     ungroup() %>%
+    # Combine with dummy sessions
     full_join(death_proxy_sessions) %>%
     arrange(subject_id, session_id) %>%
     mutate(
@@ -871,12 +882,21 @@ fit_predictive_model <- function(data) {
         levels = c("FALSE", "TRUE", "dead")
       ),
       state = as.numeric(status)
-    ) #%>%
-  #filter(years_since_diagnosis > 0.0)
+    ) %>%
+  filter(years_since_diagnosis > 0.0)
   #select(subject_id, session_date, years_since_diagnosis, age, age_at_death, NPI_apathy_present) %>%
   #View()
 
-  #msm::statetable.msm(state, subject_id, data = data)
+  # Number of sessions
+  print(msm::statetable.msm(state, subject_id, data = data))
+  # Number of subjects
+  data %>%
+    group_by(subject_id) %>%
+    filter(n() > 1) %>%
+    slice_head() %>%
+    ungroup() %>%
+    nrow() %>%
+    print()
 
   Q.mask <- rbind(
     c( NA, 1.0, 1.0),  # A-
@@ -891,55 +911,91 @@ fit_predictive_model <- function(data) {
     qmatrix = Q.mask
   )
 
+  # Here, we tie transition 2 (A- -> death) to 3 (A+ -> death)
+  # Matches Q.mask, ordered along rows then down columns
+  # + 1 2
+  # + + 3
+  # + + +
   constrained <- c(1,2,2)
+
+  # Fit model!
   mfit <- msm::msm(
     state ~ years_since_diagnosis,
     #state ~ years_since_first_session,
     subject = subject_id,
     data = data,
     qmatrix = Q.init,
-    deathexact = 3,
+    deathexact = 3,  # I.e. state 3 (death) is at a known time, rather than just between visits
     covariates =
-      ~ first_session_date + first_session_date2 #+ session_date + session_date2
-      + sex + education + age_at_diagnosis
-      + taking_medication + transformed_dose + taking_antidepressants + UPDRS_motor_score
-      + HADS_depression + HADS_anxiety + global_z, #+ cog_delta + ever_apathetic
-      #+ attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain,
+      ~ first_session_date + first_session_date2 +
+      sex + education + age_at_diagnosis +
+      taking_medication + transformed_dose + taking_antidepressants +
+      UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety,  #transformed_dose:MoCA
     constraint = list(
       first_session_date = constrained, first_session_date2 = constrained,
       sexFemale = constrained, education = constrained, age_at_diagnosis = constrained,
-      taking_medicationNo = constrained, transformed_dose = constrained,
+      taking_medicationYes = constrained, transformed_dose = constrained,
       UPDRS_motor_score = constrained
     )
   )
-  #print(mfit)
-  #summary(mfit)
 
   return(mfit)
 }
 
+# -----------------------------------------------------------------------------
+
 #mfits <- lapply(mice::complete(imputed_data, action = "all"), fit_predictive_model)
-mfit <- fit_predictive_model(imputed_data2)
+mfit <- fit_predictive_model(simputed_data)
+print(mfit)
+#summary(mfit)
 
 #for (mfit in mfits) {
 for (transition in list(
-  list(states = "State 1 - State 2", label = "A- to A+"),
-  list(states = "State 1 - State 3", label = "A- to death"),
-  list(states = "State 2 - State 3", label = "A+ to death")
+  list(states = "State 1 - State 2", label = "A- to A+", name = "1-2", constraint = FALSE),
+  list(states = "State 1 - State 3", label = "A- to death", name = "1-3", constraint = TRUE),
+  list(states = "State 2 - State 3", label = "A+ to death", name = "2-3", constraint = TRUE)
 )) {
+
+  # Plot hazard ratios
   plt <- msm::hazard.msm(mfit) %>%
     lapply("[", transition$states, ) %>%
     bind_rows(.id = "covariate") %>%
     mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
+    mutate(confound = str_detect(covariate, "session_date")) %>%
+    mutate(
+      constrained = (covariate %in% c(
+        "sexFemale", "education", "age_at_diagnosis", "taking_medicationYes",
+        "transformed_dose", "UPDRS_motor_score"
+      )),
+      constrained = constrained & (transition$constraint),
+    ) %>%
+    # Colours for (1) normal (2) constrained and (3) confound variables
+    mutate(
+      colour = if_else(
+        confound, "confound", if_else(constrained, "constrained", "free")
+      ),
+      colour = factor(colour, levels = c("confound", "constrained", "free"))
+    ) %>%
+    mutate(covariate = recode(covariate, !!!variable_names)) %>%
+    # Plot itself
     # https://stackoverflow.com/a/38064297
-    ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U)) +
+    ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U, colour = colour)) +
     geom_pointrange() +
+    geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
+    geom_vline(xintercept = 7.5, colour = "grey92") +
+    geom_vline(xintercept = 10.5, colour = "grey92") +
     geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
     scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0), limits = c(0.2, 5.0)) +
     coord_flip() +  # flip coordinates (puts labels on y axis)
+    scale_colour_manual(values = c("grey", "royalblue3", "black"), drop = FALSE, guide = "none") +
     labs(x = NULL, y = "Hazard ratio (95% CI)", title = transition$label) +
-    theme_bw()  # use a white background
+    theme_bw() +  # use a white background
+    # https://stackoverflow.com/a/8992102
+    theme( # remove the vertical grid lines
+      panel.grid.major.y = element_blank()
+    )
   print(plt)
+  save_plot(plt, paste("msm-predictive_coefs-", transition$name, sep = ""))
 }
 
 ###############################################################################
