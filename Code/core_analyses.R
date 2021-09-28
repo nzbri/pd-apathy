@@ -992,6 +992,7 @@ plt <- msm::qmatrix.msm(mfit, covariates = "mean") %>%
     group = str_sub(name, start = -1),
     #group = recode(group, "7" = "A- -> death", "8" = "A+ -> death"),
     group = recode(group, "7" = "No apathy", "8" = "Apathetic"),
+    group = forcats::fct_rev(factor(group)),
     name = str_sub(name, end = -2),
   ) %>%
   pivot_wider(names_from = name) %>%
