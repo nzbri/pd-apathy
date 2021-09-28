@@ -1056,4 +1056,59 @@ for (transition in list(
   save_plot(plt, paste("msm-predictive_coefs-", transition$name, sep = ""))
 }
 
+# -----------------------------------------------------------------------------
+# Plot predicted progression
+
+# Function to pull out probability of apathy at a given time, with a set of covariates
+p_apathy <- function(
+  years_since_diagnosis, MoCA = 0.0, UPDRS_motor_score = 0.0, transformed_dose = 0.0
+) {
+  pmat = msm::pmatrix.msm(
+    mfit,
+    t = years_since_diagnosis / 10.0,
+    covariates = list(
+      sex = "Male", taking_medication = "Yes", taking_antidepressants = "No",
+      MoCA = MoCA,
+      UPDRS_motor_score = UPDRS_motor_score,
+      transformed_dose = transformed_dose
+    )
+  )
+  return(
+    # p(A- -> A+ | alive)
+    #pmat[["State 1", "State 2"]] / (pmat[["State 1", "State 1"]] + pmat[["State 1", "State 2"]])
+    # p(A- -> A+, alive)
+    pmat[["State 1", "State 2"]]
+  )
+}
+
+for (variable in list(
+  list(name = "MoCA", values = seq(-2.0, 2.0, 0.25)),
+  list(name = "UPDRS_motor_score", values = seq(-2.0, 2.0, 0.25)),
+  list(name = "transformed_dose", values = seq(-2.0, 2.0, 0.25))
+)) {
+
+  plt <- expand_grid(
+      years_since_diagnosis = seq(0.0, 20.0, 0.1), values = variable$values
+    ) %>%
+    mutate(p_apathy = map2_dbl(
+      years_since_diagnosis, values,
+      function(t,x) {do.call(p_apathy, setNames(list(t,x), c("years_since_diagnosis", variable$name)))}
+      #function(t,x) {p_apathy(t, MoCA = x)}
+    )) %>%
+    ggplot(aes(x = years_since_diagnosis, y = p_apathy, group = values, colour = values)) +
+    geom_line() +
+    # scale_y_continuous(limits = c(0.0, 0.55)) +
+    scale_colour_viridis_c() +
+    theme_bw() +
+    labs(
+      x = "Years since diagnosis",
+      #y = "p(apathetic | alive)",
+      y = "p(apathetic, alive)",
+      colour = NULL,
+      title = variable_names[[variable$name]]
+    )
+  print(plt)
+  save_plot(plt, paste("msm-predictive_trajectories-", variable$name, sep = ""))
+}
+
 ###############################################################################
