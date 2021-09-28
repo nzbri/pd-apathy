@@ -840,6 +840,8 @@ simputed_data <- transformed_data %>%
 # -----------------------------------------------------------------------------
 # Function to do the data preprocessing and model fitting
 
+# vignette("msm-manual")
+
 fit_predictive_model <- function(data) {
 
   # Sessions encoding when subjects died
@@ -943,20 +945,76 @@ fit_predictive_model <- function(data) {
 }
 
 # -----------------------------------------------------------------------------
+# Fit the model and generate key summaries
 
 #mfits <- lapply(mice::complete(imputed_data, action = "all"), fit_predictive_model)
 mfit <- fit_predictive_model(simputed_data)
 print(mfit)
 #summary(mfit)
+#msm::hazard.msm(mfit)
 
-#for (mfit in mfits) {
+# Raw transition matrix
+msm::qmatrix.msm(mfit, covariates = "mean")
+msm::pmatrix.msm(mfit, t = 0.2, covariates = "mean")  # 2 year projection (remember factor of 10!)
+
+# Summaries thereof
+msm::pnext.msm(  # Probability of next state
+  mfit, covariates = "mean" #covariates = list(sex = "Male", taking_medication = "Yes", global_z = 0.0)
+)
+#msm::totlos.msm(mfit, start = 1, covariates = "mean")  # Time spent in each state
+#msm::envisits.msm(mfit, start = 1, covariates = "mean")  # Number of visits
+msm::efpt.msm(mfit, tostate = 3, covariates = "mean", ci = "normal")  # Time to death
+#msm::sojourn.msm(mfit)
+
+# Random plotting functions
+msm::plot.msm(mfit, range = c(0.01, 3.0))  # Remember factor of 10!
+msm::plot.prevalence.msm(
+  mfit, mintime = 0.0, maxtime = 2.5, initstates = c(1.0, 0.0, 0.0),
+  xlab = "Decades since diagnosis"
+)
+msm::plot.survfit.msm(mfit, from = 1, to = 3, range = c(0.01, 3.0))
+msm::plot.survfit.msm(mfit, from = 2, to = 3, range = c(0.01, 3.0))
+
+# Plot difference in baseline hazard for death
+plt <- msm::qmatrix.msm(mfit, covariates = "mean") %>%
+  # Aaargh! Need to turn the Qmatrix structure into some kind of tibble
+  unlist(recursive = FALSE) %>%
+  as.list() %>%
+  as.tibble() %>%
+  # End up with e.g. `estimate7`
+  #    S1 S2 S3
+  # S1  1  4  7
+  # S2  2  5  8
+  # S3  3  6  9
+  select(ends_with("7") | ends_with("8")) %>%
+  pivot_longer(everything()) %>%
+  mutate(
+    group = str_sub(name, start = -1),
+    #group = recode(group, "7" = "A- -> death", "8" = "A+ -> death"),
+    group = recode(group, "7" = "No apathy", "8" = "Apathetic"),
+    name = str_sub(name, end = -2),
+  ) %>%
+  pivot_wider(names_from = name) %>%
+  # And plot
+  ggplot(aes(x = group, y = estimates, ymin = L, ymax = U, fill = group)) +
+  geom_col() +
+  geom_errorbar(width = 0.2, size = 0.75) +
+  scale_fill_manual(values = c("#1F77B4", "#FF7F0E"), guide = "none") +
+  labs(x = NULL, y = "Baseline hazard for mortality") +
+  theme_light() +
+  theme(axis.text = element_text(size = rel(1.0)))
+print(plt)
+save_plot(plt, "msm-predictive_baseline-hazard", width = 3.0, height = 4.0)
+
+# -----------------------------------------------------------------------------
+# Plot hazard ratios
+
 for (transition in list(
   list(states = "State 1 - State 2", label = "A- to A+", name = "1-2", constraint = FALSE),
   list(states = "State 1 - State 3", label = "A- to death", name = "1-3", constraint = TRUE),
   list(states = "State 2 - State 3", label = "A+ to death", name = "2-3", constraint = TRUE)
 )) {
 
-  # Plot hazard ratios
   plt <- msm::hazard.msm(mfit) %>%
     lapply("[", transition$states, ) %>%
     bind_rows(.id = "covariate") %>%
