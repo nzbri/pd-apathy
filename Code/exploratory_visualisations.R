@@ -93,7 +93,7 @@ full_data <- full_data %>%
   ))
 #full_data %>% select(subject_id, session_date, starts_with("apathy_present")) %>% print(n = 20)
 
-colours.apathy_present = c('#7F7F7F', '#1F77B4', '#FF7F0E')  # grey, blue, orange: https://matplotlib.org/users/dflt_style_changes.html
+colours.apathy_present = c("#7F7F7F", "#1F77B4", "#FF7F0E")  # grey, blue, orange: https://matplotlib.org/users/dflt_style_changes.html
 
 # For convenience
 full_data <- full_data %>%

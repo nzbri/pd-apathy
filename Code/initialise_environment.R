@@ -18,7 +18,7 @@
 
 required_packages = c(
   "brms", "chchpd", "flextable", "ggalluvial", "glmnet", "gtsummary", "rstan",
-  "tidyverse", "VIM"
+  "survminer", "tidyverse", "VIM"
 )
 
 # Check all present and correct

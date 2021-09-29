@@ -1112,4 +1112,124 @@ for (variable in list(
   save_plot(plt, paste("msm-predictive_trajectories-", variable$name, sep = ""))
 }
 
+# -----------------------------------------------------------------------------
+# Basic survival model for predicting death
+
+# vignette("survival")
+
+# These analyses are very simple, and primarily for visualisation. The MSM
+# version is much more detailed.
+
+# Firstly, we generate simple Kaplan-Meier survival based on either the most
+# recent visit or time of death, stratified by if patients developed apathy at
+# any point. While not really a predictive analysis, it does negate issues with
+# patients switching groups as they develop apathy (while not 100% clear, this
+# is probably a violation of the standard KM assumptions). This gives the
+# nicest plots.
+
+# Secondly, we do a simple Cox proportional-hazard model, with apathy as the
+# only covariate. Again, very simple but useful to get a single summary
+# parameter.
+
+# 1) Make dataset with (time, death) structure
+survival_data <- simputed_data %>%
+  group_by(subject_id) %>%  # within each subject:
+  arrange(session_date) %>%  # order by session
+  mutate(
+    time = if_else(
+      is.na(age_at_death),
+      max(years_since_diagnosis),
+      age_at_death - age_at_diagnosis
+    ),
+    dead = !is.na(age_at_death),
+    ever_apathetic = as.logical(max(NPI_apathy_present)),
+  ) %>%
+  select(subject_id, time, dead, ever_apathetic) %>%
+  slice_head() %>%
+  ungroup() %>%
+  arrange(subject_id)
+
+# 1) Fit a basic stratified survival model
+vfit <- survival::survfit(
+  survival::Surv(time, dead) ~ 1 + ever_apathetic,
+  data = survival_data,
+  id = subject_id
+)
+plot(vfit, xlab = "Decades since diagnosis", ylab = "Survival")
+
+# survival_data %>%
+#   filter(sex == "Female") %>%
+#   group_by(subject_id) %>%
+#   filter(n() > 1) %>%
+#   mutate(latest = max(time2)) %>%
+#   ungroup() %>%
+#   arrange(latest, subject_id, session_date) %>%
+#   select(subject_id, years_since_diagnosis, dead, time1, time2, latest) %>%
+#   View()
+
+# 1) Plot the different survival curves
+plt <- survminer::ggsurvplot(
+  vfit,
+  #fun = "cumhaz",
+  xscale = 1.0 / 10.0,
+  xlim = c(0.0, 2.5),
+  xlab = "Years since diagnosis",
+  censor.shape = "|",
+  palette = c("#1F77B4", "#FF7F0E"),
+  conf.int = TRUE,
+  surv.median.line = "hv",
+  #pval = TRUE,
+  #risk.table = TRUE,
+  #cumevents = TRUE,
+  #cumcensor = TRUE,
+  #ncensor.plot = TRUE,
+  legend.labs = c("Never apathetic", "Previous apathy"),
+  legend.title = element_blank(),
+  legend = c(0.85, 0.85),
+  ggtheme = theme_light()
+)
+print(plt)
+save_plot(plt$plot, "survival_ever-apathetic")
+
+
+# 2) Make dataset with (time1, time2, death) structure
+survival_data <- simputed_data %>%
+  group_by(subject_id) %>%  # within each subject:
+  arrange(session_date) %>%  # order by session
+  mutate(
+    apathetic_to_date = as.logical(cummax(NPI_apathy_present)),  # Now or previously
+    # Recode as (time1, time2) for survival analysis
+    time1 = years_since_diagnosis,
+    time2 = lead(years_since_diagnosis),
+    dead = (!is.na(age_at_death) & is.na(time2)),
+    time2 = if_else(is.na(time2), age_at_death - age_at_diagnosis, time2)
+  ) %>%
+  filter(!is.na(time2) & ((time2 - time1) > 0.001)) %>%
+  ungroup() %>%
+  arrange(subject_id, session_date)
+
+# 2) Simple Cox proportional hazards model
+# survival::survcheck(
+#   survival::Surv(time1, time2, dead) ~ 1 + ever_apathetic,
+#   data = survival_data,
+#   id = subject_id
+# )
+vfit <- survival::coxph(
+  survival::Surv(time1, time2, dead) ~ 1 + apathetic_to_date,
+  data = survival_data,
+  id = subject_id
+)
+summary(vfit)
+
+# 2) Quick visualisation, though statistics from `summary(vfit)` are more important
+survminer::ggadjustedcurves(
+  vfit,
+  data = as.data.frame(survival_data),  # https://github.com/kassambara/survminer/issues/501
+  variable = "apathetic_to_date",
+  method = "average",
+  ci = TRUE
+)
+# Not straightforward to use `ggsurvplot()` here: `apathetic_to_date` isn't really a strata
+# https://github.com/kassambara/survminer/issues/440
+
 ###############################################################################
