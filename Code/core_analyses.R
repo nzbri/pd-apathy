@@ -519,6 +519,7 @@ subsample_sessions <- function(data) {
 repeated_fits <- function(data, n_resamplings) {
   cvfits = list()
   for (i in seq(1, n_resamplings)) {
+    print(i)
     cvfits[[i]] <- data %>%
       subsample_sessions() %>%
       fit_regularised_model()
@@ -593,7 +594,7 @@ plt <- coefs %>%
   mutate(p_neg = -1.0 * p_neg) %>%
   pivot_longer(!covariate) %>%
   mutate(covariate = recode(covariate, !!!variable_names)) %>%
-  ggplot(aes(x = covariate, y = value, fill = name)) +
+  ggplot(aes(x = covariate, y = value, fill = value)) +  # fill = name
   geom_col() +
   # Split into predefined domains
   geom_vline(xintercept = 24.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
@@ -602,7 +603,15 @@ plt <- coefs %>%
   geom_vline(xintercept = 8.5, colour = "grey92") +
   geom_vline(xintercept = 3.5, colour = "grey92") +
   scale_x_discrete(limits = rev) +
-  scale_fill_discrete(limits = c("p_pos", "p_neg")) +
+  #scale_fill_discrete(limits = c("p_pos", "p_neg")) +
+  #scale_fill_gradient2(
+  #  limits = c(-1.0, 1.0),
+  #  low = "blue", mid = "white", high = "red"
+  #) +
+  colorspace::scale_fill_continuous_diverging(
+    palette = "Blue-Red2",
+    limits = c(-1.0, 1.0),
+  ) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
   xlab(NULL) +
   ylab("Proportion of non-zero coefficients (split positive / negative)") +
