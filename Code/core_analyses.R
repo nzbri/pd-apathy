@@ -516,15 +516,54 @@ subsample_sessions <- function(data) {
 # -----------------------------------------------------------------------------
 # Function to repeatedly subsample data and return fits
 
-repeated_fits <- function(data, n_resamplings) {
+repeated_fits <- function(data, n_resamplings, shuffle) {
   cvfits = list()
   for (i in seq(1, n_resamplings)) {
     print(i)
     cvfits[[i]] <- data %>%
       subsample_sessions() %>%
+      {if(shuffle)
+        mutate(
+          ., NPI_apathy_present = sample(NPI_apathy_present, replace = FALSE)
+        )
+      else .} %>%
       fit_regularised_model()
   }
   return(cvfits)
+}
+
+extract_coefs <- function(cvfits) {
+  # Flatten to single list
+  cvfits <- do.call(list, unlist(cvfits, recursive = FALSE))
+
+  # Combine coefficients
+  coefs <- cvfits %>%
+    lapply({function(cvfit) coef(cvfit, s = "lambda.min")}) %>%
+    lapply(as.matrix) %>%
+    {function(mat_list) do.call(cbind, mat_list)}() %>%
+    as_tibble(rownames = "covariate", .name_repair = "unique") %>% #View()
+    mutate(covariate = factor(covariate, levels = covariate)) %>%  # Needed to maintain ordering
+    # https://stackoverflow.com/a/69052207
+    pivot_longer(cols = !covariate) %>%
+    mutate(value = na_if(value, 0.0)) %>%  # Useful for statistics conditional on selection
+    group_by(covariate) %>%
+    summarise(
+      # Raw numbers
+      n = n(),
+      n_pos = sum(value > 0.0, na.rm = TRUE),
+      n_neg = sum(value < 0.0, na.rm = TRUE),
+      # Proportions non-zero
+      p_pos = n_pos / n,
+      p_neg = n_neg / n,
+      # Summary stats / confidence intervals for selected coefs
+      mean = mean(value, na.rm = TRUE),
+      sd = sd(value, na.rm = TRUE),
+      lower = quantile(value, 0.025, na.rm = TRUE),
+      upper = quantile(value, 0.975, na.rm = TRUE)
+    ) #%>% print(n = Inf)
+  #mutate(lower = mean - 2 * sd, upper = mean + 2 * sd)
+
+  return(coefs)
 }
 
 # -----------------------------------------------------------------------------
@@ -559,43 +598,44 @@ print(plt)
 # Generate all the fits
 cvfits <- lapply(
     mice::complete(imputed_data, action = "all"),
-    {function(data) repeated_fits(data, n_resamplings = 100)}
+    {function(data) repeated_fits(data, n_resamplings = 100, shuffle = FALSE)}
   )
-# Flatten to single list
-cvfits <- do.call(list, unlist(cvfits, recursive = FALSE))
+coefs = extract_coefs(cvfits)
 
-# Combine coefficients
-coefs <- cvfits %>%
-  lapply({function(cvfit) coef(cvfit, s = "lambda.min")}) %>%
-  lapply(as.matrix) %>%
-  {function(mat_list) do.call(cbind, mat_list)}() %>%
-  as_tibble(rownames = "covariate", .name_repair = "unique") %>% #View()
-  mutate(covariate = factor(covariate, levels = covariate)) %>%  # Needed to maintain ordering
-  # https://stackoverflow.com/a/69052207
-  pivot_longer(cols = !covariate) %>%
-  mutate(value = na_if(value, 0.0)) %>%  # Useful for statistics conditional on selection
-  group_by(covariate) %>%
-  summarise(
-    # Proportions non-zero
-    p_pos = sum(value > 0.0, na.rm = TRUE) / n(),
-    p_neg = sum(value < 0.0, na.rm = TRUE) / n(),
-    # Summary stats / confidence intervals for selected coefs
-    mean = mean(value, na.rm = TRUE),
-    sd = sd(value, na.rm = TRUE),
-    lower = quantile(value, 0.025, na.rm = TRUE),
-    upper = quantile(value, 0.975, na.rm = TRUE)
-  ) #%>% print(n = Inf)
-  #mutate(lower = mean - 2 * sd, upper = mean + 2 * sd)
+# And for the null
+null_cvfits <- lapply(
+  mice::complete(imputed_data, action = "all"),
+  {function(data) repeated_fits(data, n_resamplings = 100, shuffle = TRUE)}
+)
+null_coefs = extract_coefs(null_cvfits) %>%
+  mutate(
+    # Beta 95% CI
+    p95 = qbeta(0.95, (n_pos + n_neg) + 1, n - (n_pos + n_neg) + 1),
+    p95.bonferroni = qbeta(
+      1.0 - (0.05 / (length(levels(covariate)) - 1)),
+      (n_pos + n_neg) + 1,
+      n - (n_pos + n_neg) + 1
+    )
+  )
+
 
 # Plots of selection frequency
-plt <- coefs %>%
+#plt <- coefs %>%
+plt <- inner_join(
+  coefs, select(null_coefs, covariate, p95.bonferroni), by = "covariate"
+  ) %>%
+  mutate(significant = (p_pos + p_neg) > p95.bonferroni) %>%
   filter(covariate != "(Intercept)") %>%
-  select(covariate, p_pos, p_neg) %>%
-  mutate(p_neg = -1.0 * p_neg) %>%
-  pivot_longer(!covariate) %>%
+  select(covariate, p_pos, p_neg, significant) %>%
+  mutate(
+    p_neg = -1.0 * p_neg,
+    significant = significant * (2 * ((p_pos + p_neg) > 0) - 1),
+  ) %>%
+  pivot_longer(c(p_pos, p_neg)) %>%
   mutate(covariate = recode(covariate, !!!variable_names)) %>%
   ggplot(aes(x = covariate, y = value, fill = value)) +  # fill = name
   geom_col() +
+  geom_point(data = ~filter(.x, significant != 0), mapping = aes(x = covariate, y = significant)) +
   # Split into predefined domains
   geom_vline(xintercept = 24.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
   geom_vline(xintercept = 18.5, colour = "grey92") +
@@ -603,6 +643,7 @@ plt <- coefs %>%
   geom_vline(xintercept = 8.5, colour = "grey92") +
   geom_vline(xintercept = 3.5, colour = "grey92") +
   scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(-1.0, 1.0)) +
   #scale_fill_discrete(limits = c("p_pos", "p_neg")) +
   #scale_fill_gradient2(
   #  limits = c(-1.0, 1.0),
@@ -618,7 +659,8 @@ plt <- coefs %>%
   theme_bw() +
   theme(
     legend.position = "none",
-    panel.grid.major.y = element_blank()
+    panel.grid.major.y = element_blank(),
+    #axis.text.x = element_text(angle = 90)
   )
 print(plt)
 save_plot(plt, "regularised-regression_proportions", width = 6.0, height = 6.0)
