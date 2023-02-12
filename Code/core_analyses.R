@@ -1113,7 +1113,7 @@ for (transition in list(
 
 # Function to pull out probability of apathy at a given time, with a set of covariates
 p_apathy <- function(
-  years_since_diagnosis, MoCA = 0.0, UPDRS_motor_score = 0.0, transformed_dose = 0.0
+  years_since_diagnosis, MoCA = 0.0, UPDRS_motor_score = 0.0, transformed_dose = 0.0, HADS_depression = 0.0
 ) {
   pmat = msm::pmatrix.msm(
     mfit,
@@ -1122,7 +1122,8 @@ p_apathy <- function(
       sex = "Male", taking_medication = "Yes", taking_antidepressants = "No",
       MoCA = MoCA,
       UPDRS_motor_score = UPDRS_motor_score,
-      transformed_dose = transformed_dose
+      transformed_dose = transformed_dose,
+      HADS_depression = HADS_depression
     )
   )
   return(
@@ -1136,7 +1137,8 @@ p_apathy <- function(
 for (variable in list(
   list(name = "MoCA", values = seq(-2.0, 2.0, 0.25)),
   list(name = "UPDRS_motor_score", values = seq(-2.0, 2.0, 0.25)),
-  list(name = "transformed_dose", values = seq(-2.0, 2.0, 0.25))
+  #list(name = "transformed_dose", values = seq(-2.0, 2.0, 0.25)),
+  list(name = "HADS_depression", values = seq(-2.0, 2.0, 0.25))
 )) {
 
   plt <- expand_grid(
@@ -1147,7 +1149,12 @@ for (variable in list(
       function(t,x) {do.call(p_apathy, setNames(list(t,x), c("years_since_diagnosis", variable$name)))}
       #function(t,x) {p_apathy(t, MoCA = x)}
     )) %>%
-    ggplot(aes(x = years_since_diagnosis, y = p_apathy, group = values, colour = values)) +
+    ggplot(aes(
+      x = years_since_diagnosis,
+      y = p_apathy,
+      group = values,
+      colour = full_data.mean[[variable$name]] + full_data.sd[[variable$name]] * values
+    )) +
     geom_line() +
     # scale_y_continuous(limits = c(0.0, 0.55)) +
     scale_colour_viridis_c() +
@@ -1234,7 +1241,7 @@ plt <- survminer::ggsurvplot(
   #cumevents = TRUE,
   #cumcensor = TRUE,
   #ncensor.plot = TRUE,
-  legend.labs = c("Never apathetic", "Previous apathy"),
+  legend.labs = c("Never apathetic", "Recorded apathy"),
   legend.title = element_blank(),
   legend = c(0.85, 0.85),
   ggtheme = theme_light()
