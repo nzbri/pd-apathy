@@ -287,7 +287,9 @@ full_data <- full_data %>%
     # Add some useful extra timing info
     years_since_diagnosis = age - age_at_diagnosis,
     #years_since_symptom_onset = age - age_at_symptom_onset,
-    age = NULL
+    age = NULL,
+    # And transform LED to make more Gaussian
+    transformed_dose = sqrt(LED)
   )
 
 full_data %>%
@@ -338,14 +340,16 @@ transformed_data <- full_data %>%
   mutate(
     # Extra confounds
     session_date2 = scale(session_date) ^ 2,
-    first_session_date2 = scale(first_session_date) ^ 2
+    first_session_date2 = scale(first_session_date) ^ 2,
+    # Remove duplicates
+    LED = NULL # transformed_dose
   ) %>%
   # Center & rescale
   mutate(across(
     c(
       education,
       session_date, session_date2, first_session_date, first_session_date2,
-      MoCA, HADS_depression, HADS_anxiety, UPDRS_motor_score
+      transformed_dose, MoCA, HADS_depression, HADS_anxiety, UPDRS_motor_score
     ),
     ~ as.vector(scale(.x, center = TRUE, scale = TRUE))
   )) %>%
@@ -359,28 +363,28 @@ transformed_data <- full_data %>%
     years_since_diagnosis = years_since_diagnosis / 10.0,
   ) %>%
   # Split LED into two regressors, and rescale
-  mutate(
-    taking_medication = (LED > 0.0),
-    transformed_dose = sqrt(LED),
-    LED = NULL
-  ) %>%
-  group_by(taking_medication) %>%
-  mutate(
-    transformed_dose = as.vector(scale(
-      transformed_dose, center = TRUE, scale = TRUE
-    ))
-  ) %>%
-  ungroup() %>%
-  mutate(
-    transformed_dose = if_else(is.na(transformed_dose), 0.0, transformed_dose)
-  ) %>%
+  #mutate(
+  #  taking_medication = (LED > 0.0),
+  #  transformed_dose = sqrt(LED),
+  #  LED = NULL
+  #) %>%
+  #group_by(taking_medication) %>%
+  #mutate(
+  #  transformed_dose = as.vector(scale(
+  #    transformed_dose, center = TRUE, scale = TRUE
+  #  ))
+  #) %>%
+  #ungroup() %>%
+  #mutate(
+  #  transformed_dose = if_else(is.na(transformed_dose), 0.0, transformed_dose)
+  #) %>%
   #select(taking_medication, transformed_dose) %>% print(n = 100)
   #ggplot(aes(transformed_dose)) + geom_histogram()
   # Set reference level for some factors
   mutate(
     ethnicity = relevel(ethnicity, ref = "New Zealand European"),
-    taking_medication = factor(taking_medication, levels = c(FALSE, TRUE), labels = c("No", "Yes")),
-    taking_medication = relevel(taking_medication, ref = "No"),
+    #taking_medication = factor(taking_medication, levels = c(FALSE, TRUE), labels = c("No", "Yes")),
+    #taking_medication = relevel(taking_medication, ref = "No"),
     taking_antidepressants = factor(as.logical(taking_antidepressants), levels = c(FALSE, TRUE), labels = c("No", "Yes")),
     taking_antidepressants = relevel(taking_antidepressants, ref = "No")
   )
@@ -426,7 +430,7 @@ pred[c("age_at_symptom_onset", "age_at_diagnosis", "education"), "subject_int"] 
 pred["age_at_symptom_onset", "age_at_diagnosis"] <- 0
 # Conditional structure of transformed variables
 # Don't predict medication yes/no from dose, former comes first in hypothetical generative model
-pred["taking_medication", "transformed_dose"] <- 0
+#pred["taking_medication", "transformed_dose"] <- 0
 
 # Run imputation
 imputed_data <- imputed_data %>%
@@ -1213,14 +1217,14 @@ p_apathy <- function(
 }
 
 for (variable in list(
-  list(name = "MoCA", values = seq(-2.0, 2.0, 0.25)),
-  list(name = "UPDRS_motor_score", values = seq(-2.0, 2.0, 0.25)),
-  #list(name = "transformed_dose", values = seq(-2.0, 2.0, 0.25)),
-  list(name = "HADS_depression", values = seq(-2.0, 2.0, 0.25))
+  list(name = "MoCA", transform = function(x) x, trans = "identity"),
+  list(name = "UPDRS_motor_score", transform = function(x) x, trans = "identity"),
+  list(name = "transformed_dose", transform = function(x) x^2, trans = "sqrt"),
+  list(name = "HADS_depression", transform = function(x) x, trans = "identity")
 )) {
 
   plt <- expand_grid(
-      years_since_diagnosis = seq(0.0, 20.0, 0.1), values = variable$values
+      years_since_diagnosis = seq(0.0, 20.0, 0.1), values = seq(-2.0, 2.0, 0.25)
     ) %>%
     mutate(p_apathy = map2_dbl(
       years_since_diagnosis, values,
@@ -1231,11 +1235,13 @@ for (variable in list(
       x = years_since_diagnosis,
       y = p_apathy,
       group = values,
-      colour = full_data.mean[[variable$name]] + full_data.sd[[variable$name]] * values
+      colour = variable$transform(
+        full_data.mean[[variable$name]] + full_data.sd[[variable$name]] * values
+      )
     )) +
     geom_line() +
     # scale_y_continuous(limits = c(0.0, 0.55)) +
-    scale_colour_viridis_c() +
+    scale_colour_viridis_c(trans = variable$trans) +
     theme_bw() +
     labs(
       x = "Years since diagnosis",
