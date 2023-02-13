@@ -25,7 +25,7 @@ date_string = format(lubridate::ymd(lubridate::today()))
 ###############################################################################
 
 full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-08-17.rds")
+  file.path("..", "Data", "raw-data_2022-08-31.rds")
 )
 
 variable_names <- list(
@@ -181,6 +181,79 @@ full_data <- full_data %>%
   #filter(is.na(diagnosis) | diagnosis != "PDD") %>%
   # Drop `global_z`: useful for individual test analyses
   #filter(!is.na(global_z))  ## nptest
+
+n_model_patients <- length(unique(full_data$subject_id))
+n_model_sessions <- nrow(full_data)
+
+
+###############################################################################
+# Apathy Demographics Table
+
+study_entry_apathy = full_data %>% 
+  group_by(subject_id) %>% 
+  arrange(session_date) %>% 
+  filter(session_date == first(session_date)) %>%
+  mutate(
+    # Add some useful extra timing info
+    years_since_diagnosis = age - age_at_diagnosis,
+    #years_since_symptom_onset = age - age_at_symptom_onset,
+    age = NULL) %>%
+  ungroup()
+
+demographics_apathy = study_entry_apathy %>%
+  summarise(n=n(),
+            Male = sum(sex == 'Male')/n()*100.0,
+            Apathetic = sum(NPI_apathy_score != 0)/n()*100.0,
+            Age_Mean = mean(age_at_first_session, na.rm = TRUE),
+            Age_SD = sd(age_at_first_session, na.rm = TRUE),
+            PD_Duration_Mean = mean(years_since_diagnosis, na.rm = TRUE),
+            PD_Duration_SD = sd(years_since_diagnosis, na.rm = TRUE),
+            Motor_Score_Mean = mean(UPDRS_motor_score, na.rm = TRUE),
+            Motor_Score_SD = sd(UPDRS_motor_score, na.rm = TRUE),
+            Education_Mean = mean(education, na.rm = TRUE),
+            Education_SD = sd(education, na.rm = TRUE),
+            LEDD_Mean = mean(LED, na.rm = TRUE),
+            LEDD_SD = sd(LED, na.rm = TRUE),
+            MoCA_Mean= mean(MoCA, na.rm = TRUE),
+            MoCA_SD= sd(MoCA, na.rm = TRUE))
+
+demographics_apathy %>% 
+  kable(digits = 2,
+        col.names = c( 'n', '% Male', "% Apathetic", 'Age Mean', 'Age SD', 'PD Duration Mean',
+                       'PD Duration SD', 'Motor Score Mean', 'Motor Score SD', 'Education   Mean', 'Education SD', 'LEDD Mean', 'LEDD SD', 'MocA Mean', 'MoCA SD'))
+
+
+# we don't usually need to format variables, but it is necessary here due
+# to a quirk in producing a transposed table, where we won't be able 
+# to format the table column-wise:
+demographics_apathy.formatted = demographics_apathy %>% 
+  mutate(Male = formatC(Male, digits = 1, format = 'f'),
+         Apathetic = formatC(Apathetic, digits = 1, format = 'f'),
+         Age_Mean = formatC(Age_Mean, digits = 1, format = 'f'),
+         Age_SD = formatC(Age_SD, digits = 1, format = 'f'),
+         PD_Duration_Mean = formatC(PD_Duration_Mean, digits = 1, format = 'f'),
+         PD_Duration_SD = formatC(PD_Duration_SD, digits = 1, format = 'f'),
+         Motor_Score_Mean = formatC(Motor_Score_Mean, digits = 1, format = 'f'),
+         Motor_Score_SD = formatC(Motor_Score_SD, digits = 1, format = 'f'),
+         Education_Mean = formatC(Education_Mean, digits = 1, format = 'f'),
+         Education_SD= formatC(Education_SD, digits = 1, format = 'f'),
+         LEDD_Mean = formatC(LEDD_Mean, digits = 2, flag = '+', format = 'f'),
+         LEDD_SD = formatC(LEDD_SD, digits = 2, format = 'f'),
+         MoCA_Mean = formatC(MoCA_Mean, digits = 1, format = 'f'),
+         MoCA_SD = formatC(MoCA_SD, digits = 1, format = 'f')) %>% 
+  data.frame()
+
+
+# to put table in portrait need to create row labels to become 
+# column headers when transposed:
+row.names(demographics_apathy.formatted) = demographics_apathy.formatted$Group
+
+demographics_apathy.formatted %>% 
+  t() %>% # transpose the table to portrait orientation
+  kable(align = 'r')
+
+# Export to excel
+write_csv(demographics_apathy.formatted, "demographics_apathy.csv")
 
 ###############################################################################
 # Variable selection
@@ -389,11 +462,14 @@ imputed_data <- imputed_data %>%
 
 full_formula <-
   NPI_apathy_present ~ 1 +
-  first_session_date + first_session_date2 +
-  sex + education + age_at_diagnosis +  # ethnicity
+  first_session_date + 
+  sex + education + age_at_diagnosis +  
   (1 | subject_id) +
-  years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
+  years_since_diagnosis  + transformed_dose + taking_antidepressants +
   UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety
+  # ethnicity
+  # first_session_date2
+  # taking_medication
   # global_z
   # attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
   # Can't include session_date as advances at the same rate as years since diagnosis etc
@@ -484,10 +560,10 @@ fit_regularised_model <- function(data) {
 
   predictors <- data %>%
     # `glmnet` just runs on all variables rather than requiring a formula
-    select(
-      first_session_date, first_session_date2,
+    select( #taking_medication, first_session_date2,
+      first_session_date, 
       sex, education, age_at_diagnosis,
-      years_since_diagnosis, taking_medication, transformed_dose, taking_antidepressants,
+      years_since_diagnosis,  transformed_dose, taking_antidepressants,
       UPDRS_motor_score, HADS_depression, HADS_anxiety, starts_with("nptest_")
     ) %>%
     #mutate(across(where(is.character), as.factor)) %>%
@@ -743,10 +819,10 @@ base_formula <- "NPI_apathy_present ~ 1"  # NPI_apathy_present, HADS_anxiety, HA
 #base_formula <- "NPI_apathy_present ~ 1 + sex + age_at_diagnosis + (1 | subject_id)"
 for (
   covariates in list(
-    c("first_session_date", "first_session_date2"),
+    c("first_session_date"), #"first_session_date2"
     c("sex", "ethnicity", "education", "age_at_diagnosis"),
     c("(1 | subject_id)"),
-    c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression", "taking_medication + transformed_dose")
+    c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression" + "transformed_dose") # taking_medication
     #c("attention_domain", "executive_domain", "language_domain", "learning_memory_domain", "visuo_domain")
   )
 ) {
@@ -980,14 +1056,15 @@ fit_predictive_model <- function(data) {
     qmatrix = Q.init,
     deathexact = 3,  # I.e. state 3 (death) is at a known time, rather than just between visits
     covariates =
-      ~ first_session_date + first_session_date2 +
-      sex + education + age_at_diagnosis +
-      taking_medication + transformed_dose + taking_antidepressants +
+      ~ first_session_date + # first_session_date2 +
+      sex + education + age_at_diagnosis + # taking_medication +
+       transformed_dose + taking_antidepressants +
       UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety,  #transformed_dose:MoCA
     constraint = list(
-      first_session_date = constrained, first_session_date2 = constrained,
+      first_session_date = constrained, #first_session_date2 = constrained,
       sexFemale = constrained, education = constrained, age_at_diagnosis = constrained,
-      taking_medicationYes = constrained, transformed_dose = constrained,
+      #taking_medicationYes = constrained,
+      transformed_dose = constrained,
       UPDRS_motor_score = constrained
     )
   )
@@ -1074,7 +1151,7 @@ for (transition in list(
     mutate(confound = str_detect(covariate, "session_date")) %>%
     mutate(
       constrained = (covariate %in% c(
-        "sexFemale", "education", "age_at_diagnosis", "taking_medicationYes",
+        "sexFemale", "education", "age_at_diagnosis", # "taking_medicationYes",
         "transformed_dose", "UPDRS_motor_score"
       )),
       constrained = constrained & (transition$constraint),
@@ -1119,7 +1196,8 @@ p_apathy <- function(
     mfit,
     t = years_since_diagnosis / 10.0,
     covariates = list(
-      sex = "Male", taking_medication = "Yes", taking_antidepressants = "No",
+      sex = "Male", # taking_medication = "Yes",
+      taking_antidepressants = "No",
       MoCA = MoCA,
       UPDRS_motor_score = UPDRS_motor_score,
       transformed_dose = transformed_dose,
@@ -1235,7 +1313,7 @@ plt <- survminer::ggsurvplot(
   censor.shape = "|",
   palette = c("#1F77B4", "#FF7F0E"),
   conf.int = TRUE,
-  surv.median.line = "hv",
+  #surv.median.line = "hv",
   #pval = TRUE,
   #risk.table = TRUE,
   #cumevents = TRUE,
