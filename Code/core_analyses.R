@@ -1011,7 +1011,7 @@ fit_predictive_model <- function(data) {
       status = if_else(is.na(status), as.character(ever_apathetic), status),
       status = ordered(
         status,
-        labels = c("A-", "A+", "dead"),
+        labels = c("A-", "A+", "Dead"),
         levels = c("FALSE", "TRUE", "dead")
       ),
       state = as.numeric(status)
@@ -1073,6 +1073,12 @@ fit_predictive_model <- function(data) {
     )
   )
 
+  mfit$states <-
+    data %>%
+    pull(status) %>%
+    levels %>%
+    (function(x) setNames(seq_along(x), x))
+
   return(mfit)
 }
 
@@ -1081,9 +1087,19 @@ fit_predictive_model <- function(data) {
 
 #mfits <- lapply(mice::complete(imputed_data, action = "all"), fit_predictive_model)
 mfit <- fit_predictive_model(simputed_data)
+states <- mfit$states
 print(mfit)
 #summary(mfit)
 #msm::hazard.msm(mfit)
+
+# Compare risk of death for A+ v. A-
+# states <- c("A-", "A+", "Dead") %>%
+#   (function(x) setNames(seq_along(x), x))
+msm::qratio.msm(
+  mfit,
+  c(states[["A+"]], states[["Dead"]]),
+  c(states[["A-"]], states[["Dead"]])
+)
 
 # Raw transition matrix
 msm::qmatrix.msm(mfit, covariates = "mean")
@@ -1095,7 +1111,7 @@ msm::pnext.msm(  # Probability of next state
 )
 #msm::totlos.msm(mfit, start = 1, covariates = "mean")  # Time spent in each state
 #msm::envisits.msm(mfit, start = 1, covariates = "mean")  # Number of visits
-msm::efpt.msm(mfit, tostate = 3, covariates = "mean", ci = "normal")  # Time to death
+msm::efpt.msm(mfit, tostate = states[["Dead"]], covariates = "mean", ci = "normal")  # Time to death
 #msm::sojourn.msm(mfit)
 
 # Random plotting functions
@@ -1104,8 +1120,8 @@ msm::plot.prevalence.msm(
   mfit, mintime = 0.0, maxtime = 2.5, initstates = c(1.0, 0.0, 0.0),
   xlab = "Decades since diagnosis"
 )
-msm::plot.survfit.msm(mfit, from = 1, to = 3, range = c(0.01, 3.0))
-msm::plot.survfit.msm(mfit, from = 2, to = 3, range = c(0.01, 3.0))
+msm::plot.survfit.msm(mfit, from = states[["A-"]], to = states[["Dead"]], range = c(0.01, 3.0))
+msm::plot.survfit.msm(mfit, from = states[["A+"]], to = states[["Dead"]], range = c(0.01, 3.0))
 
 # Plot difference in baseline hazard for death
 plt <- msm::qmatrix.msm(mfit, covariates = "mean") %>%
