@@ -687,24 +687,52 @@ null_cvfits <- lapply(
   mice::complete(imputed_data, action = "all"),
   {function(data) repeated_fits(data, n_resamplings = 100, shuffle = TRUE)}
 )
+# Turn the null into a significance cut off
+# This is a two step process: given the proportion of non-zero coefficients
+# from the shuffled data, estimate the posterior over the true proportion.
+# This is a beta distribution (and we use a uniform (Bayes-Laplace) prior).
+# Next, combine this with the uncertainty from only repeating the true analysis
+# a finite number of times, which is a binomial distribution. We can use the
+# quantiles of this combined beta-binomial distribution to set our significance
+# threshold.
 null_coefs = extract_coefs(null_cvfits) %>%
   mutate(
-    # Beta 95% CI
-    p95 = qbeta(0.95, (n_pos + n_neg) + 1, n - (n_pos + n_neg) + 1),
-    p95.bonferroni = qbeta(
-      1.0 - (0.05 / (length(levels(covariate)) - 1)),
-      (n_pos + n_neg) + 1,
-      n - (n_pos + n_neg) + 1
+    # Beta-binomial 99% CI
+    n99 = rmutil::qbetabinom(
+      0.99,
+      n, # Number of samples for the true analysis
+      (n_pos + n_neg + 1) / (n + 2), # beta: a / (a + b)
+      n + 2 # beta: (a + b)
+    ),
+    n99.bonferroni = rmutil::qbetabinom(
+      1.0 - ((1.0 - 0.99) / (length(levels(covariate)) - 1)),
+      n,
+      (n_pos + n_neg + 1) / (n + 2),
+      n + 2
     )
   )
 
+# Export summary of selection frequencies
+inner_join(
+  coefs %>% mutate(p = p_pos + p_neg) %>% select(covariate, p),
+  null_coefs %>% mutate(p = p_pos + p_neg, p99.bonferroni = n99.bonferroni / n) %>% select(covariate, p, p99.bonferroni),
+  by = "covariate",
+  suffix = c("", "_null")
+) %>%
+  mutate(significant = if_else(p > p99.bonferroni, "*", "")) %>%
+  write.csv(
+    file.path(
+      "..", "Results", paste("regularised-regresion_", date_string, ".csv", sep = "")
+    ),
+    row.names = F
+  )
 
 # Plots of selection frequency
-#plt <- coefs %>%
+#plt <- null_coefs %>%
 plt <- inner_join(
-  coefs, select(null_coefs, covariate, p95.bonferroni), by = "covariate"
+  coefs, select(null_coefs, covariate, n99.bonferroni), by = "covariate"
   ) %>%
-  mutate(significant = (p_pos + p_neg) > p95.bonferroni) %>%
+  mutate(significant = (n_pos + n_neg) > n99.bonferroni) %>%
   filter(covariate != "(Intercept)") %>%
   select(covariate, p_pos, p_neg, significant) %>%
   mutate(
