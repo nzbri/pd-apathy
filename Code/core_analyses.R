@@ -466,11 +466,12 @@ imputed_data <- imputed_data %>%
 
 full_formula <-
   NPI_apathy_present ~ 1 +
-  first_session_date + 
-  sex + education + age_at_diagnosis +  
+  first_session_date +
+  sex + education + age_at_diagnosis +
   (1 | subject_id) +
-  years_since_diagnosis  + transformed_dose + taking_antidepressants +
+  years_since_diagnosis + transformed_dose + taking_antidepressants +
   UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety
+  #transformed_dose:sex + transformed_dose:UPDRS_motor_score
   # ethnicity
   # first_session_date2
   # taking_medication
@@ -520,7 +521,7 @@ plt <- fixef(model) %>%
   geom_pointrange() +
   geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
   geom_vline(xintercept = 7.5, colour = "grey92") +
-  geom_vline(xintercept = 11.5, colour = "grey92") +
+  geom_vline(xintercept = 10.5, colour = "grey92") +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
   scale_y_continuous(trans = "log", breaks = c(0.25, 0.5, 1.0, 2.0), limits = c(NA, 2.1)) +
   coord_flip() +  # flip coordinates (puts labels on y axis)
@@ -535,6 +536,70 @@ plt <- fixef(model) %>%
 
 print(plt)
 save_plot(plt, "logistic-regression")
+
+# -----------------------------------------------------------------------------
+# Repeat but predicting dose
+
+full_formula <-
+  transformed_dose ~ 1 +
+  first_session_date +
+  sex + education + age_at_diagnosis +
+  (1 | subject_id) +
+  years_since_diagnosis + taking_antidepressants +
+  UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety
+
+prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
+
+model <- brms::brm_multiple(
+  formula = full_formula,
+  family = gaussian(link = "identity"),
+  prior = prior,
+  data = imputed_data,
+  chains = 8, iter = 5000,
+  silent = TRUE, refresh = 0
+)
+summary(model)
+
+# Save to file
+filename <- file.path(
+  "..", "Results", paste("dose-regression_", date_string, ".Rout", sep = "")
+)
+sink(file = filename)
+options(width = 1024)
+print(summary(model))
+cat("\n\n\n")
+sessionInfo()
+sink()
+options(width = 80)
+file.show(filename)
+
+# Plot coefficients
+plt <- fixef(model) %>%
+  as_tibble(rownames = "covariate") %>%
+  filter(covariate != "Intercept") %>%
+  mutate(confound = str_detect(covariate, "session_date")) %>%
+  mutate(covariate = recode(covariate, !!!variable_names)) %>%
+  mutate(covariate = factor(covariate, levels = rev(covariate))) %>%
+  ggplot(aes(
+    x = covariate, y = Estimate, ymin = Q2.5, ymax = Q97.5, colour = confound
+  )) +
+  geom_pointrange() +
+  geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
+  geom_vline(xintercept = 6.5, colour = "grey92") +
+  geom_vline(xintercept = 9.5, colour = "grey92") +
+  geom_hline(yintercept = 0, linetype = "dashed") +  # add a dotted line at x=1 after flip
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  scale_colour_manual(values = c("black", "grey"), guide = "none") +
+  xlab(NULL) +
+  ylab("Regression coefficients (95% CI)") +
+  theme_bw() +  # use a white background
+  # https://stackoverflow.com/a/8992102
+  theme( # remove the vertical grid lines
+    panel.grid.major.y = element_blank()
+  )
+
+print(plt)
+save_plot(plt, "dose-regression")
 
 ###############################################################################
 # Regularised GLM for individual tests
