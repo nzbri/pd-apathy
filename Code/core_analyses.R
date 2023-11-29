@@ -1099,9 +1099,9 @@ fit_predictive_model <- function(data) {
     arrange(subject_id, session_id) %>%
     mutate(
       # Predict current apathy
-      #status = if_else(is.na(status), as.character(NPI_apathy_present), status),
+      status = if_else(is.na(status), as.character(NPI_apathy_present), status),
       # Predict apathy onset
-      status = if_else(is.na(status), as.character(ever_apathetic), status),
+      #status = if_else(is.na(status), as.character(ever_apathetic), status),
       status = ordered(
         status,
         labels = c("A-", "A+", "Dead"),
@@ -1128,7 +1128,7 @@ fit_predictive_model <- function(data) {
 
   Q.mask <- rbind(
     c( NA, 1.0, 1.0),  # A-
-    c(0.0,  NA, 1.0),  # A+
+    c(1.0,  NA, 1.0),  # A+
     c(0.0, 0.0,  NA)   # dead
   )
   Q.init <- msm::crudeinits.msm(
@@ -1139,12 +1139,12 @@ fit_predictive_model <- function(data) {
     qmatrix = Q.mask
   )
 
-  # Here, we tie transition 2 (A- -> death) to 3 (A+ -> death)
+  # Here, we tie transition 2 (A- -> death) to 4 (A+ -> death)
   # Matches Q.mask, ordered along rows then down columns
   # + 1 2
-  # + + 3
+  # 3 + 4
   # + + +
-  constrained <- c(1,2,2)
+  constrained <- c(1,2,3,2)
 
   # Fit model!
   mfit <- msm::msm(
@@ -1165,7 +1165,8 @@ fit_predictive_model <- function(data) {
       #taking_medicationYes = constrained,
       transformed_dose = constrained,
       UPDRS_motor_score = constrained
-    )
+    ),
+    control = list(fnscale = 500)
   )
 
   mfit$states <-
@@ -1184,7 +1185,7 @@ fit_predictive_model <- function(data) {
 
 # Save to file
 filename <- file.path(
-  "..", "Results", paste("msm-predictive_", date_string, ".Rout", sep = "")
+  "..", "Results", paste("msm-predictive-remissions_", date_string, ".Rout", sep = "")
 )
 sink(file = filename)
 options(width = 1024)
@@ -1269,13 +1270,14 @@ plt <- msm::qmatrix.msm(mfit, covariates = "mean") %>%
   theme_light() +
   theme(axis.text = element_text(size = rel(1.0)))
 print(plt)
-save_plot(plt, "msm-predictive_baseline-hazard", width = 3.0, height = 4.0)
+save_plot(plt, "msm-predictive-remissions_baseline-hazard", width = 3.0, height = 4.0)
 
 # -----------------------------------------------------------------------------
 # Plot hazard ratios
 
 for (transition in list(
   list(states = "State 1 - State 2", label = "A- to A+", name = "1-2", constraint = FALSE),
+  list(states = "State 2 - State 1", label = "A+ to A-", name = "2-1", constraint = FALSE),
   list(states = "State 1 - State 3", label = "A- to death", name = "1-3", constraint = TRUE),
   list(states = "State 2 - State 3", label = "A+ to death", name = "2-3", constraint = TRUE)
 )) {
@@ -1308,8 +1310,8 @@ for (transition in list(
     geom_vline(xintercept = 6.5, colour = "grey92") +
     geom_vline(xintercept = 9.5, colour = "grey92") +
     geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-    scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0), limits = c(0.2, 5.0)) +
-    coord_flip() +  # flip coordinates (puts labels on y axis)
+    scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
+    coord_flip(ylim = c(0.2, 5.0)) +  # flip coordinates (puts labels on y axis)
     scale_colour_manual(values = c("grey", "royalblue3", "black"), drop = FALSE, guide = "none") +
     labs(x = NULL, y = "Hazard ratio (95% CI)", title = transition$label) +
     theme_bw() +  # use a white background
@@ -1318,7 +1320,7 @@ for (transition in list(
       panel.grid.major.y = element_blank()
     )
   print(plt)
-  save_plot(plt, paste("msm-predictive_coefs-", transition$name, sep = ""))
+  save_plot(plt, paste("msm-predictive-remissions_coefs-", transition$name, sep = ""))
 }
 
 # -----------------------------------------------------------------------------
@@ -1383,7 +1385,7 @@ for (variable in list(
       title = variable_names[[variable$name]]
     )
   print(plt)
-  save_plot(plt, paste("msm-predictive_trajectories-", variable$name, sep = ""))
+  save_plot(plt, paste("msm-predictive-remission_trajectories-", variable$name, sep = ""))
 }
 
 # -----------------------------------------------------------------------------
