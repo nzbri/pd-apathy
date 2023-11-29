@@ -1113,9 +1113,8 @@ fit_predictive_model <- function(data) {
   #select(subject_id, session_date, years_since_diagnosis, age, age_at_death, NPI_apathy_present) %>%
   #View()
 
-  # Number of sessions
-  print(msm::statetable.msm(state, subject_id, data = data))
   # Number of subjects
+  print("No. of subjects")
   data %>%
     group_by(subject_id) %>%
     filter(n() > 1) %>%
@@ -1123,6 +1122,9 @@ fit_predictive_model <- function(data) {
     ungroup() %>%
     nrow() %>%
     print()
+  # Number of sessions
+  print("No. of transitions")
+  print(msm::statetable.msm(state, subject_id, data = data))
 
   Q.mask <- rbind(
     c( NA, 1.0, 1.0),  # A-
@@ -1171,6 +1173,8 @@ fit_predictive_model <- function(data) {
     pull(status) %>%
     levels %>%
     (function(x) setNames(seq_along(x), x))
+  print("States")
+  print(mfit$states)
 
   return(mfit)
 }
@@ -1178,21 +1182,40 @@ fit_predictive_model <- function(data) {
 # -----------------------------------------------------------------------------
 # Fit the model and generate key summaries
 
+# Save to file
+filename <- file.path(
+  "..", "Results", paste("msm-predictive_", date_string, ".Rout", sep = "")
+)
+sink(file = filename)
+options(width = 1024)
+
 #mfits <- lapply(mice::complete(imputed_data, action = "all"), fit_predictive_model)
 mfit <- fit_predictive_model(simputed_data)
 states <- mfit$states
+
+cat("\n\n\n")
+
 print(mfit)
 #summary(mfit)
 #msm::hazard.msm(mfit)
 
+cat("\n\n\n")
+
 # Compare risk of death for A+ v. A-
 # states <- c("A-", "A+", "Dead") %>%
 #   (function(x) setNames(seq_along(x), x))
+print("Relative risk of death (A+ / A-)")
 msm::qratio.msm(
   mfit,
   c(states[["A+"]], states[["Dead"]]),
   c(states[["A-"]], states[["Dead"]])
 )
+
+cat("\n\n\n")
+sessionInfo()
+sink()
+options(width = 80)
+file.show(filename)
 
 # Raw transition matrix
 msm::qmatrix.msm(mfit, covariates = "mean")
@@ -1282,8 +1305,8 @@ for (transition in list(
     ggplot(aes(x = covariate, y = HR, ymin = L, ymax = U, colour = colour)) +
     geom_pointrange() +
     geom_vline(xintercept = 4.5, colour = "grey92") +  # https://github.com/tidyverse/ggplot2/blob/master/R/theme-defaults.r
-    geom_vline(xintercept = 7.5, colour = "grey92") +
-    geom_vline(xintercept = 10.5, colour = "grey92") +
+    geom_vline(xintercept = 6.5, colour = "grey92") +
+    geom_vline(xintercept = 9.5, colour = "grey92") +
     geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
     scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0), limits = c(0.2, 5.0)) +
     coord_flip() +  # flip coordinates (puts labels on y axis)
