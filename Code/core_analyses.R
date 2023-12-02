@@ -182,12 +182,11 @@ full_data <- full_data %>%
   # Drop `global_z`: useful for individual test analyses
   #filter(!is.na(global_z))  ## nptest
 
-n_model_patients <- length(unique(full_data$subject_id))
-n_model_sessions <- nrow(full_data)
-
-
 ###############################################################################
 # Apathy Demographics Table
+
+n_model_patients <- length(unique(full_data$subject_id))
+n_model_sessions <- nrow(full_data)
 
 study_entry_apathy = full_data %>% 
   group_by(subject_id) %>% 
@@ -536,6 +535,19 @@ plt <- fixef(model) %>%
 
 print(plt)
 save_plot(plt, "logistic-regression")
+
+# We could run an explicitly Bayesian regularised regression, but this doesn't
+# seem to work as nicely as glmnet (there are a few horseshoe parameters that
+# might need tuning?)
+# nptest_formula <- full_data %>%
+#   select(starts_with("nptest_")) %>%
+#   colnames() %>%
+#   (function(combination) {
+#     paste(deparse1(full_formula), "+", paste(combination, collapse = " + "))
+#   })() %>%
+#   as.formula()
+# prior <- brms::set_prior("horseshoe(3.0)", class = "b")
+# prior <- brms::set_prior("normal(0.0, 0.1)", class = "b")
 
 # -----------------------------------------------------------------------------
 # Repeat but predicting dose
@@ -1023,6 +1035,122 @@ for (
   # ---------------------------------------------------------------------------
 
   base_formula <- winning_formula
+}
+writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
+sessionInfo()
+
+sink()
+options(width = 80)
+file.show(filename)
+#writeLines(readLines(filename))
+
+###############################################################################
+# Fit models (take 2)
+# Examines terms in isolation
+
+filename <- file.path(
+  "..", "Results", paste("core-analyses_", date_string, ".Rout", sep = "")
+)
+sink(file = filename)
+options(width = 1024)
+
+# Data summary?
+#writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
+
+base_formula <- "NPI_apathy_present ~ 1"
+for (
+  covariates in list(
+    c("first_session_date", "first_session_date2"),
+    c("sex", "ethnicity", "education", "age_at_diagnosis"),
+    c("(1 | subject_id)"),
+    c("years_since_diagnosis", "UPDRS_motor_score", "taking_medication + transformed_dose", "MoCA", "HADS_depression"),
+    c()
+    #c("global_z", "MoCA", "HADS_depression")
+    #c("attention_domain", "executive_domain", "language_domain", "learning_memory_domain", "visuo_domain")
+    #c("global_z", "MoCA", "HADS_depression", "taking_medication + transformed_dose", "learning_memory_domain")
+  )
+) {
+  writeLines(paste("\n", strrep("*", 72), sep = ""))
+  writeLines(paste("Base formula:", sQuote(base_formula)))
+  writeLines(paste("Covariates:  ", paste(lapply(covariates, sQuote), collapse = ", ")))
+  
+  # ---------------------------------------------------------------------------
+  
+  formulas <- covariates %>%
+    lapply(
+      function(combination) {
+        paste(base_formula, "+", paste(combination, collapse = " + "))
+      }
+    ) %>%
+    prepend(base_formula) %>%
+    lapply(as.formula)
+  #print(formulas)
+  
+  # ---------------------------------------------------------------------------
+  writeLines(paste("\n", strrep("-", 72), sep = ""))
+  writeLines("Fitting individual models")
+  
+  # Fit each model in turn, recording LOO info
+  models <- vector("list", length(formulas))
+  for (i in seq_along(formulas)) {
+    writeLines(paste("\n", strrep("-", 36), sep = ""))
+    writeLines(paste("Model", i))
+    #writeLines("Formula:")
+    #writeLines(format(formulas[[i]]))
+    writeLines("")
+    
+    prior <- brms::get_prior(
+      formula = formulas[[i]],
+      family = brms::bernoulli(link = "logit"),
+      data = transformed_data
+    )
+    if (any(prior$class == "b")) {
+      prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
+    } else {
+      prior <- brms::empty_prior()
+    }
+    
+    model <- brms::brm_multiple(
+      formula = formulas[[i]],
+      family = brms::bernoulli(link = "logit"),
+      prior = prior,
+      data = lapply(
+        group_split(transformed_data, .imp, .keep = FALSE),
+        as.data.frame
+      ),
+      silent = TRUE, refresh = 0  #, save_all_pars = TRUE  --> for "marglik" criterion
+    )
+    model <- add_criterion(model, c("loo", "waic"))
+    print(summary(model))
+    
+    models[[i]] <- model
+  }
+  
+  # ---------------------------------------------------------------------------
+  writeLines(paste("\n", strrep("-", 72), sep = ""))
+  writeLines("Comparison of individual terms to baseline")
+  
+  for (i in seq_along(covariates)) {
+    individual_comparison <- brms::loo_compare(
+      models[[1]], models[[i + 1]],
+      criterion = "loo",
+      model_names = c("base_model", paste("base_model +", covariates[[i]]))
+    )
+    writeLines("")
+    print(individual_comparison)
+    
+    # See if difference is significant
+    # If base model wins we are done
+    diff = individual_comparison[["base_model", "elpd_diff"]]
+    se_diff = individual_comparison[["base_model", "se_diff"]]
+    #print((diff / se_diff))
+    if ((diff != 0.0) & ((diff / se_diff) < -1.0)) {
+      base_formula <- paste(base_formula, "+", covariates[[i]])
+    }
+  }
+  
+  # ---------------------------------------------------------------------------
+  
 }
 writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
 sessionInfo()
