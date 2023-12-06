@@ -503,6 +503,20 @@ sink()
 options(width = 80)
 file.show(filename)
 
+# Look at the predictive performance of the model
+# Note that this does not account for the repeated sessions per subject, nor is
+# it cross-validated. Interpret with extreme caution!
+pred <- predict(model)
+caret::confusionMatrix(
+  as.factor(pred[,'Estimate'] > 0.5),
+  as.factor(mice::complete(imputed_data, action = 1)$NPI_apathy_present)
+)
+proc <- pROC::roc(
+  mice::complete(imputed_data, action = 1)$NPI_apathy_present,
+  pred[,'Estimate']
+)
+plot(proc)
+
 # Plot odds ratios
 # TODO:
 #  + Rescale by stddev?
