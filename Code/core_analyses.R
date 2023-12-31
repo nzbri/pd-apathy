@@ -470,12 +470,6 @@ full_formula <-
   (1 | subject_id) +
   years_since_diagnosis + transformed_dose + taking_antidepressants +
   UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety
-  #transformed_dose:sex + transformed_dose:UPDRS_motor_score
-  # ethnicity
-  # first_session_date2
-  # taking_medication
-  # global_z
-  # attention_domain + executive_domain + language_domain + learning_memory_domain + visuo_domain
   # Can't include session_date as advances at the same rate as years since diagnosis etc
 
 prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
@@ -521,9 +515,6 @@ proc <- pROC::roc(
 plot(proc)
 
 # Plot odds ratios
-# TODO:
-#  + Rescale by stddev?
-#  + Flip to standard higher is better?
 plt <- fixef(model) %>%
   exp() %>%  # Odds ratio := exp(beta)
   as_tibble(rownames = "covariate") %>%
@@ -552,19 +543,6 @@ plt <- fixef(model) %>%
 
 print(plt)
 save_plot(plt, "logistic-regression")
-
-# We could run an explicitly Bayesian regularised regression, but this doesn't
-# seem to work as nicely as glmnet (there are a few horseshoe parameters that
-# might need tuning?)
-# nptest_formula <- full_data %>%
-#   select(starts_with("nptest_")) %>%
-#   colnames() %>%
-#   (function(combination) {
-#     paste(deparse1(full_formula), "+", paste(combination, collapse = " + "))
-#   })() %>%
-#   as.formula()
-# prior <- brms::set_prior("horseshoe(3.0)", class = "b")
-# prior <- brms::set_prior("normal(0.0, 0.1)", class = "b")
 
 # -----------------------------------------------------------------------------
 # Repeat but predicting dose
@@ -897,286 +875,6 @@ plt <- coefs %>%
 print(plt)
 save_plot(plt, "regularised-regression_coefs", width = 6.0, height = 6.0)
 
-# -----------------------------------------------------------------------------
-
-# # Full brms version of this is a nightmare
-# base_formula <-
-#   nla ~ 1 +
-#   first_session_date + first_session_date2 +
-#   sex + education + age_at_diagnosis
-#   (1 | subject_id) +
-#   years_since_diagnosis + taking_medication + transformed_dose + taking_antidepressants +
-#   UPDRS_motor_score + HADS_depression + HADS_anxiety + MoCA
-#
-# # https://discourse.mc-stan.org/t/horseshoe-prior-on-subset-of-predictors/8140/3
-# nptest_formula <- full_data %>%
-#   select(starts_with("nptest_")) %>%
-#   colnames() %>%
-#   (function(combination) {
-#     paste("nlb ~ 0 +", paste(combination, collapse = " + "))
-#   })() %>%
-#   as.formula()
-#
-# full_formula <- bf(NPI_apathy_present ~ nla + nlb, nl = TRUE) +
-#   lf(base_formula, center = TRUE) +
-#   lf(nptest_formula, center = TRUE)
-#
-# prior <-
-#   brms::set_prior("normal(0.0, 1.0)", class = "b", nlpar = "nla") +
-#   brms::set_prior("horseshoe(3)", class = "b", nlpar = "nlb")
-
-###############################################################################
-# Fit models
-
-filename <- file.path(
-  "..", "Results", paste("core-analyses_", date_string, ".Rout", sep = "")
-)
-sink(file = filename)
-options(width = 1024)
-
-# Data summary?
-#writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
-
-# brms::negbinomial()
-# https://mc-stan.org/docs/2_25/functions-reference/nbalt.html
-# https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html
-
-base_formula <- "NPI_apathy_present ~ 1"  # NPI_apathy_present, HADS_anxiety, HADS_depression
-#base_formula <- "NPI_apathy_present ~ 1 + sex + age_at_diagnosis + (1 | subject_id)"
-for (
-  covariates in list(
-    c("first_session_date"), #"first_session_date2"
-    c("sex", "ethnicity", "education", "age_at_diagnosis"),
-    c("(1 | subject_id)"),
-    c("years_since_diagnosis", "global_z", "UPDRS_motor_score", "HADS_depression" + "transformed_dose") # taking_medication
-    #c("attention_domain", "executive_domain", "language_domain", "learning_memory_domain", "visuo_domain")
-  )
-) {
-  writeLines(paste("\n", strrep("*", 72), sep = ""))
-  writeLines(paste("Base formula:", sQuote(base_formula)))
-  writeLines(paste("Covariates:  ", paste(lapply(covariates, sQuote), collapse = ", ")))
-
-  # ---------------------------------------------------------------------------
-
-  combinations <- unlist(
-    lapply(seq_along(covariates), combn, x = covariates, simplify = FALSE),
-    recursive = FALSE
-  )
-  formulas <- combinations %>%
-    lapply(
-      function(combination) {
-        paste(base_formula, "+", paste(combination, collapse = " + "))
-      }
-    ) %>%
-    prepend(base_formula) %>%
-    lapply(as.formula)
-  #print(formulas)
-
-  # ---------------------------------------------------------------------------
-  writeLines(paste("\n", strrep("-", 72), sep = ""))
-  writeLines("Fitting individual models")
-
-  # Fit each model in turn, recording LOO info
-  models <- vector("list", length(formulas))
-  for (i in seq_along(formulas)) {
-    writeLines(paste("\n", strrep("-", 36), sep = ""))
-    writeLines(paste("Model", i))
-    #writeLines("Formula:")
-    #writeLines(format(formulas[[i]]))
-    writeLines("")
-
-    prior <- brms::get_prior(
-      formula = formulas[[i]],
-      family = brms::bernoulli(link = "logit"),
-      data = transformed_data
-    )
-    if (any(prior$class == "b")) {
-      prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
-    } else {
-      prior <- brms::empty_prior()
-    }
-
-    model <- brms::brm_multiple(
-      formula = formulas[[i]],
-      family = brms::bernoulli(link = "logit"),
-      prior = prior,
-      data = lapply(
-        group_split(transformed_data, .imp, .keep = FALSE),
-        as.data.frame
-      ),
-      silent = TRUE, refresh = 0
-    )
-    model <- add_criterion(model, "loo")
-    print(summary(model))
-
-    models[[i]] <- model
-  }
-
-  # ---------------------------------------------------------------------------
-  writeLines(paste("\n", strrep("-", 72), sep = ""))
-  writeLines("Model comparison")
-
-  #print(models)
-  #print(tail(models, n = 1))
-
-  # This is awful! For some reason the canonical `do.call` versions crash RStudio
-  comparison <- eval(parse(text = paste(
-    "brms::loo_compare(",
-    "models[[",
-    paste(seq_along(formulas), collapse = "]], models[["),
-    "]]",
-    ", criterion = \"loo\", model_names = formulas)",
-    sep = ""
-  )))
-  # brms::loo_compare(models) #, criterion = "loo")
-  # do.call(brms::loo_compare, c(models, criterion = "loo"))
-  # do.call(brms::loo_compare, models)
-  print(comparison)
-  winning_formula <- rownames(comparison)[1]
-  writeLines(paste("\nWinning formula:", sQuote(winning_formula)))
-
-  # ---------------------------------------------------------------------------
-  writeLines(paste("\n", strrep("-", 72), sep = ""))
-  writeLines("Comparison of individual terms to baseline")
-
-  for (i in seq_along(covariates)) {
-    individual_comparison <- brms::loo_compare(
-      models[[1]], models[[i + 1]],
-      criterion = "loo",
-      model_names = c("base_model", paste("base_model +", covariates[[i]]))
-    )
-    writeLines("")
-    print(individual_comparison)
-  }
-
-  # ---------------------------------------------------------------------------
-
-  base_formula <- winning_formula
-}
-writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
-sessionInfo()
-
-sink()
-options(width = 80)
-file.show(filename)
-#writeLines(readLines(filename))
-
-###############################################################################
-# Fit models (take 2)
-# Examines terms in isolation
-
-filename <- file.path(
-  "..", "Results", paste("core-analyses_", date_string, ".Rout", sep = "")
-)
-sink(file = filename)
-options(width = 1024)
-
-# Data summary?
-#writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
-
-base_formula <- "NPI_apathy_present ~ 1"
-for (
-  covariates in list(
-    c("first_session_date", "first_session_date2"),
-    c("sex", "ethnicity", "education", "age_at_diagnosis"),
-    c("(1 | subject_id)"),
-    c("years_since_diagnosis", "UPDRS_motor_score", "taking_medication + transformed_dose", "MoCA", "HADS_depression"),
-    c()
-    #c("global_z", "MoCA", "HADS_depression")
-    #c("attention_domain", "executive_domain", "language_domain", "learning_memory_domain", "visuo_domain")
-    #c("global_z", "MoCA", "HADS_depression", "taking_medication + transformed_dose", "learning_memory_domain")
-  )
-) {
-  writeLines(paste("\n", strrep("*", 72), sep = ""))
-  writeLines(paste("Base formula:", sQuote(base_formula)))
-  writeLines(paste("Covariates:  ", paste(lapply(covariates, sQuote), collapse = ", ")))
-  
-  # ---------------------------------------------------------------------------
-  
-  formulas <- covariates %>%
-    lapply(
-      function(combination) {
-        paste(base_formula, "+", paste(combination, collapse = " + "))
-      }
-    ) %>%
-    prepend(base_formula) %>%
-    lapply(as.formula)
-  #print(formulas)
-  
-  # ---------------------------------------------------------------------------
-  writeLines(paste("\n", strrep("-", 72), sep = ""))
-  writeLines("Fitting individual models")
-  
-  # Fit each model in turn, recording LOO info
-  models <- vector("list", length(formulas))
-  for (i in seq_along(formulas)) {
-    writeLines(paste("\n", strrep("-", 36), sep = ""))
-    writeLines(paste("Model", i))
-    #writeLines("Formula:")
-    #writeLines(format(formulas[[i]]))
-    writeLines("")
-    
-    prior <- brms::get_prior(
-      formula = formulas[[i]],
-      family = brms::bernoulli(link = "logit"),
-      data = transformed_data
-    )
-    if (any(prior$class == "b")) {
-      prior <- brms::set_prior("normal(0.0, 1.0)", class = "b")
-    } else {
-      prior <- brms::empty_prior()
-    }
-    
-    model <- brms::brm_multiple(
-      formula = formulas[[i]],
-      family = brms::bernoulli(link = "logit"),
-      prior = prior,
-      data = lapply(
-        group_split(transformed_data, .imp, .keep = FALSE),
-        as.data.frame
-      ),
-      silent = TRUE, refresh = 0  #, save_all_pars = TRUE  --> for "marglik" criterion
-    )
-    model <- add_criterion(model, c("loo", "waic"))
-    print(summary(model))
-    
-    models[[i]] <- model
-  }
-  
-  # ---------------------------------------------------------------------------
-  writeLines(paste("\n", strrep("-", 72), sep = ""))
-  writeLines("Comparison of individual terms to baseline")
-  
-  for (i in seq_along(covariates)) {
-    individual_comparison <- brms::loo_compare(
-      models[[1]], models[[i + 1]],
-      criterion = "loo",
-      model_names = c("base_model", paste("base_model +", covariates[[i]]))
-    )
-    writeLines("")
-    print(individual_comparison)
-    
-    # See if difference is significant
-    # If base model wins we are done
-    diff = individual_comparison[["base_model", "elpd_diff"]]
-    se_diff = individual_comparison[["base_model", "se_diff"]]
-    #print((diff / se_diff))
-    if ((diff != 0.0) & ((diff / se_diff) < -1.0)) {
-      base_formula <- paste(base_formula, "+", covariates[[i]])
-    }
-  }
-  
-  # ---------------------------------------------------------------------------
-  
-}
-writeLines(paste("\n", strrep("*", 72), "\n", sep = ""))
-sessionInfo()
-
-sink()
-options(width = 80)
-file.show(filename)
-#writeLines(readLines(filename))
-
 ###############################################################################
 # Predictive model
 
@@ -1235,9 +933,7 @@ fit_predictive_model <- function(data) {
     # Have subjects had previous apathy?
     group_by(subject_id) %>%  # within each subject:
     arrange(session_date) %>%  # order by session
-    mutate(
-      ever_apathetic = as.logical(cummax(NPI_apathy_present)),
-    ) %>%
+    mutate(ever_apathetic = as.logical(cummax(NPI_apathy_present))) %>%
     ungroup() %>%
     # Combine with dummy sessions
     full_join(death_proxy_sessions) %>%
@@ -1315,8 +1011,8 @@ fit_predictive_model <- function(data) {
     covariates =
       ~ first_session_date + # first_session_date2 +
       sex + education + age_at_diagnosis + # taking_medication +
-       transformed_dose + taking_antidepressants +
-      UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety,  #transformed_dose:MoCA
+      transformed_dose + taking_antidepressants +
+      UPDRS_motor_score + MoCA + HADS_depression + HADS_anxiety,
     constraint = list(
       first_session_date = constrained, #first_session_date2 = constrained,
       sexFemale = constrained, education = constrained, age_at_diagnosis = constrained,
