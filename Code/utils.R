@@ -15,6 +15,13 @@
 # utils.R
 
 ###############################################################################
+
+utils.load_data <- function() {
+  data <- readRDS(file.path("..", "Data", constants.data_file))
+  return(data)
+}
+
+###############################################################################
 # Simple wrappers around lubridate functions for calculating manipulating dates
 
 # Using lubridate deals with the fact that months/years are not a fixed unit
@@ -62,5 +69,20 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
 #save_plot <- function(plt, filename, ...) {
 #  print(filename)
 #}
+
+###############################################################################
+# Useful table-related functions
+
+utils.save_table <- function(gtsummary_tbl, filename, ...) {
+  # Note that this saves to `../Tables/`!
+  filepath = file.path(
+    "..",
+    "Tables",
+    paste(filename, "_npi-", constants.NPI_apathy_threshold, ".md", sep = "")
+  )
+  gtsummary_tbl %>%
+    gtsummary::as_kable(format = "markdown") %>%
+    cat(file = filepath, sep = "\n", ...)
+}
 
 ###############################################################################
