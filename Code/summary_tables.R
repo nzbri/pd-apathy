@@ -14,6 +14,9 @@
 
 # summary_tables.R
 
+# Use gtsummary for data summary tables
+# http://www.danieldsjoberg.com/gtsummary/
+
 ###############################################################################
 
 source("initialise_environment.R")
@@ -22,11 +25,16 @@ source("utils.R")
 
 ###############################################################################
 
-full_data <- utils.load_data()
+# Whether to include sessions where the NPI apathy measure is missing
+options.include_missing = TRUE
 
 ###############################################################################
-# Data summary tables
-# http://www.danieldsjoberg.com/gtsummary/
+
+full_data <- utils.load_data() %>%
+  {if (!options.include_missing) drop_na(., NPI_apathy_present) else .}
+
+###############################################################################
+# Common preprocessing utilities
 
 # Oh seriously :-(
 gtsummary_names <- mapply(
@@ -38,68 +46,116 @@ gtsummary_names <- mapply(
 gtsummary_names[["first_session_date"]] <- first_session_date ~ "Enrolment decade"
 gtsummary_names[["years_since_diagnosis"]] <- years_since_diagnosis ~ "Years since diagnosis"
 
-session_tbl <- full_data %>%
-  #drop_na(NPI_apathy_present) %>%
-  mutate(
-    # Give apathy better names as we stratify based on this
-    NPI_apathy_present = factor(
+# Converts TRUE/FALSE to Yes/No for readability
+logical_to_factor <- function(data) {
+  return(factor(data, levels = c(TRUE, FALSE), labels = c("Yes", "No")))
+}
+# Converts NA to `name` for readability
+na_to_level <- function(data, name) {
+  return(factor(
+    data,
+    levels = c(levels(data), NA),
+    labels = c(levels(data), name),
+    exclude = NULL
+  ))
+}
+
+###############################################################################
+# Common table generation code
+
+make_summary_tbl <- function(full_data) {
+  tbl_data <- full_data %>%
+    # Clean up variables
+    mutate(
+      taking_medication = (LED > 0.0),
+      years_since_diagnosis = age - age_at_diagnosis,
+      education = forcats::fct_collapse(
+        as.factor(education),
+        `<10` = as.character(seq(0, 9)),
+        `10-14` = as.character(seq(10, 14)),
+        `15-19` = as.character(seq(15, 19)),
+        `>20` = as.character(seq(20, 29)),
+      ),
+      first_session_date = as.factor(
+        floor(lubridate::year(first_session_date) / 10) * 10  # Round to decade,
+      )
+    ) %>%
+    mutate(across(c(MoCA, HADS_anxiety, HADS_depression), as.integer)) %>%
+    # Give logical variables better names
+    mutate(across(where(is.logical), logical_to_factor)) %>%
+    # And better names for missing apathy
+    mutate(NPI_apathy_present = na_to_level(NPI_apathy_present, "Unknown")) %>%
+    # Reduce to variables of interest
+    select(
       NPI_apathy_present,
-      levels = c(TRUE, FALSE, NA),
-      labels = c("Yes", "No", "Unknown"),
-      exclude = NULL,
-    ),
-    # Clean up other variables
-    taking_medication = (LED > 0.0),
-    years_since_diagnosis = age - age_at_diagnosis,
-    education = forcats::fct_collapse(
-      as.factor(education),
-      `<10` = as.character(seq(0, 9)),
-      `10-14` = as.character(seq(10, 14)),
-      `15-19` = as.character(seq(15, 19)),
-      `>20` = as.character(seq(20, 29)),
-    ),
-    first_session_date = as.factor(
-      floor(lubridate::year(first_session_date) / 10) * 10  # Round to decade,
-    ),
-    mutate(across(c(MoCA, HADS_anxiety, HADS_depression), as.integer)),
-  ) %>%
-  # Variables of interest
-  select(
-    NPI_apathy_present,
-    age, sex, ethnicity, education,
-    age_at_diagnosis, years_since_diagnosis,
-    taking_medication, LED, taking_antidepressants,
-    UPDRS_motor_score, MoCA, HADS_depression, HADS_anxiety,
-    first_session_date,
-  ) %>%
-  # Make the table!
-  gtsummary::tbl_summary(
-    by = NPI_apathy_present,
-    label = unname(gtsummary_names[colnames(.)]),
-    type = list(
-      gtsummary::all_continuous() ~ "continuous2"
-    ),
-    statistic = list(
-      where(is.integer) ~ "{median} ({p25} \U2013 {p75})",
-      where(is.double) ~ "{mean} (±{sd})",
-      gtsummary::all_categorical() ~ "{n} / {N} ({p}%)"
-    ),
-    digits = list(
-      where(is.double) ~ 1
+      age, sex, ethnicity, education,
+      age_at_diagnosis, years_since_diagnosis,
+      taking_medication, LED, taking_antidepressants,
+      UPDRS_motor_score, MoCA, HADS_depression, HADS_anxiety,
+      first_session_date,
     )
-  ) %>%
-  gtsummary::add_n() %>%  # add column with total number of non-missing observations
-  gtsummary::add_p(  # test for a difference between groups
-    # https://stackoverflow.com/a/68687663
-    test.args = gtsummary::all_tests("fisher.test") ~ list(simulate.p.value = TRUE)
-  ) %>%
-  gtsummary::bold_labels() %>%
-  gtsummary::modify_header(label ~ "**Variable**") %>%
-  gtsummary::modify_spanning_header(
-    c("stat_1", "stat_2", "stat_3") ~ "**Apathetic**"
-  )
+
+  # Make the table!
+  summary_tbl <- tbl_data %>%
+    gtsummary::tbl_summary(
+      by = NPI_apathy_present,
+      percent = "row", # Summarise within condition rather than by apathy status
+      label = unname(gtsummary_names[colnames(.)]),
+      type = list(
+        # Put continuous data on a separate line (matches categorical)
+        gtsummary::all_continuous() ~ "continuous2",
+        # Show both true and false for dichotomous variables
+        gtsummary::all_dichotomous() ~ "categorical"
+      ),
+      # Different statistics for continuous and discrete numerical values
+      statistic = list(
+        where(is.integer) ~ "{median} ({p25} \U2013 {p75})",
+        where(is.double) ~ "{mean} (±{sd})",
+        gtsummary::all_categorical() ~ "{n} / {N} ({p}%)"
+      ),
+      # No. of significant figures
+      digits = list(
+        where(is.double) ~ 1
+      )
+    ) %>%
+    gtsummary::add_n() %>%  # add column with total number of non-missing observations
+    gtsummary::add_p(  # test for a difference between groups
+      # https://stackoverflow.com/a/68687663
+      test.args = gtsummary::all_tests("fisher.test") ~ list(simulate.p.value = TRUE)
+    ) %>%
+    # Tidy up headers
+    gtsummary::bold_labels() %>%
+    gtsummary::modify_header(label ~ "**Variable**") %>%
+    gtsummary::modify_spanning_header(
+      c("stat_1", "stat_2", "stat_3") ~ "**Apathetic**"
+    )
+
+  return(summary_tbl)
+}
+
+###############################################################################
+# Full table across all sessions
+
+session_tbl <- full_data %>%
+  # Make the table!
+  make_summary_tbl()
 
 print(session_tbl)
 utils.save_table(session_tbl, "sessions")
+
+###############################################################################
+# Summarise first sessions only
+
+first_session_tbl <- full_data %>%
+  # First sessions only
+  group_by(subject_id) %>%
+  arrange(session_date) %>%
+  slice(1) %>%
+  ungroup() %>%
+  # Make the table!
+  make_summary_tbl()
+
+print(first_session_tbl)
+utils.save_table(first_session_tbl, "initial_sessions")
 
 ###############################################################################
