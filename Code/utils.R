@@ -14,11 +14,23 @@
 
 # utils.R
 
+# To use these functions, simply `source("initialise_environment.R")`. That
+# will ensure dependencies are appropriately managed.
+
 ###############################################################################
 
 utils.load_data <- function() {
   data <- readRDS(file.path("..", "Data", constants.data_file))
   return(data)
+}
+
+###############################################################################
+
+# The built-in mode doesn't do what you expect, it's essentially typeof
+# https://stackoverflow.com/a/8189441
+utils.mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
 }
 
 ###############################################################################
@@ -52,9 +64,44 @@ years_between <- function(start_date, end_date) {
 }
 
 ###############################################################################
+
+# Save any printed output from a function to file
+utils.save_output <- function(func, filename) {
+  filepath <- file.path(
+    "..", "Results", paste(
+      filename,
+      "_", constants.date_string,
+      "_npi-", constants.NPI_apathy_threshold,
+      ".txt",
+      sep = ""
+    )
+  )
+
+  sink(file = filepath)
+  options(width = 1024)
+
+  cat(paste("Data: ", constants.data_file, "\n", sep = ""))
+  cat(paste("NPI apathy >= ", constants.NPI_apathy_threshold, "\n", sep = ""))
+  cat(paste("Date: ", constants.date_string, "\n", sep = ""))
+  cat(paste("\n", paste(rep("-", 79), collapse = ""), "\n\n", sep = ""))
+
+  output <- func()
+
+  cat(paste("\n", paste(rep("-", 79), collapse = ""), "\n\n", sep = ""))
+  print(sessionInfo())
+
+  sink()
+  options(width = 80)
+
+  file.show(filepath)
+
+  return(output)
+}
+
+###############################################################################
 # Useful plotting-related functions
 
-save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
+utils.save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
   # Note that this saves to `../Figures/`!
   ggsave(
     file.path("..", "Figures", paste(filename, ".pdf", sep = "")),
@@ -65,10 +112,12 @@ save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
     plt, ..., width = width, height = height, units = units, dpi = "screen"
   )
 }
+
 # Just display if want to temporarily disable saving
 #save_plot <- function(plt, filename, ...) {
 #  print(filename)
 #}
+save_plot <- utils.save_plot
 
 ###############################################################################
 # Useful table-related functions
