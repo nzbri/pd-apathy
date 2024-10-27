@@ -44,9 +44,7 @@ transformed_data <- full_data %>%
 
 imputed_data <- transformed_data %>%
   # Fill within subject
-  group_by(subject_id) %>%
-  fill(everything(), .direction = "downup") %>%
-  ungroup() %>%
+  preprocessing.fill_within_subject()
   # Then across subjects
   select(-subject_id, -session_id, -age_at_death) %>%
   VIM::kNN(

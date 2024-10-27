@@ -114,3 +114,71 @@ preprocessing.transform_key_variables <- function(data) {
 }
 
 ###############################################################################
+# Imputation methods
+
+# Start by filling in data within subject
+# MICE imputation is pretty complex for proper two-level modelling, but the
+# naive approach doesn't account for subject structure giving funny results.
+# Here we simply take the previous data point forwards in time (which isn't as
+# silly as it sounds given that a lot of what we are imputing is `global_z`
+# from the more recent and frequent short sessions).
+preprocessing.fill_within_subject <- function(data) {
+  data <- data %>%
+    arrange(subject_id, session_date) %>%
+    group_by(subject_id) %>%
+    fill(everything(), .direction = "downup") %>%
+    ungroup()
+
+  return(data)
+}
+
+# Multiple imputation
+preprocessing.run_mice <- function(data) {
+  data <- data %>%
+    # For MICE
+    mutate(subject_int = as.integer(as.factor(subject_id)))
+
+  # Prepare MICE settings
+  # Note that we cannot have a variable be used as a predictor but not imputed
+  # itself (e.g. we may not be interested in `WTAR` per se, but think it might
+  # help interpolating other cognitive tests: however, we still need to impute it)
+  method <- mice::make.method(data)
+  pred = mice::make.predictorMatrix(data)  # target = rows, predictors = columns
+  # Remove database specific variables as predictors
+  pred[, c("subject_id", "subject_int", "session_id")] <- 0
+  # Remove variables that cause problems as predictors
+  # https://stefvanbuuren.name/fimd/sec-toomany.html#finding-problems-loggedevents
+  pred[, c("diagnosis", "Hoehn_Yahr", "UPDRS_source")] <- 0
+  # Remove age at death: valid missingness!
+  pred[, "age_at_death"] <- 0
+  pred["age_at_death", ] <- 0
+  method["age_at_death"] <- ""
+  # Tweak default methods for imputing data to account for 2-level structure, where continuous
+  # https://stefvanbuuren.name/fimd/sec-mlguidelines.html
+  # https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html
+  method[c("age_at_symptom_onset", "age_at_diagnosis", "education")] <- "2lonly.pmm"
+  pred[c("age_at_symptom_onset", "age_at_diagnosis", "education"), "subject_int"] <- -2
+  # Break feedback loop between correlated age variables
+  # full_data %>% select(contains("age")) %>% mice::md.pattern()
+  pred["age_at_symptom_onset", "age_at_diagnosis"] <- 0
+
+  # Run imputation
+  imputed_data <- data %>%
+    mice::mice(m = 10, maxit = 10, method = method, predictorMatrix = pred) %>%
+    # https://stackoverflow.com/a/30892119
+    mice::complete(action = "long", include = TRUE) %>%
+    as_tibble() %>%
+    # Remove dummy variables
+    mutate(subject_int = NULL) %>%
+    # Ensure subject-level variables are consistent
+    group_by(.imp, subject_id) %>%
+    mutate(
+      across(c(sex, ethnicity, handedness, side_of_onset), ~ utils.mode(.x))
+    ) %>%
+    ungroup() %>%
+    mice::as.mids()
+
+  return(imputed_data)
+}
+
+###############################################################################
