@@ -20,9 +20,6 @@
 ###############################################################################
 
 source("initialise_environment.R")
-source("constants.R")
-source("utils.R")
-source("preprocessing.R")
 
 ###############################################################################
 
@@ -44,7 +41,7 @@ transformed_data <- full_data %>%
 
 imputed_data <- transformed_data %>%
   # Fill within subject
-  preprocessing.fill_within_subject()
+  preprocessing.fill_within_subject() %>%
   # Then across subjects
   select(-subject_id, -session_id, -age_at_death) %>%
   VIM::kNN(

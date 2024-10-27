@@ -17,9 +17,6 @@
 ###############################################################################
 
 source("initialise_environment.R")
-source("constants.R")
-source("utils.R")
-source("preprocessing.R")
 
 ###############################################################################
 
@@ -141,7 +138,7 @@ plt <- full_data %>%
     title = paste(n_sessions, "sessions")
   )
 print(plt)
-save_plot(plt, "session-type_v_year")
+utils.save_plot(plt, "session-type_v_year")
 
 # How many neuropsych assessments per subject
 plt <- full_data %>%
@@ -158,7 +155,7 @@ plt <- full_data %>%
     title = paste(n_patients, "patients")
   )
 print(plt)
-save_plot(plt, "assessment-number")
+utils.save_plot(plt, "assessment-number")
 
 # How many sessions per subject
 plt <- full_data %>%
@@ -174,7 +171,7 @@ plt <- full_data %>%
     title = paste(n_patients, "patients")
   )
 print(plt)
-save_plot(plt, "session-number")
+utils.save_plot(plt, "session-number")
 
 # How far after enrollment did the follow-ups occur?
 plt <- full_data %>%
@@ -205,7 +202,7 @@ plt <- full_data %>%
     title = paste(n_sessions, "sessions")
   )
 print(plt)
-save_plot(plt, "session-type_v_years-enrolled")
+utils.save_plot(plt, "session-type_v_years-enrolled")
 
 ###############################################################################
 # Key properties of 'raw' data, stratified by apathy status
@@ -259,7 +256,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("age+sex_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("age+sex_at_", dataset$at, sep = ""))
 
   # Recode as age / apathy
   plt <- plt +
@@ -270,7 +267,7 @@ for (dataset in list(
     ) +
     labs(fill = "Apathetic")
   print(plt)
-  save_plot(plt, paste("age_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("age_at_", dataset$at, sep = ""))
 
   # Years since diagnosis / apathy
   bw = 1.0
@@ -296,7 +293,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("years-since-diagnosis_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("years-since-diagnosis_at_", dataset$at, sep = ""))
 
   # Age at diagnosis / apathy
   bw = 1.0
@@ -322,7 +319,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("age-at-diagnosis_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("age-at-diagnosis_at_", dataset$at, sep = ""))
 
   # MoCA / apathy
   bw = 1.0
@@ -349,7 +346,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("MoCA_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("MoCA_at_", dataset$at, sep = ""))
 
   # Motor scores / apathy
   bw = 2.0
@@ -375,7 +372,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("motor-scores_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("motor-scores_at_", dataset$at, sep = ""))
 
   # Cognitive scores / apathy
   bw = 0.2
@@ -401,7 +398,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("cognitive-scores_at_", dataset$at, sep = ""))
 
   # HADS / apathy
   for (assessment in c("anxiety", "depression")) {
@@ -431,7 +428,7 @@ for (dataset in list(
       ) +
       theme_light()
     print(plt)
-    save_plot(plt, paste("HADS-", assessment, "_at_", dataset$at, sep = ""))
+    utils.save_plot(plt, paste("HADS-", assessment, "_at_", dataset$at, sep = ""))
   }
 
   # Medication / apathy
@@ -458,7 +455,7 @@ for (dataset in list(
     ) +
     theme_light()
   print(plt)
-  save_plot(plt, paste("medication_at_", dataset$at, sep = ""))
+  utils.save_plot(plt, paste("medication_at_", dataset$at, sep = ""))
 
 }
 
@@ -502,7 +499,7 @@ plt <- full_data %>%
     axis.title.y = element_blank()
   )
 print(plt)
-save_plot(plt, "correlations_key-variables")
+utils.save_plot(plt, "correlations_key-variables")
 
 
 # And some individual neuropsych tests
@@ -543,7 +540,7 @@ for (tests in list(
       axis.title.y = element_blank()
     )
   print(plt)
-  save_plot(plt, paste("correlations_", tests$title, "-tests", sep = ""))
+  utils.save_plot(plt, paste("correlations_", tests$title, "-tests", sep = ""))
 }
 
 ###############################################################################
@@ -576,7 +573,7 @@ plt <- full_data %>%
     ) +
   theme_light()
 print(plt)
-save_plot(plt, "cognitive-scores_v_age", width = 10.0, height = 4.0)
+utils.save_plot(plt, "cognitive-scores_v_age", width = 10.0, height = 4.0)
 
 # Motor scores / apathy v. age
 plt <- full_data %>%
@@ -600,7 +597,7 @@ plt <- full_data %>%
   ) +
   theme_light()
 print(plt)
-save_plot(plt, "motor-scores_v_age", width = 10.0, height = 4.0)
+utils.save_plot(plt, "motor-scores_v_age", width = 10.0, height = 4.0)
 
 # LED / apathy v. years since diagnosis
 plt <- full_data %>%
@@ -627,7 +624,7 @@ plt <- full_data %>%
   ) +
   theme_light()
 print(plt)
-save_plot(plt, "medication_v_years-since-diagnosis", width = 10.0, height = 4.0)
+utils.save_plot(plt, "medication_v_years-since-diagnosis", width = 10.0, height = 4.0)
 
 # LED / apathy v. time to death
 plt <- full_data %>%
@@ -654,7 +651,7 @@ plt <- full_data %>%
   ) +
   theme_light()
 print(plt)
-save_plot(plt, "medication_v_years-before-death", width = 6.0, height = 4.0)
+utils.save_plot(plt, "medication_v_years-before-death", width = 6.0, height = 4.0)
 
 ###############################################################################
 # Do the demographics of recruited subjects change over time?
@@ -698,7 +695,7 @@ for (variable in list(
   if (!exists("filename", where = variable)) {
     variable$filename <- variable$name
   }
-  save_plot(
+  utils.save_plot(
     plt, paste(gsub("_", "-", variable$filename), "_v_baseline-date", sep = "")
   )
 
@@ -737,7 +734,7 @@ for (variable in list(
       title = paste(dim(full_data)[1], "sessions")
     )
   print(plt)
-  save_plot(plt, paste(variable$filename, "-presence_v_year", sep = ""))
+  utils.save_plot(plt, paste(variable$filename, "-presence_v_year", sep = ""))
 
   # Missing by session number?
   plt <- full_data %>%
@@ -764,7 +761,7 @@ for (variable in list(
       title = paste(dim(full_data)[1], "sessions")
     )
   print(plt)
-  save_plot(plt, paste(variable$filename, "-presence_v_assessment-number", sep = ""))
+  utils.save_plot(plt, paste(variable$filename, "-presence_v_assessment-number", sep = ""))
 
 }
 
@@ -790,7 +787,7 @@ for (plot_config in list(
       title = paste(dim(full_data)[1], "sessions")
     )
   print(plt)
-  save_plot(plt, paste("apathy_UPDRS-v-NPI_", plot_config$position, sep = ""))
+  utils.save_plot(plt, paste("apathy_UPDRS-v-NPI_", plot_config$position, sep = ""))
 
 }
 
@@ -804,7 +801,7 @@ plt <- full_data %>%
   labs(x = "NPI apathy score (frequency × severity)", y = "Number of sessions") +
   theme_light()
 print(plt)
-#save_plot(plt, "npi-apathy-scores_at_session")
+#utils.save_plot(plt, "npi-apathy-scores_at_session")
 
 plt <- full_data %>%
   ggplot(aes(UPDRS_apathy, fill = NULL)) +
@@ -813,7 +810,7 @@ plt <- full_data %>%
   labs(x = "MDS-UPDRS apathy rating", y = "Number of sessions") +
   theme_light()
 print(plt)
-#save_plot(plt, "updrs-apathy-scores_at_session")
+#utils.save_plot(plt, "updrs-apathy-scores_at_session")
 
 ###############################################################################
 # "Matchstick" plots of progression
@@ -854,7 +851,7 @@ plt <- full_data %>%
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy_v_years-enrolled_matchstick", width = 6.0, height = 8.0)
+utils.save_plot(plt, "apathy_v_years-enrolled_matchstick", width = 6.0, height = 8.0)
 
 # Apathy status v. session date
 plt <- full_data %>%
@@ -894,7 +891,7 @@ plt <- full_data %>%
     legend.background = element_rect(fill = "white")
   )
 print(plt)
-save_plot(plt, "apathy_v_session-date_matchstick", width = 6.0, height = 8.0)
+utils.save_plot(plt, "apathy_v_session-date_matchstick", width = 6.0, height = 8.0)
 
 ###############################################################################
 # Alluvial plots of changing apathy status over different intervals
@@ -1031,7 +1028,7 @@ for (params in list(
     theme_minimal()
 
   print(plt)
-  save_plot(
+  utils.save_plot(
     plt,
     paste("apathy_v_", gsub("_", "-", params$time_axis), "_alluvial", sep = ""),
     width = 8,
@@ -1081,7 +1078,7 @@ for (params in list(
     )
 
   print(plt)
-  save_plot(
+  utils.save_plot(
     plt,
     paste("apathy_v_", gsub("_", "-", params$time_axis), "_bar", sep = "")
   )

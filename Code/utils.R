@@ -47,11 +47,11 @@ utils.mode <- function(x) {
 
 # start_date = lubridate::ymd("2020-01-01")  # Leap year
 # end_date   = lubridate::ymd("2021-01-01")
-# days_between(start_date, end_date)
-# years_between(start_date, end_date)
+# utils.days_between(start_date, end_date)
+# utils.years_between(start_date, end_date)
 # as.numeric(end_date - start_date, units = "days") / 365.25
 
-time_between <- function(start_date, end_date, unit) {
+utils.time_between <- function(start_date, end_date, unit) {
   delta <- lubridate::time_length(
     lubridate::interval(start_date, end_date),
     unit = unit
@@ -59,12 +59,12 @@ time_between <- function(start_date, end_date, unit) {
   return(delta)
 }
 
-days_between <- function(start_date, end_date) {
-  return(time_between(start_date, end_date, unit = "days"))
+utils.days_between <- function(start_date, end_date) {
+  return(utils.time_between(start_date, end_date, unit = "days"))
 }
 
-years_between <- function(start_date, end_date) {
-  return(time_between(start_date, end_date, unit = "years"))
+utils.years_between <- function(start_date, end_date) {
+  return(utils.time_between(start_date, end_date, unit = "years"))
 }
 
 ###############################################################################
@@ -116,12 +116,6 @@ utils.save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "
     plt, ..., width = width, height = height, units = units, dpi = "screen"
   )
 }
-
-# Just display if want to temporarily disable saving
-#save_plot <- function(plt, filename, ...) {
-#  print(filename)
-#}
-save_plot <- utils.save_plot
 
 ###############################################################################
 # Useful table-related functions

@@ -86,3 +86,10 @@ print(
 rm(required_packages, check_packages)
 
 ###############################################################################
+# Load all the other functions etc. we need
+
+source("constants.R")
+source("utils.R")
+source("preprocessing.R")
+
+###############################################################################

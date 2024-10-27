@@ -18,10 +18,6 @@
 
 source("initialise_environment.R")
 
-source("utils.R")
-
-date_string = format(lubridate::ymd(lubridate::today()))
-
 ###############################################################################
 
 # Small set of first-pass data consistency checks / modifications
@@ -301,7 +297,7 @@ full_data <- full_data %>%
   group_by(subject_id) %>%
   mutate(
     first_session_date = first(session_date),
-    years_since_first_session = years_between(first_session_date, session_date),
+    years_since_first_session = utils.years_between(first_session_date, session_date),
     age_at_first_session = first(age),
     session_number = row_number()
   ) %>%
@@ -336,12 +332,12 @@ full_data <- full_data %>%
 full_data <- full_data %>%
   # Exclusion (session): long gaps between main and NPI sessions
   filter(
-    is.na(NPI_date) | (abs(days_between(session_date, NPI_date)) <= 90)
+    is.na(NPI_date) | (abs(utils.days_between(session_date, NPI_date)) <= 90)
   ) %>%
   # Remove invalid motor scores for same reason
   mutate(
     valid_UPDRS_date = (
-      is.na(UPDRS_date) | (abs(days_between(session_date, UPDRS_date)) <= 90)
+      is.na(UPDRS_date) | (abs(utils.days_between(session_date, UPDRS_date)) <= 90)
     ),
     across(
       starts_with("UPDRS_") | Hoehn_Yahr, ~ replace(.x, !valid_UPDRS_date, NA)
@@ -373,7 +369,7 @@ full_data %>% summarise(across(.fns = ~ sum(is.na(.x)))) %>% print(width = Inf)
 
 saveRDS(
   full_data,
-  file.path("..", "Data", paste("raw-data_", date_string, ".rds", sep = ""))
+  file.path("..", "Data", paste("raw-data_", constants.date_string, ".rds", sep = ""))
 )
 
 # -----------------------------------------------------------------------------
@@ -385,7 +381,7 @@ flat_data <- full_data %>%
 
 write_csv(
   flat_data,
-  file.path("..", "Data", paste("raw-data_", date_string, ".csv", sep = ""))
+  file.path("..", "Data", paste("raw-data_", constants.date_string, ".csv", sep = ""))
 )
 
 col_types <- flat_data %>%
@@ -393,7 +389,7 @@ col_types <- flat_data %>%
   gather(col_name, col_type)
 write_csv(
   col_types,
-  file.path("..", "Data", paste("raw-data_", date_string, "_types.csv", sep = ""))
+  file.path("..", "Data", paste("raw-data_", constants.date_string, "_types.csv", sep = ""))
 )
 
 ###############################################################################
