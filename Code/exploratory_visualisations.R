@@ -17,38 +17,36 @@
 ###############################################################################
 
 source("initialise_environment.R")
-
+source("constants.R")
 source("utils.R")
+source("preprocessing.R")
 
 ###############################################################################
 
-full_data <- readRDS(
-  file.path("..", "Data", "raw-data_2021-08-17.rds")
-)
+full_data <- utils.load_data()
 
-###############################################################################
-# (Optional) Read from CSV using type hints
-
-# https://stackoverflow.com/a/44581290
-types <- as_tibble(list(
+# (Proof of concept) Read from CSV using type hints
+if (FALSE) {
+  # https://stackoverflow.com/a/44581290
+  types <- as_tibble(list(
     col_type = c("chr", "int", "dbl", "lgl", "fct", "ord", "date"),
     code = c("c", "i", "d", "l", "f", "f", "D")
+  ))
+
+  col_types <- read_csv(
+    file.path("..", "Data", "raw-data_2021-08-17_types.csv"),
+    col_types = "cc"
   )
-)
+  col_types <- col_types %>%
+    left_join(types, by = "col_type") %>%
+    summarise(col_types = str_c(code, collapse = "")) %>%
+    unlist(use.names = FALSE)
 
-col_types <- read_csv(
-  file.path("..", "Data", "raw-data_2021-08-17_types.csv"),
-  col_types = "cc"
-)
-col_types <- col_types %>%
-  left_join(types, by = "col_type") %>%
-  summarise(col_types = str_c(code, collapse = "")) %>%
-  unlist(use.names = FALSE)
-
-full_data <- read_csv(
-  file.path("..", "Data", "raw-data_2021-08-17.csv"),
-  col_types = col_types
-)
+  full_data <- read_csv(
+    file.path("..", "Data", "raw-data_2021-08-17.csv"),
+    col_types = col_types
+  )
+}
 
 ###############################################################################
 # Preprocess data

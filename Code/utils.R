@@ -20,7 +20,11 @@
 ###############################################################################
 
 utils.load_data <- function() {
-  data <- readRDS(file.path("..", "Data", constants.data_file))
+  data <- readRDS(file.path("..", "Data", constants.data_file)) %>%
+    mutate(
+      NPI_apathy_present = NPI_apathy_score >= constants.NPI_apathy_threshold
+    )
+
   return(data)
 }
 
