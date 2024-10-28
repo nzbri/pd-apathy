@@ -135,8 +135,8 @@ plt <- fixef(model) %>%
   geom_vline(xintercept = 7.5, colour = "grey92") +
   geom_vline(xintercept = 10.5, colour = "grey92") +
   geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
-  scale_y_continuous(trans = "log", breaks = c(0.25, 0.5, 1.0, 2.0), limits = c(NA, 2.1)) +
-  coord_flip() +  # flip coordinates (puts labels on y axis)
+  scale_y_continuous(trans = "log", breaks = c(0.25, 0.5, 1.0, 2.0)) +
+  coord_flip(ylim = c(0.25 / sqrt(2), 2 * sqrt(2))) +  # flip coordinates (puts labels on y axis)
   scale_colour_manual(values = c("black", "grey"), guide = "none") +
   xlab(NULL) +
   ylab("Odds ratio (95% CI)") +

@@ -72,6 +72,7 @@ library(ggalluvial)
 print(paste("Current directory:", getwd()))
 
 print("Core packages:")
+print(.libPaths())
 print(
   required_packages %>%
     map(packageDescription, fields = c("Package", "Version")) %>%

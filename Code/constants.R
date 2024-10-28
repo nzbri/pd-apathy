@@ -21,7 +21,13 @@
 
 constants.data_file = "raw-data_2021-08-17.rds"
 
-constants.NPI_apathy_threshold = 1
+constants.NPI_apathy_threshold = (function() {
+  threshold <- as.numeric(Sys.getenv("NPI_APATHY_THRESHOLD"))
+  if (is.na(threshold)) {
+    threshold <- 1
+  }
+  return(threshold)
+})()
 
 constants.date_string = format(lubridate::ymd(lubridate::today()))
 

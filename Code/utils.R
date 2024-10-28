@@ -107,12 +107,25 @@ utils.save_output <- function(func, filename) {
 
 utils.save_plot <- function(plt, filename, ..., width = 6, height = 4, units = "in") {
   # Note that this saves to `../Figures/`!
+  make_filename <- function(extension) {
+    return(file.path(
+      "..",
+      "Figures",
+      paste(
+        filename,
+        "_npi-", constants.NPI_apathy_threshold,
+        extension,
+        sep = ""
+      )
+    ))
+  }
+
   ggsave(
-    file.path("..", "Figures", paste(filename, ".pdf", sep = "")),
+    make_filename(".pdf"),
     plt, ..., width = width, height = height, units = units
   )
   ggsave(
-    file.path("..", "Figures", paste(filename, ".jpg", sep = "")),
+    make_filename(".jpg"),
     plt, ..., width = width, height = height, units = units, dpi = "screen"
   )
 }

@@ -455,7 +455,7 @@ for (transition in list(
     geom_vline(xintercept = 9.5, colour = "grey92") +
     geom_hline(yintercept = 1, linetype = "dashed") +  # add a dotted line at x=1 after flip
     scale_y_continuous(trans = "log", breaks = c(0.33, 1.0, 3.0)) +
-    coord_flip(ylim = c(0.2, 5.0)) +  # flip coordinates (puts labels on y axis)
+    coord_flip(ylim = c(0.9 * 0.33, 3.0 / 0.9)) +  # flip coordinates (puts labels on y axis)
     scale_colour_manual(values = c("grey", "royalblue3", "black"), drop = FALSE, guide = "none") +
     labs(x = NULL, y = "Hazard ratio (95% CI)", title = title) +
     theme_bw() +  # use a white background

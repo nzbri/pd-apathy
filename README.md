@@ -15,10 +15,20 @@ in a separate repository:
 
 ### Running the Code
 
+To reproduce the analyses from the manuscript, use:
+```shell
+cd pd-apathy/Code/
+NPI_APATHY_THRESHOLD=4 Rscript exploratory_visualisations.R
+NPI_APATHY_THRESHOLD=4 Rscript summary_tables.R
+NPI_APATHY_THRESHOLD=4 Rscript cross_sectional_analyses.R
+NPI_APATHY_THRESHOLD=4 Rscript individual_test_predictions.R
+NPI_APATHY_THRESHOLD=4 Rscript predictive_analyses.R
+```
+
+The files can also be run interactively using Rstudio, e.g.
 ```R
 setwd("pd-apathy/Code/")
-source("export_data.R", echo = TRUE)
-source("core_analyses.R", echo = TRUE)
+source("predictive_analyses.R", echo = TRUE)
 ```
 
 ### Contributors

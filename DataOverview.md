@@ -7,6 +7,8 @@ All images are clickable links to the higher-quality PDFs.
 
 ### Definitions
 
+ + *Apathy*: For these plots, apathy is defined as an NPI apathy score >= 1.
+
  + *Session / assessment:* The exclusion criteria are such that we only
    consider sessions where a neuropsychiatric assessment is performed. However,
    subjects may have many more sessions than assessments. Typically, we simply
@@ -27,19 +29,19 @@ collection: number of sessions, times between sessions, etc.
 
 ---------
 
-<a href="Figures/session-type_v_year.pdf">
-<img src="Figures/session-type_v_year.jpg" width="45%">
+<a href="Figures/session-type_v_year_npi-1.pdf">
+<img src="Figures/session-type_v_year_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/session-type_v_years-enrolled.pdf">
-<img src="Figures/session-type_v_years-enrolled.jpg" width="45%">
+<a href="Figures/session-type_v_years-enrolled_npi-1.pdf">
+<img src="Figures/session-type_v_years-enrolled_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/session-number.pdf">
-<img src="Figures/session-number.jpg" width="45%">
+<a href="Figures/session-number_npi-1.pdf">
+<img src="Figures/session-number_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/assessment-number.pdf">
-<img src="Figures/assessment-number.jpg" width="45%">
+<a href="Figures/assessment-number_npi-1.pdf">
+<img src="Figures/assessment-number_npi-1.jpg" width="45%">
 </a>
 
 **Figure**: Summaries of the key variables relating to data collection.
@@ -52,15 +54,15 @@ take into account e.g. subject structure.
 
 ---------
 
-<a href="Figures/correlations_key-variables.pdf">
-<img src="Figures/correlations_key-variables.jpg" width="90%">
+<a href="Figures/correlations_key-variables_npi-1.pdf">
+<img src="Figures/correlations_key-variables_npi-1.jpg" width="90%">
 </a>
 
-<a href="Figures/correlations_NPI-tests.pdf">
-<img src="Figures/correlations_NPI-tests.jpg" width="45%">
+<a href="Figures/correlations_NPI-tests_npi-1.pdf">
+<img src="Figures/correlations_NPI-tests_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/correlations_neuropsych-tests.pdf">
-<img src="Figures/correlations_neuropsych-tests.jpg" width="45%">
+<a href="Figures/correlations_neuropsych-tests_npi-1.pdf">
+<img src="Figures/correlations_neuropsych-tests_npi-1.jpg" width="45%">
 </a>
 
 **Figure**: Summaries of the correlations between key variables.
@@ -74,83 +76,83 @@ patient- and session-level data included in the main analyses.
 
 --------
 
-<a href="Figures/age+sex_at_baseline.pdf">
-<img src="Figures/age+sex_at_baseline.jpg" width="45%">
+<a href="Figures/age+sex_at_baseline_npi-1.pdf">
+<img src="Figures/age+sex_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/age+sex_at_session.pdf">
-<img src="Figures/age+sex_at_session.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/age_at_baseline.pdf">
-<img src="Figures/age_at_baseline.jpg" width="45%">
-</a>
-<a href="Figures/age_at_session.pdf">
-<img src="Figures/age_at_session.jpg" width="45%">
+<a href="Figures/age+sex_at_session_npi-1.pdf">
+<img src="Figures/age+sex_at_session_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/years-since-diagnosis_at_baseline.pdf">
-<img src="Figures/years-since-diagnosis_at_baseline.jpg" width="45%">
+<a href="Figures/age_at_baseline_npi-1.pdf">
+<img src="Figures/age_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/years-since-diagnosis_at_session.pdf">
-<img src="Figures/years-since-diagnosis_at_session.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/age-at-diagnosis_at_baseline.pdf">
-<img src="Figures/age-at-diagnosis_at_baseline.jpg" width="45%">
-</a>
-<a href="Figures/age-at-diagnosis_at_session.pdf">
-<img src="Figures/age-at-diagnosis_at_session.jpg" width="45%">
+<a href="Figures/age_at_session_npi-1.pdf">
+<img src="Figures/age_at_session_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/motor-scores_at_baseline.pdf">
-<img src="Figures/motor-scores_at_baseline.jpg" width="45%">
+<a href="Figures/years-since-diagnosis_at_baseline_npi-1.pdf">
+<img src="Figures/years-since-diagnosis_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/motor-scores_at_session.pdf">
-<img src="Figures/motor-scores_at_session.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/cognitive-scores_at_baseline.pdf">
-<img src="Figures/cognitive-scores_at_baseline.jpg" width="45%">
-</a>
-<a href="Figures/cognitive-scores_at_session.pdf">
-<img src="Figures/cognitive-scores_at_session.jpg" width="45%">
+<a href="Figures/years-since-diagnosis_at_session_npi-1.pdf">
+<img src="Figures/years-since-diagnosis_at_session_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/MoCA_at_baseline.pdf">
-<img src="Figures/MoCA_at_baseline.jpg" width="45%">
+<a href="Figures/age-at-diagnosis_at_baseline_npi-1.pdf">
+<img src="Figures/age-at-diagnosis_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/MoCA_at_session.pdf">
-<img src="Figures/MoCA_at_session.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/HADS-anxiety_at_baseline.pdf">
-<img src="Figures/HADS-anxiety_at_baseline.jpg" width="45%">
-</a>
-<a href="Figures/HADS-anxiety_at_session.pdf">
-<img src="Figures/HADS-anxiety_at_session.jpg" width="45%">
+<a href="Figures/age-at-diagnosis_at_session_npi-1.pdf">
+<img src="Figures/age-at-diagnosis_at_session_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/HADS-depression_at_baseline.pdf">
-<img src="Figures/HADS-depression_at_baseline.jpg" width="45%">
+<a href="Figures/motor-scores_at_baseline_npi-1.pdf">
+<img src="Figures/motor-scores_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/HADS-depression_at_session.pdf">
-<img src="Figures/HADS-depression_at_session.jpg" width="45%">
+<a href="Figures/motor-scores_at_session_npi-1.pdf">
+<img src="Figures/motor-scores_at_session_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/medication_at_baseline.pdf">
-<img src="Figures/medication_at_baseline.jpg" width="45%">
+<a href="Figures/cognitive-scores_at_baseline_npi-1.pdf">
+<img src="Figures/cognitive-scores_at_baseline_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/medication_at_session.pdf">
-<img src="Figures/medication_at_session.jpg" width="45%">
+<a href="Figures/cognitive-scores_at_session_npi-1.pdf">
+<img src="Figures/cognitive-scores_at_session_npi-1.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/MoCA_at_baseline_npi-1.pdf">
+<img src="Figures/MoCA_at_baseline_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/MoCA_at_session_npi-1.pdf">
+<img src="Figures/MoCA_at_session_npi-1.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/HADS-anxiety_at_baseline_npi-1.pdf">
+<img src="Figures/HADS-anxiety_at_baseline_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/HADS-anxiety_at_session_npi-1.pdf">
+<img src="Figures/HADS-anxiety_at_session_npi-1.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/HADS-depression_at_baseline_npi-1.pdf">
+<img src="Figures/HADS-depression_at_baseline_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/HADS-depression_at_session_npi-1.pdf">
+<img src="Figures/HADS-depression_at_session_npi-1.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/medication_at_baseline_npi-1.pdf">
+<img src="Figures/medication_at_baseline_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/medication_at_session_npi-1.pdf">
+<img src="Figures/medication_at_session_npi-1.jpg" width="45%">
 </a>
 
 **Figure**: Cross-sectional summaries of key patient-specific variables, both
@@ -167,47 +169,47 @@ within-subject are not completely captured by the cross-sectional summary
 
 ---------
 
-<a href="Figures/apathy_v_years-enrolled_matchstick.pdf">
-<img src="Figures/apathy_v_years-enrolled_matchstick.jpg" width="45%">
+<a href="Figures/apathy_v_years-enrolled_matchstick_npi-1.pdf">
+<img src="Figures/apathy_v_years-enrolled_matchstick_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/apathy_v_session-date_matchstick.pdf">
-<img src="Figures/apathy_v_session-date_matchstick.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/apathy_v_years-since-first-session_alluvial.pdf">
-<img src="Figures/apathy_v_years-since-first-session_alluvial.jpg" width="45%">
-</a>
-<a href="Figures/apathy_v_years-since-first-session_bar.pdf">
-<img src="Figures/apathy_v_years-since-first-session_bar.jpg" width="45%">
+<a href="Figures/apathy_v_session-date_matchstick_npi-1.pdf">
+<img src="Figures/apathy_v_session-date_matchstick_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/apathy_v_years-since-diagnosis_alluvial.pdf">
-<img src="Figures/apathy_v_years-since-diagnosis_alluvial.jpg" width="45%">
+<a href="Figures/apathy_v_years-since-first-session_alluvial_npi-1.pdf">
+<img src="Figures/apathy_v_years-since-first-session_alluvial_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/apathy_v_years-since-diagnosis_bar.pdf">
-<img src="Figures/apathy_v_years-since-diagnosis_bar.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/motor-scores_v_age.pdf">
-<img src="Figures/motor-scores_v_age.jpg" width="90%">
+<a href="Figures/apathy_v_years-since-first-session_bar_npi-1.pdf">
+<img src="Figures/apathy_v_years-since-first-session_bar_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/cognitive-scores_v_age.pdf">
-<img src="Figures/cognitive-scores_v_age.jpg" width="90%">
+<a href="Figures/apathy_v_years-since-diagnosis_alluvial_npi-1.pdf">
+<img src="Figures/apathy_v_years-since-diagnosis_alluvial_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/apathy_v_years-since-diagnosis_bar_npi-1.pdf">
+<img src="Figures/apathy_v_years-since-diagnosis_bar_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/medication_v_years-since-diagnosis.pdf">
-<img src="Figures/medication_v_years-since-diagnosis.jpg" width="90%">
+<a href="Figures/motor-scores_v_age_npi-1.pdf">
+<img src="Figures/motor-scores_v_age_npi-1.jpg" width="90%">
 </a>
 <br>
 
-<a href="Figures/medication_v_years-before-death.pdf">
-<img src="Figures/medication_v_years-before-death.jpg" width="50%">
+<a href="Figures/cognitive-scores_v_age_npi-1.pdf">
+<img src="Figures/cognitive-scores_v_age_npi-1.jpg" width="90%">
+</a>
+<br>
+
+<a href="Figures/medication_v_years-since-diagnosis_npi-1.pdf">
+<img src="Figures/medication_v_years-since-diagnosis_npi-1.jpg" width="90%">
+</a>
+<br>
+
+<a href="Figures/medication_v_years-before-death_npi-1.pdf">
+<img src="Figures/medication_v_years-before-death_npi-1.jpg" width="50%">
 </a>
 
 **Figure**: Longitudinal changes in key subject-specific variables.
@@ -221,27 +223,27 @@ recruitment date.
 
 ---------
 
-<a href="Figures/age-at-diagnosis_v_baseline-date.pdf">
-<img src="Figures/age-at-diagnosis_v_baseline-date.jpg" width="45%">
+<a href="Figures/age-at-diagnosis_v_baseline-date_npi-1.pdf">
+<img src="Figures/age-at-diagnosis_v_baseline-date_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/age_v_baseline-date.pdf">
-<img src="Figures/age_v_baseline-date.jpg" width="45%">
-</a>
-<br>
-
-<a href="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.pdf">
-<img src="Figures/years-between-symptoms-and-diagnosis_v_baseline-date.jpg" width="45%">
-</a>
-<a href="Figures/years-since-diagnosis_v_baseline-date.pdf">
-<img src="Figures/years-since-diagnosis_v_baseline-date.jpg" width="45%">
+<a href="Figures/age_v_baseline-date_npi-1.pdf">
+<img src="Figures/age_v_baseline-date_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/motor-scores_v_baseline-date.pdf">
-<img src="Figures/motor-scores_v_baseline-date.jpg" width="45%">
+<a href="Figures/years-between-symptoms-and-diagnosis_v_baseline-date_npi-1.pdf">
+<img src="Figures/years-between-symptoms-and-diagnosis_v_baseline-date_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/cognitive-scores_v_baseline-date.pdf">
-<img src="Figures/cognitive-scores_v_baseline-date.jpg" width="45%">
+<a href="Figures/years-since-diagnosis_v_baseline-date_npi-1.pdf">
+<img src="Figures/years-since-diagnosis_v_baseline-date_npi-1.jpg" width="45%">
+</a>
+<br>
+
+<a href="Figures/motor-scores_v_baseline-date_npi-1.pdf">
+<img src="Figures/motor-scores_v_baseline-date_npi-1.jpg" width="45%">
+</a>
+<a href="Figures/cognitive-scores_v_baseline-date_npi-1.pdf">
+<img src="Figures/cognitive-scores_v_baseline-date_npi-1.jpg" width="45%">
 </a>
 <br>
 
@@ -264,19 +266,19 @@ The figure below shows several effects:
 
 --------
 
-<a href="Figures/npi-presence_v_year.pdf">
-<img src="Figures/npi-presence_v_year.jpg" width="45%">
+<a href="Figures/npi-presence_v_year_npi-1.pdf">
+<img src="Figures/npi-presence_v_year_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/npi-presence_v_assessment-number.pdf">
-<img src="Figures/npi-presence_v_assessment-number.jpg" width="45%">
+<a href="Figures/npi-presence_v_assessment-number_npi-1.pdf">
+<img src="Figures/npi-presence_v_assessment-number_npi-1.jpg" width="45%">
 </a>
 <br>
 
-<a href="Figures/updrs-presence_v_year.pdf">
-<img src="Figures/updrs-presence_v_year.jpg" width="45%">
+<a href="Figures/updrs-presence_v_year_npi-1.pdf">
+<img src="Figures/updrs-presence_v_year_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/updrs-presence_v_assessment-number.pdf">
-<img src="Figures/updrs-presence_v_assessment-number.jpg" width="45%">
+<a href="Figures/updrs-presence_v_assessment-number_npi-1.pdf">
+<img src="Figures/updrs-presence_v_assessment-number_npi-1.jpg" width="45%">
 </a>
 
 **Figure**: Breakdown of the sessions with available apathy measures by both
@@ -291,11 +293,11 @@ MDS-UPDRS and NPI.
 
 --------
 
-<a href="Figures/apathy_UPDRS-v-NPI_stack.pdf">
-<img src="Figures/apathy_UPDRS-v-NPI_stack.jpg" width="45%">
+<a href="Figures/apathy_UPDRS-v-NPI_stack_npi-1.pdf">
+<img src="Figures/apathy_UPDRS-v-NPI_stack_npi-1.jpg" width="45%">
 </a>
-<a href="Figures/apathy_UPDRS-v-NPI_fill.pdf">
-<img src="Figures/apathy_UPDRS-v-NPI_fill.jpg" width="45%">
+<a href="Figures/apathy_UPDRS-v-NPI_fill_npi-1.pdf">
+<img src="Figures/apathy_UPDRS-v-NPI_fill_npi-1.jpg" width="45%">
 </a>
 
 **Figure**: Cross-tabulation of NPI and MDS-UPDRS apathy measures. For the NPI,
