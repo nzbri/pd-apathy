@@ -1,8 +1,18 @@
 # Analysis Plan
 
-This contains the core hypotheses and details of the key analyses to be
-performed. A [separate document](Imaging/AnalysisPlan.md) details the imaging
-analyses in more detail.
+This contains the core hypotheses and details of the key analyses as we
+envisaged they would be performed. Note that the final analyses used in the
+main publication had diverged somewhat from what is presented here. The
+rationale for this was explored in the linked GitHub issues below, but there
+were practical issues with the leave-one-out variable selection, and the
+multi-state models offered a compelling way of making predictions about
+progression within subjects. However, the preprocessing, variable selection,
+and specification of the cross-sectional model were very much in line with what
+is said out below.
+ + <https://github.com/nzbri/pd-apathy/issues/7>
+ + <https://github.com/nzbri/pd-apathy/issues/17>
+ + <https://github.com/nzbri/pd-apathy/issues/18>
+ + <https://github.com/nzbri/pd-apathy/issues/20>
 
 
 ### Table of contents

@@ -46,6 +46,8 @@ collection: number of sessions, times between sessions, etc.
 
 **Figure**: Summaries of the key variables relating to data collection.
 
+---------
+
 ### Key correlations
 
 The following figures show the raw correlations between several of the key

@@ -493,7 +493,7 @@ p_apathy <- function(mfit, years_since_diagnosis, covariate_values) {
   )
   return(
     # p(A- -> A+ | alive)
-    #pmat[["State 1", "State 2"]] / (pmat[["State 1", "State 1"]] + pmat[["State 1", "State 2"]])
+    #pmat[[states$msm_index[["A-"]], states$msm_index[["A+"]]]] / (pmat[[states$msm_index[["A-"]], states$msm_index[["A-"]]]] + pmat[[states$msm_index[["A-"]], states$msm_index[["A+"]]]])
     # p(A- -> A+, alive)
     pmat[[states$msm_index[["A-"]], states$msm_index[["A+"]]]]
   )
