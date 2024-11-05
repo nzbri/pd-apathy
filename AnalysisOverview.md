@@ -13,6 +13,13 @@ across the cohort. There are two key models: a Bayesian logistic regression
 using a small set of key variables, and a regularised regression that seeks to
 tease apart the contributions from individual cognitive tests.
 
+At this threshold, the main variables associations with an increased prevalence
+of apathy are sex (more prevalent in men), reduced cognition, depressive
+symptoms, and lower doses of medication. The latter is somewhat
+counterintuitive but one could hypothesise that, for some patients, a higher
+dose of dopamine than is required to treat their motor symptoms may be
+beneficial.
+
 ---------
 
 <a href="Figures/cross-sectional_logistic-regression_npi-1.pdf">
@@ -42,6 +49,26 @@ variable had a non-zero coefficient across repeats is shown on the left
 
 The following use a multi-state Markov model to explore which covariates
 predict whether or not a particular patient will develop apathy in the future.
+One shortcoming of the cross-sectional model is that it does not account for
+the fact that there are patients who may well have been at a high-risk of
+developing apathy but died before those symptoms developed. The models
+presented here account for the competing risks of apathy and mortality.
+
+At this threshold, the key predictors for developing apathy in the future are
+again lower medication, reduced cognitive function, and depression. However, as
+the survival plot and bar plot show, there is a significant increase in the
+risk of dying associated with having apathy, even after controlling for all
+other variables.
+
+Finally, we plot some illustrative trajectories which capture what the model
+predicts about apathy over the disease course. For example, in the plot of
+trajectories that vary as a function of cognition, we see that patients with
+reduced cognition very quickly develop apathy but then also die at a faster
+rate. As such, even though the prevalence is relatively stable over time, the
+make up of the cohort at different times is very different: early on, patients
+with apathy are likely to have reduced cognition; whereas later on the opposite
+will be true, and apathy will appear to affect those without cognitive deficits
+simply because they have survived for longer.
 
 ---------
 
